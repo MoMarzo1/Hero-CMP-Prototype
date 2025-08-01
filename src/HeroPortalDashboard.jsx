@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { 
   Home, Settings, Cloud, Shield, Code, DollarSign, 
   AlertCircle, Cpu, Database, Globe, Activity, 
-  ChevronRight, Calendar, CheckCircle, XCircle, 
+  ChevronRight, ChevronLeft, Calendar, CheckCircle, XCircle, 
   Clock, TrendingUp, AlertTriangle, Loader, Bell,
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
-  GitBranch, Package, Layers, Monitor
+  GitBranch, Package, Layers, Monitor, Trash2
 } from 'lucide-react';
 
 // Enhanced Sidebar Component with HeroAI chat
@@ -3049,247 +3049,211 @@ const ApplicationManagement = () => {
 
 // Cloud Service Provider Onboarding
 const CloudOnboarding = ({ setCurrentPage }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('all');
   const [cloudProvider, setCloudProvider] = useState('azure');
-  const [environment, setEnvironment] = useState('Non-Production');
-  const [nonProdType, setNonProdType] = useState('Dev');
+  const [environment, setEnvironment] = useState('Non-Prod');
+  const [region, setRegion] = useState('');
   const [appName, setAppName] = useState('');
   const [appId, setAppId] = useState('');
   const [executiveOwner, setExecutiveOwner] = useState('');
   const [appOwner, setAppOwner] = useState('');
+  const [appEnvironment, setAppEnvironment] = useState('');
   const [project, setProject] = useState('');
+  const [vnetsCount, setVnetsCount] = useState(1);
+  const [subnetsCount, setSubnetsCount] = useState(2);
+  const [cidrRanges, setCidrRanges] = useState(['10.0.0.0/16']);
+  const [customTags, setCustomTags] = useState([]);
+  const [cmdbLoading, setCmdbLoading] = useState(false);
+  const [cmdbError, setCmdbError] = useState('');
+
+  // Mock CSP tenant data
+  const cspTenants = [
+    {
+      id: 'azure-edp-prod',
+      provider: 'Azure',
+      type: 'Subscription',
+      name: 'EDP-Core-Production',
+      id_value: '12345678-1234-1234-1234-123456789012',
+      project: 'EDP Core',
+      environment: 'Production',
+      region: 'East US 2',
+      status: 'Active',
+      created: '2024-03-15',
+      cost_current: '$2,847',
+      resources: 23
+    },
+    {
+      id: 'aws-telma-dev',
+      provider: 'AWS',
+      type: 'Account',
+      name: 'TelmaAI-Development',
+      id_value: '123456789012',
+      project: 'TelmaAI',
+      environment: 'Non-Prod',
+      region: 'us-east-1',
+      status: 'Active',
+      created: '2024-02-20',
+      cost_current: '$1,235',
+      resources: 15
+    },
+    {
+      id: 'gcp-corrigo-stage',
+      provider: 'GCP',
+      type: 'Project',
+      name: 'corrigo-staging-env',
+      id_value: 'corrigo-staging-123456',
+      project: 'Corrigo Core',
+      environment: 'Non-Prod',
+      region: 'us-central1',
+      status: 'Active',
+      created: '2024-01-10',
+      cost_current: '$891',
+      resources: 12
+    },
+    {
+      id: 'azure-schedule-test',
+      provider: 'Azure',
+      type: 'Subscription',
+      name: 'ScheduleAI-Testing',
+      id_value: '87654321-4321-4321-4321-210987654321',
+      project: 'ScheduleAI',
+      environment: 'Non-Prod',
+      region: 'West US 2',
+      status: 'Provisioning',
+      created: '2024-07-28',
+      cost_current: '$156',
+      resources: 5
+    }
+  ];
+
+  // Mock ServiceNow CMDB data
+  const cmdbData = {
+    'APP-12345': {
+      appName: 'EDP Core Platform',
+      appId: 'APP-12345',
+      executiveOwner: 'Sarah Johnson',
+      appOwner: 'Mike Chen',
+      environment: 'Production'
+    },
+    'APP-67890': {
+      appName: 'TelmaAI Analytics',
+      appId: 'APP-67890',
+      executiveOwner: 'David Wilson',
+      appOwner: 'Lisa Rodriguez',
+      environment: 'Development'
+    },
+    'APP-54321': {
+      appName: 'Corrigo Maintenance',
+      appId: 'APP-54321',
+      executiveOwner: 'Jennifer Brown',
+      appOwner: 'Alex Kim',
+      environment: 'Staging'
+    }
+  };
+
+  const handleCmdbLookup = async () => {
+    if (!appId.trim()) {
+      setCmdbError('Please enter an App ID');
+      return;
+    }
+
+    setCmdbLoading(true);
+    setCmdbError('');
+
+    // Simulate API call
+    setTimeout(() => {
+      const result = cmdbData[appId];
+      if (result) {
+        setAppName(result.appName);
+        setExecutiveOwner(result.executiveOwner);
+        setAppOwner(result.appOwner);
+        setAppEnvironment(result.environment);
+        setCmdbError('');
+      } else {
+        setCmdbError('Application not found in ServiceNow CMDB');
+        setAppName('');
+        setExecutiveOwner('');
+        setAppOwner('');
+        setAppEnvironment('');
+      }
+      setCmdbLoading(false);
+    }, 1500);
+  };
 
   const handleSubmit = () => {
     setCurrentPage('cloud-onboarding-status');
   };
 
-  const isFormValid = appName && appId && executiveOwner && appOwner && project;
+  const filteredTenants = selectedProject === 'all'
+    ? cspTenants
+    : cspTenants.filter(tenant => tenant.project === selectedProject);
 
-  return (
-    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold text-slate-900">Cloud Service Provider (CSP) Onboarding</h2>
-        <div className="flex gap-4">
-          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
-            Save Draft
-          </button>
-          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
-            Load Template
-          </button>
-          <button 
-            onClick={handleSubmit}
-            disabled={!isFormValid}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
-              isFormValid 
-                ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Submit Request
-          </button>
-        </div>
-      </div>
+  const isFormValid = appName && appId && executiveOwner && appOwner && project && region;
 
-      <div className="space-y-8">
-        {/* Cloud Provider Selection */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <h3 className="text-xl font-bold text-slate-900 mb-8">Cloud Provider Selection</h3>
-          <div className="flex gap-6">
-            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
-              cloudProvider === 'azure' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-            }`}>
-              <input 
-                type="radio" 
-                name="cloudProvider" 
-                value="azure" 
-                checked={cloudProvider === 'azure'}
-                onChange={(e) => setCloudProvider(e.target.value)}
-                className="w-5 h-5"
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                  Az
-                </div>
-                <span className="font-bold text-lg">Azure</span>
-              </div>
-            </label>
-            
-            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
-              cloudProvider === 'aws' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-            }`}>
-              <input 
-                type="radio" 
-                name="cloudProvider" 
-                value="aws"
-                checked={cloudProvider === 'aws'}
-                onChange={(e) => setCloudProvider(e.target.value)}
-                className="w-5 h-5"
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                  AWS
-                </div>
-                <span className="font-bold text-lg">AWS</span>
-              </div>
-            </label>
-            
-            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
-              cloudProvider === 'gcp' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-            }`}>
-              <input 
-                type="radio" 
-                name="cloudProvider" 
-                value="gcp"
-                checked={cloudProvider === 'gcp'}
-                onChange={(e) => setCloudProvider(e.target.value)}
-                className="w-5 h-5"
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                  GCP
-                </div>
-                <span className="font-bold text-lg">Google Cloud</span>
-              </div>
-            </label>
-          </div>
-        </div>
+  const getDefaultTags = () => [
+    { key: 'AppName', value: appName, required: true },
+    { key: 'AppID', value: appId, required: true },
+    { key: 'ExecutiveOwner', value: executiveOwner, required: true },
+    { key: 'AppOwner', value: appOwner, required: true },
+    { key: 'Environment', value: environment, required: true },
+    { key: 'ProjectName', value: project, required: true }
+  ];
 
-        {/* Environment Configuration */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <h3 className="text-xl font-bold text-slate-900 mb-8">Environment Configuration</h3>
-          <div className="grid grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                Environment Type *
-              </label>
-              <select 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                value={environment}
-                onChange={(e) => setEnvironment(e.target.value)}
-              >
-                <option>Production</option>
-                <option>Non-Production</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                Non-Production Type *
-              </label>
-              <select 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                value={nonProdType}
-                onChange={(e) => setNonProdType(e.target.value)}
-                disabled={environment === 'Production'}
-              >
-                <option>Dev</option>
-                <option>Stage</option>
-                <option>QA</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                Region *
-              </label>
-              <select className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium">
-                <option>us-central</option>
-                <option>us-east-2</option>
-                <option>us-west-1</option>
-                <option>eu-west-1</option>
-              </select>
-            </div>
-          </div>
-        </div>
+  const addCustomTag = () => {
+    setCustomTags([...customTags, { key: '', value: '', required: false }]);
+  };
 
-        {/* Application Details */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <h3 className="text-xl font-bold text-slate-900 mb-8">Application Details</h3>
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                App Name *
-              </label>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                placeholder="e.g., MyApplication"
-                value={appName}
-                onChange={(e) => setAppName(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                App ID *
-              </label>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                placeholder="e.g., APP-12345"
-                value={appId}
-                onChange={(e) => setAppId(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                Executive Owner *
-              </label>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                placeholder="e.g., John Smith"
-                value={executiveOwner}
-                onChange={(e) => setExecutiveOwner(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
-                App Owner *
-              </label>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-                placeholder="e.g., Jane Doe"
-                value={appOwner}
-                onChange={(e) => setAppOwner(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="max-w-sm">
-            <label className="block text-sm font-bold text-slate-900 mb-3">
-              Project *
-            </label>
-            <select 
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
-              value={project}
-              onChange={(e) => setProject(e.target.value)}
+  const updateCustomTag = (index, field, value) => {
+    const updated = [...customTags];
+    updated[index][field] = value;
+    setCustomTags(updated);
+  };
+
+  const removeCustomTag = (index) => {
+    setCustomTags(customTags.filter((_, i) => i !== index));
+  };
+
+  const addCidrRange = () => {
+    setCidrRanges([...cidrRanges, '']);
+  };
+
+  const updateCidrRange = (index, value) => {
+    const updated = [...cidrRanges];
+    updated[index] = value;
+    setCidrRanges(updated);
+  };
+
+  const removeCidrRange = (index) => {
+    if (cidrRanges.length > 1) {
+      setCidrRanges(cidrRanges.filter((_, i) => i !== index));
+    }
+  };
+
+  if (showForm) {
+    return (
+      <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+        <div className="flex justify-between items-center mb-10">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setShowForm(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <option value="">Select Project</option>
-              <option>EDP Core</option>
-              <option>Corrigo Core</option>
-              <option>TelmaAI</option>
-              <option>ScheduleAI</option>
-            </select>
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <h2 className="text-4xl font-bold text-slate-900">New CSP Onboarding Request</h2>
           </div>
-        </div>
-
-        {/* Submit Section */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-200 text-center">
-          <h4 className="text-slate-900 font-bold mb-4 text-xl">Review and Submit</h4>
-          <p className="text-gray-600 mb-8 text-lg">
-            Your cloud onboarding request will be submitted for approval. You will receive an email notification once the review is complete.
-          </p>
-          <div className="flex justify-center gap-6">
-            <button className="px-8 py-4 bg-white text-gray-600 border border-gray-200 rounded-xl hover:shadow-md transition-all font-medium">
+          <div className="flex gap-4">
+            <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
               Save Draft
+            </button>
+            <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
+              Load Template
             </button>
             <button 
               onClick={handleSubmit}
               disabled={!isFormValid}
-              className={`px-12 py-4 rounded-xl font-bold transition-all ${
+              className={`px-8 py-3 rounded-xl font-bold transition-all ${
                 isFormValid 
                   ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -3298,6 +3262,525 @@ const CloudOnboarding = ({ setCurrentPage }) => {
               Submit Request
             </button>
           </div>
+        </div>
+
+        <div className="space-y-8">
+          {/* Cloud Provider Selection */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">Cloud Provider Selection</h3>
+            <div className="flex gap-6">
+              <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+                cloudProvider === 'azure' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input 
+                  type="radio" 
+                  name="cloudProvider" 
+                  value="azure" 
+                  checked={cloudProvider === 'azure'}
+                  onChange={(e) => setCloudProvider(e.target.value)}
+                  className="w-5 h-5"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                    Az
+                  </div>
+                  <span className="font-bold text-lg">Azure</span>
+                </div>
+              </label>
+              
+              <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+                cloudProvider === 'aws' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input 
+                  type="radio" 
+                  name="cloudProvider" 
+                  value="aws"
+                  checked={cloudProvider === 'aws'}
+                  onChange={(e) => setCloudProvider(e.target.value)}
+                  className="w-5 h-5"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                    AWS
+                  </div>
+                  <span className="font-bold text-lg">AWS</span>
+                </div>
+              </label>
+              
+              <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+                cloudProvider === 'gcp' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input 
+                  type="radio" 
+                  name="cloudProvider" 
+                  value="gcp"
+                  checked={cloudProvider === 'gcp'}
+                  onChange={(e) => setCloudProvider(e.target.value)}
+                  className="w-5 h-5"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                    GCP
+                  </div>
+                  <span className="font-bold text-lg">Google Cloud</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* ServiceNow CMDB Lookup */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">Application Details from ServiceNow CMDB</h3>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="col-span-2">
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  App ID *
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  placeholder="e.g., APP-12345"
+                  value={appId}
+                  onChange={(e) => setAppId(e.target.value)}
+                />
+                {cmdbError && <p className="text-red-600 text-sm mt-1">{cmdbError}</p>}
+              </div>
+              <div className="flex items-end">
+                <button 
+                  onClick={handleCmdbLookup}
+                  disabled={cmdbLoading || !appId.trim()}
+                  className={`w-full px-4 py-3 rounded-xl font-medium transition-all ${
+                    cmdbLoading || !appId.trim()
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {cmdbLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Searching...
+                    </div>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 inline mr-2" />
+                      Lookup CMDB
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  App Name
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-medium"
+                  value={appName}
+                  readOnly
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Environment
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-medium"
+                  value={appEnvironment}
+                  readOnly
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Executive Owner
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-medium"
+                  value={executiveOwner}
+                  readOnly
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  App Owner
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 font-medium"
+                  value={appOwner}
+                  readOnly
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Project & Environment Configuration */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">Project & Environment Configuration</h3>
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Project *
+                </label>
+                <select 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  value={project}
+                  onChange={(e) => setProject(e.target.value)}
+                >
+                  <option value="">Select a project...</option>
+                  <option value="EDP Core">EDP Core</option>
+                  <option value="Corrigo Core">Corrigo Core</option>
+                  <option value="TelmaAI">TelmaAI</option>
+                  <option value="ScheduleAI">ScheduleAI</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Environment *
+                </label>
+                <select 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  value={environment}
+                  onChange={(e) => setEnvironment(e.target.value)}
+                >
+                  <option value="Prod">Production</option>
+                  <option value="Non-Prod">Non-Production</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  CSP Region *
+                </label>
+                <select 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                >
+                  <option value="">Select region...</option>
+                  {cloudProvider === 'azure' && (
+                    <>
+                      <option value="East US">East US</option>
+                      <option value="East US 2">East US 2</option>
+                      <option value="West US">West US</option>
+                      <option value="West US 2">West US 2</option>
+                      <option value="Central US">Central US</option>
+                    </>
+                  )}
+                  {cloudProvider === 'aws' && (
+                    <>
+                      <option value="us-east-1">US East (N. Virginia)</option>
+                      <option value="us-east-2">US East (Ohio)</option>
+                      <option value="us-west-1">US West (N. California)</option>
+                      <option value="us-west-2">US West (Oregon)</option>
+                      <option value="eu-west-1">Europe (Ireland)</option>
+                    </>
+                  )}
+                  {cloudProvider === 'gcp' && (
+                    <>
+                      <option value="us-central1">us-central1 (Iowa)</option>
+                      <option value="us-east1">us-east1 (South Carolina)</option>
+                      <option value="us-west1">us-west1 (Oregon)</option>
+                      <option value="europe-west1">europe-west1 (Belgium)</option>
+                      <option value="asia-east1">asia-east1 (Taiwan)</option>
+                    </>
+                  )}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Virtual Network Configuration */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">Virtual Network Configuration</h3>
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Number of {cloudProvider === 'aws' ? 'VPCs' : 'VNets'}
+                </label>
+                <input 
+                  type="number" 
+                  min="1"
+                  max="10"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  value={vnetsCount}
+                  onChange={(e) => setVnetsCount(parseInt(e.target.value))}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Number of Subnets
+                </label>
+                <input 
+                  type="number" 
+                  min="1"
+                  max="20"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  value={subnetsCount}
+                  onChange={(e) => setSubnetsCount(parseInt(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <label className="block text-sm font-bold text-slate-900">
+                  CIDR Ranges
+                </label>
+                <button 
+                  onClick={addCidrRange}
+                  className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4 inline mr-1" />
+                  Add Range
+                </button>
+              </div>
+              <div className="space-y-3">
+                {cidrRanges.map((cidr, index) => (
+                  <div key={index} className="flex gap-3">
+                    <input 
+                      type="text" 
+                      className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                      placeholder="e.g., 10.0.0.0/16"
+                      value={cidr}
+                      onChange={(e) => updateCidrRange(index, e.target.value)}
+                    />
+                    <button 
+                      onClick={() => removeCidrRange(index)}
+                      disabled={cidrRanges.length === 1}
+                      className="px-3 py-3 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tenant Level Tags */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">Tenant Level Tags</h3>
+            
+            {/* Default Required Tags */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-slate-900 mb-4">Default Required Tags</h4>
+              <div className="space-y-3">
+                {getDefaultTags().map((tag, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
+                    <div>
+                      <input 
+                        type="text" 
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white font-medium"
+                        value={tag.key}
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <input 
+                        type="text" 
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white font-medium"
+                        value={tag.value}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Tags */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-lg font-semibold text-slate-900">Custom Tags</h4>
+                <button 
+                  onClick={addCustomTag}
+                  className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4 inline mr-1" />
+                  Add Custom Tag
+                </button>
+              </div>
+              <div className="space-y-3">
+                {customTags.map((tag, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-4 p-4 border border-gray-200 rounded-xl">
+                    <div>
+                      <input 
+                        type="text" 
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                        placeholder="Tag Key"
+                        value={tag.key}
+                        onChange={(e) => updateCustomTag(index, 'key', e.target.value)}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                        placeholder="Tag Value"
+                        value={tag.value}
+                        onChange={(e) => updateCustomTag(index, 'value', e.target.value)}
+                      />
+                      <button 
+                        onClick={() => removeCustomTag(index)}
+                        className="px-3 py-2 text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {customTags.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">No custom tags added yet</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Ready to Submit?</h3>
+                <p className="text-gray-600">Your CSP onboarding request will be processed and you'll receive a confirmation email.</p>
+              </div>
+              <button 
+                onClick={handleSubmit}
+                disabled={!isFormValid}
+                className={`px-12 py-4 rounded-xl font-bold transition-all ${
+                  isFormValid 
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Submit Request
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Cloud Service Provider (CSP) Management</h2>
+        <div className="flex gap-4">
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium"
+          >
+            <option value="all">All Projects</option>
+            <option value="EDP Core">EDP Core</option>
+            <option value="Corrigo Core">Corrigo Core</option>
+            <option value="TelmaAI">TelmaAI</option>
+            <option value="ScheduleAI">ScheduleAI</option>
+          </select>
+          <button 
+            onClick={() => setShowForm(true)}
+            className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium"
+          >
+            <Plus className="w-4 h-4 inline mr-2" />
+            New CSP Onboarding
+          </button>
+        </div>
+      </div>
+
+      {/* CSP Tenants Database View */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="text-xl font-bold text-slate-900">Current CSP Tenants</h3>
+          <p className="text-gray-600 mt-1">View and manage your cloud service provider accounts, subscriptions, and projects</p>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Environment</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Cost</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resources</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredTenants.map((tenant) => (
+                <tr key={tenant.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      tenant.provider === 'Azure' ? 'bg-blue-100 text-blue-800' :
+                      tenant.provider === 'AWS' ? 'bg-orange-100 text-orange-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {tenant.provider}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tenant.type}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{tenant.name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-500 font-mono">{tenant.id_value}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tenant.project}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      tenant.environment === 'Production' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {tenant.environment}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tenant.region}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      tenant.status === 'Active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : tenant.status === 'Provisioning'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {tenant.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    {tenant.cost_current}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {tenant.resources}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {tenant.created}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
