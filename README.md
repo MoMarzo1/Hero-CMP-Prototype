@@ -1,70 +1,193 @@
-# Getting Started with Create React App
+# Hero Portal Prototype
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern web application prototype for enterprise cloud infrastructure management, featuring deployment tracking, financial monitoring, security vulnerability management, and cloud resource provisioning.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### 🏠 Home Dashboard
+- Quick access to all major features
+- Real-time alerts and notifications
+- AI-powered assistant (HeroAI) for platform guidance
 
-### `npm start`
+### 📊 Dashboards
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### Deployment Dashboard
+- Track deployment metrics across environments (Dev, Stage, Prod)
+- Monthly deployment trends visualization
+- Success/failure rate monitoring
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+#### Financial Dashboard
+- Real-time cloud spending tracking
+- Budget monitoring and alerts
+- Cost breakdown by project
+- Spending anomaly detection
+- Service-wise cost distribution
 
-### `npm test`
+#### Applications Dashboard
+- Manage application inventory
+- Track application status and health
+- Integration with ServiceNow CMDB
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Vulnerabilities Dashboard
+- Security vulnerability tracking from multiple sources:
+  - **SonarQube**: Code quality and security issues
+  - **Wiz**: Cloud infrastructure vulnerabilities
+  - **Snyk**: Dependency vulnerabilities
+- Security scorecard with production readiness assessment
+- Detailed vulnerability information with remediation guidance
+- Filter by project and vulnerability source
 
-### `npm run build`
+### 🚀 Build & Deploy
+- Create and manage deployments
+- Pipeline configuration
+- Environment management
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### ☁️ Cloud Onboarding
+- Automated cloud resource provisioning
+- Multi-cloud support (AWS, Azure, GCP)
+- ServiceNow integration for approvals
+- Real-time onboarding status tracking
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 👥 Project Management
+- Team access control
+- Project configuration
+- Resource allocation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Prerequisites
 
-### `npm run eject`
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Clone the repository:
+```bash
+git clone https://github.com/your-org/hero-portal-prototype.git
+cd hero-portal-prototype
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Running the Application
 
-## Learn More
+### Development Mode
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To start the application in development mode with hot-reloading:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
 
-### Code Splitting
+The application will open automatically in your default browser at [http://localhost:3000](http://localhost:3000).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Production Build
 
-### Analyzing the Bundle Size
+To create an optimized production build:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm run build
+```
 
-### Making a Progressive Web App
+The build artifacts will be stored in the `build/` directory.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+To serve the production build locally:
 
-### Advanced Configuration
+```bash
+npm install -g serve
+serve -s build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Project Structure
 
-### Deployment
+```
+hero-portal-prototype/
+├── public/              # Public assets
+├── src/
+│   ├── HeroPortalDashboard.jsx  # Main application component
+│   ├── App.js          # App entry point
+│   ├── index.js        # React DOM rendering
+│   └── index.css       # Global styles
+├── package.json        # Project dependencies
+└── tailwind.config.js  # Tailwind CSS configuration
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Technologies Used
 
-### `npm run build` fails to minify
+- **React** - UI framework
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Icon library
+- **Create React App** - Build tooling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Key Components
+
+### Navigation
+- Collapsible sidebar with organized sections
+- Breadcrumb navigation
+- User profile management
+
+### Security Features
+- Comprehensive vulnerability tracking
+- Security scoring system
+- Integration with industry-standard security tools
+- OWASP Top 10 compliance tracking
+
+### Financial Management
+- Real-time budget tracking
+- Cost anomaly detection
+- Multi-project financial overview
+- Export capabilities for reports
+
+### AI Assistant
+- HeroAI chatbot for platform assistance
+- Context-aware help system
+- Quick action suggestions
+
+## Development Tips
+
+### Modifying Components
+The entire application is contained in `src/HeroPortalDashboard.jsx` for prototype simplicity. In a production environment, this should be split into separate component files.
+
+### Adding New Features
+1. Add navigation items in the `Sidebar` component
+2. Create new page components following the existing pattern
+3. Add cases to the `renderPage()` switch statement
+4. Update the URL mapping in `getPageUrl()`
+
+### Styling
+The application uses Tailwind CSS for styling. Modify `tailwind.config.js` to customize the design system.
+
+## Mock Data
+The prototype uses mock data for demonstrations. In production, these would be replaced with API calls to backend services.
+
+## Browser Support
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Troubleshooting
+
+### Port Already in Use
+If port 3000 is already in use:
+```bash
+PORT=3001 npm start
+```
+
+### Dependencies Issues
+Clear npm cache and reinstall:
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+## License
+
+This is a prototype application for demonstration purposes.
+
+## Support
+
+For questions or issues, please contact the Hero Portal team.

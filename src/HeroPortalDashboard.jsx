@@ -1,0 +1,3629 @@
+import React, { useState } from 'react';
+import { 
+  Home, Settings, Cloud, Shield, Code, DollarSign, 
+  AlertCircle, Cpu, Database, Globe, Activity, 
+  ChevronRight, Calendar, CheckCircle, XCircle, 
+  Clock, TrendingUp, AlertTriangle, Loader, Bell,
+  Search, Filter, Download, Plus, Eye, MoreHorizontal,
+  Server, Container, Network, HardDrive, Users,
+  BarChart3, PieChart, LineChart, Target, Zap,
+  GitBranch, Package, Layers, Monitor
+} from 'lucide-react';
+
+// Enhanced Sidebar Component with HeroAI chat
+const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
+  const [expandedSections, setExpandedSections] = useState(['dashboards', 'build', 'onboarding']);
+  const [showAIChat, setShowAIChat] = useState(false);
+  
+  const toggleSection = (section) => {
+    setExpandedSections(prev => 
+      prev.includes(section) 
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    );
+  };
+
+  const isActive = (page) => currentPage === page;
+
+  return (
+    <>
+      <div className="w-72 bg-gray-900 text-white h-screen overflow-y-auto border-r border-gray-700 relative">
+        {/* User Profile */}
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+              CK
+            </div>
+            <div className="flex-1">
+              <h4 className="text-white font-semibold">{currentUser.name}</h4>
+              <p className="text-gray-400 text-sm">{currentUser.email}</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-700 flex gap-4">
+            <button className="text-gray-400 hover:text-white text-sm transition-colors">Profile</button>
+            <button className="text-gray-400 hover:text-white text-sm transition-colors">Settings</button>
+            <button className="text-gray-400 hover:text-white text-sm transition-colors">Logout</button>
+          </div>
+        </div>
+
+        {/* Navigation Sections */}
+        <div className="p-4 pb-20">
+          {/* Home Section */}
+          <div className="mb-6">
+            <div 
+              onClick={() => setCurrentPage('home')}
+              className={`flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                isActive('home') 
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 shadow-lg' 
+                  : 'hover:bg-gray-800 hover:shadow-md'
+              }`}
+            >
+              <Home className="w-5 h-5 mr-3" />
+              <span className="font-medium">Home</span>
+            </div>
+          </div>
+
+          {/* Dashboards Section */}
+          <div className="mb-6">
+            <div 
+              className="flex items-center justify-between cursor-pointer mb-3 px-2"
+              onClick={() => toggleSection('dashboards')}
+            >
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboards</h3>
+              <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expandedSections.includes('dashboards') ? 'rotate-90' : ''}`} />
+            </div>
+            {expandedSections.includes('dashboards') && (
+              <div className="space-y-2">
+                <div 
+                  onClick={() => setCurrentPage('dashboard')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('dashboard') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Activity className="w-4 h-4 inline mr-2" />
+                  Deployments
+                </div>
+                <div 
+                  onClick={() => setCurrentPage('financial')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all flex items-center justify-between ${
+                    isActive('financial') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Financials
+                  </div>
+                  <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">3</span>
+                </div>
+                <div 
+                  onClick={() => setCurrentPage('applications')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('applications') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Package className="w-4 h-4 inline mr-2" />
+                  Applications
+                </div>
+                <div 
+                  onClick={() => setCurrentPage('vulnerabilities')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('vulnerabilities') 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Shield className="w-4 h-4 inline mr-2" />
+                  Vulnerabilities
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <GitBranch className="w-4 h-4 inline mr-2" />
+                  Code Commits
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Onboarding Section */}
+          <div className="mb-6">
+            <div 
+              className="flex items-center justify-between cursor-pointer mb-3 px-2"
+              onClick={() => toggleSection('onboarding')}
+            >
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Onboarding</h3>
+              <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expandedSections.includes('onboarding') ? 'rotate-90' : ''}`} />
+            </div>
+            {expandedSections.includes('onboarding') && (
+              <div className="space-y-2">
+                <div 
+                  onClick={() => setCurrentPage('projects')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('projects') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Layers className="w-4 h-4 inline mr-2" />
+                  Projects
+                </div>
+                <div 
+                  onClick={() => setCurrentPage('cloud-onboarding')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('cloud-onboarding') || isActive('cloud-onboarding-status')
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Cloud className="w-4 h-4 inline mr-2" />
+                  Cloud Service Provider (CSP)
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Container className="w-4 h-4 inline mr-2" />
+                  Kubernetes
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Network className="w-4 h-4 inline mr-2" />
+                  API Management
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Monitor className="w-4 h-4 inline mr-2" />
+                  Observability
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Build Section */}
+          <div className="mb-6">
+            <div 
+              className="flex items-center justify-between cursor-pointer mb-3 px-2"
+              onClick={() => toggleSection('build')}
+            >
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Build</h3>
+              <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expandedSections.includes('build') ? 'rotate-90' : ''}`} />
+            </div>
+            {expandedSections.includes('build') && (
+              <div className="space-y-2">
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Code className="w-4 h-4 inline mr-2" />
+                  Architecture Templates
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Settings className="w-4 h-4 inline mr-2" />
+                  Resource Configurations
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Zap className="w-4 h-4 inline mr-2" />
+                  Deployments
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  <Clock className="w-4 h-4 inline mr-2" />
+                  Deployment History
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Help Section */}
+          <div className="mb-6">
+            <div 
+              className="flex items-center justify-between cursor-pointer mb-3 px-2"
+              onClick={() => toggleSection('help')}
+            >
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Help</h3>
+              <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expandedSections.includes('help') ? 'rotate-90' : ''}`} />
+            </div>
+            {expandedSections.includes('help') && (
+              <div className="space-y-2">
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  Documentation
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  Support
+                </div>
+                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                  Release Notes
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Ask HeroAI Chat Button - Fixed at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-700">
+          <button
+            onClick={() => setShowAIChat(!showAIChat)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+              showAIChat
+                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md'
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+              showAIChat
+                ? 'bg-white/20'
+                : 'bg-gradient-to-br from-yellow-400 to-orange-500'
+            }`}>
+              <span className={`text-sm ${showAIChat ? 'text-white' : 'text-white'}`}>✨</span>
+            </div>
+            <span>Ask HeroAI</span>
+            {showAIChat && (
+              <div className="ml-auto">
+                <XCircle className="w-4 h-4" />
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Floating AI Chat Window */}
+      {showAIChat && (
+        <div className="fixed bottom-4 left-80 z-50">
+          <FloatingAIChat onClose={() => setShowAIChat(false)} />
+        </div>
+      )}
+    </>
+  );
+};
+
+// Floating AI Chat Component
+const FloatingAIChat = ({ onClose }) => {
+  const [userInput, setUserInput] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  const handleSend = async (inputText = userInput) => {
+    if (!inputText.trim()) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      text: inputText,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    setUserInput('');
+    setIsTyping(true);
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const responses = {
+        "help": "I can help you with Hero Portal configurations, deployments, and questions about your projects. What do you need assistance with?",
+        "deployment": "To create a new deployment, go to Build > Deployments and click 'New Deployment'. I can guide you through the process step by step.",
+        "cloud": "For cloud onboarding, navigate to Onboarding > Cloud Service Provider (CSP). You'll need your Application ID from ServiceNow CMDB.",
+        "project": "To manage projects, go to Onboarding > Projects. You can view, create, and manage project access from there.",
+        "cost": "Check your costs in Dashboards > Financials. I can help you understand budget alerts and optimization recommendations.",
+        "status": "You can check deployment status in Dashboards > Deployments or view specific cloud onboarding progress in the status page."
+      };
+      
+      let response = "I'm here to help with Hero Portal! I can assist with:\n\n• **Deployments**: Creating and managing deployments\n• **Cloud Onboarding**: Setting up cloud resources\n• **Project Management**: Managing team access and projects\n• **Cost Monitoring**: Understanding financial dashboards\n• **Platform Navigation**: Finding features and functionality\n\nWhat would you like help with?";
+      
+      // Simple keyword matching for responses
+      const lowerInput = inputText.toLowerCase();
+      for (const [keyword, keywordResponse] of Object.entries(responses)) {
+        if (lowerInput.includes(keyword)) {
+          response = keywordResponse;
+          break;
+        }
+      }
+      
+      const aiResponse = {
+        id: Date.now() + 1,
+        text: response,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 1000);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  if (isMinimized) {
+    return (
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-80">
+        <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-t-xl border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                <span className="text-white text-xs">✨</span>
+              </div>
+              <span className="font-semibold text-slate-900">HeroAI Assistant</span>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsMinimized(false)}
+                className="w-6 h-6 rounded hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-500 rotate-90" />
+              </button>
+              <button 
+                onClick={onClose}
+                className="w-6 h-6 rounded hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <XCircle className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-96 max-h-[600px] flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+      {/* Header */}
+      <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-t-xl border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+              <span className="text-white text-sm">✨</span>
+            </div>
+            <div>
+              <div className="font-semibold text-slate-900">HeroAI Assistant</div>
+              <div className="text-xs text-gray-600">Always here to help</div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setIsMinimized(true)}
+              className="w-6 h-6 rounded hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <ChevronRight className="w-4 h-4 text-gray-500 -rotate-90" />
+            </button>
+            <button 
+              onClick={onClose}
+              className="w-6 h-6 rounded hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <XCircle className="w-4 h-4 text-gray-500" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[300px] max-h-[400px]">
+        {messages.length === 0 && (
+          <div className="text-center py-6">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center mx-auto mb-3">
+              <span className="text-lg">🤖</span>
+            </div>
+            <h4 className="font-semibold text-slate-900 mb-1">Hi! I'm HeroAI</h4>
+            <p className="text-gray-600 text-sm">Ask me about deployments, cloud setup, costs, or anything else!</p>
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[250px] px-3 py-2 rounded-2xl text-sm ${
+              message.sender === 'user' 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' 
+                : 'bg-gray-100 text-slate-900'
+            }`}>
+              {message.sender === 'ai' && (
+                <div className="flex items-center gap-1 mb-1">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                    <span className="text-white text-xs">✨</span>
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600">HeroAI</span>
+                </div>
+              )}
+              <div className="whitespace-pre-line">{message.text}</div>
+            </div>
+          </div>
+        ))}
+        
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 text-slate-900 px-3 py-2 rounded-2xl text-sm">
+              <div className="flex items-center gap-1 mb-1">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                  <span className="text-white text-xs">✨</span>
+                </div>
+                <span className="text-xs font-semibold text-gray-600">HeroAI</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask me anything..."
+            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm"
+          />
+          <button
+            onClick={() => handleSend()}
+            disabled={!userInput.trim() || isTyping}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              userInput.trim() && !isTyping
+                ? 'bg-slate-900 text-white hover:bg-slate-800' 
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Browser Chrome Component
+const BrowserChrome = ({ url, hasAlerts }) => (
+  <div className="bg-slate-800 px-6 py-4 border-b border-slate-600 flex items-center justify-between">
+    <div className="flex items-center gap-3 flex-1">
+      <div className="flex gap-2">
+        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+      </div>
+      <div className="flex-1 bg-slate-900 border border-slate-600 px-4 py-2 rounded-lg text-slate-300 ml-6">
+        {url}
+      </div>
+    </div>
+    {hasAlerts && (
+      <div className="relative ml-4">
+        <Bell className="w-6 h-6 text-slate-300 hover:text-white cursor-pointer transition-colors" />
+        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+          3
+        </span>
+      </div>
+    )}
+  </div>
+);
+
+// Modern Breadcrumb Component
+const Breadcrumb = ({ currentPage }) => {
+  const getBreadcrumb = () => {
+    const breadcrumbMap = {
+      'home': ['Home'],
+      'dashboard': ['Home', 'Dashboards', 'Deployments'],
+      'financial': ['Home', 'Dashboards', 'Financials'],
+      'applications': ['Home', 'Dashboards', 'Applications'],
+      'projects': ['Home', 'Onboarding', 'Projects'],
+      'cloud-onboarding': ['Home', 'Onboarding', 'Cloud Service Provider'],
+      'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status']
+    };
+    
+    return breadcrumbMap[currentPage] || ['Home'];
+  };
+  
+  const breadcrumbs = getBreadcrumb();
+  
+  return (
+    <div className="px-8 py-4 bg-white border-b border-gray-100 text-sm">
+      {breadcrumbs.map((crumb, index) => (
+        <span key={index}>
+          {index > 0 && <span className="mx-3 text-gray-300">/</span>}
+          <span className={index === breadcrumbs.length - 1 ? 'text-slate-900 font-semibold' : 'text-gray-500'}>
+            {crumb}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+};
+
+// Modern Home Page
+const HomePage = ({ setCurrentPage }) => {
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="mb-12">
+        <h1 className="text-5xl font-bold text-slate-900 mb-4">
+          Welcome to Hero Portal
+        </h1>
+        <p className="text-xl text-gray-600 font-light">Your unified platform for cloud infrastructure management and deployment</p>
+      </div>
+
+      {/* Statistics Summary */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-slate-900 mb-8">Today's Overview</h2>
+        <div className="grid grid-cols-4 gap-6">
+          <div 
+            onClick={() => setCurrentPage('dashboard')}
+            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-600/20 group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <Activity className="w-8 h-8 text-red-600 group-hover:scale-110 transition-transform" />
+              <div className="text-4xl font-bold text-red-600">17</div>
+            </div>
+            <div className="text-gray-600 font-medium">Active Deployments</div>
+            <div className="text-sm text-green-600 mt-2 flex items-center">
+              <TrendingUp className="w-4 h-4 mr-1" />
+              +3 from yesterday
+            </div>
+          </div>
+          <div 
+            onClick={() => setCurrentPage('dashboard')}
+            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-400/20 group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <CheckCircle className="w-8 h-8 text-green-500 group-hover:scale-110 transition-transform" />
+              <div className="text-4xl font-bold text-green-500">96%</div>
+            </div>
+            <div className="text-gray-600 font-medium">Success Rate</div>
+            <div className="text-sm text-gray-500 mt-2">Last 7 days</div>
+          </div>
+          <div 
+            onClick={() => setCurrentPage('financial')}
+            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-400/20 group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <DollarSign className="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform" />
+              <div className="text-4xl font-bold text-blue-600">$12.8K</div>
+            </div>
+            <div className="text-gray-600 font-medium">Monthly Spend</div>
+            <div className="text-sm text-orange-600 mt-2">85% of budget</div>
+          </div>
+          <div 
+            onClick={() => setCurrentPage('financial')}
+            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-600/20 group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <AlertTriangle className="w-8 h-8 text-red-600 group-hover:scale-110 transition-transform" />
+              <div className="text-4xl font-bold text-red-600">3</div>
+            </div>
+            <div className="text-gray-600 font-medium">Active Alerts</div>
+            <div className="text-sm text-red-600 mt-2">Action required</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-slate-900 mb-8">Quick Actions</h2>
+        <div className="grid grid-cols-4 gap-6">
+          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
+            <div className="mb-6 group-hover:scale-110 transition-transform">
+              <Zap className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="font-bold text-lg mb-2">New Deployment</h3>
+            <p className="text-white/80">Deploy your applications</p>
+          </div>
+          <div 
+            onClick={() => setCurrentPage('cloud-onboarding')}
+            className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+          >
+            <div className="mb-6 group-hover:scale-110 transition-transform">
+              <Cloud className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="font-bold text-lg mb-2">Cloud Onboarding</h3>
+            <p className="text-white/80">Request cloud resources</p>
+          </div>
+          <div 
+            onClick={() => setCurrentPage('financial')}
+            className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+          >
+            <div className="mb-6 group-hover:scale-110 transition-transform">
+              <DollarSign className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="font-bold text-lg mb-2">Cost Analytics</h3>
+            <p className="text-white/80">Monitor cloud spending</p>
+          </div>
+          <div className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
+            <div className="mb-6 group-hover:scale-110 transition-transform">
+              <Code className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="font-bold text-lg mb-2">Architecture</h3>
+            <p className="text-white/80">Browse templates</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Ask HeroAI Agent */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-slate-900 mb-8">AI Assistant</h2>
+        <AskHeroAI />
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid grid-cols-2 gap-8">
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <h3 className="font-bold text-slate-900 mb-6 text-xl">Recent Deployments</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl border border-green-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">EDP Core v2.1.4</div>
+                  <div className="text-sm text-gray-600">Production</div>
+                </div>
+              </div>
+              <div className="text-sm text-green-600 font-medium">Success • 2h ago</div>
+            </div>
+            <div className="flex justify-between items-center p-4 bg-red-50 rounded-xl border border-red-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                  <XCircle className="w-4 h-4 text-red-600" />
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">TelmaAI v3.0.0</div>
+                  <div className="text-sm text-gray-600">Staging</div>
+                </div>
+              </div>
+              <div className="text-sm text-red-600 font-medium">Failed • 4h ago</div>
+            </div>
+            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl border border-green-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Corrigo Core v1.8.2</div>
+                  <div className="text-sm text-gray-600">Production</div>
+                </div>
+              </div>
+              <div className="text-sm text-green-600 font-medium">Success • 1d ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <h3 className="font-bold text-slate-900 mb-6 text-xl">Platform Health</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Cloud className="w-5 h-5 text-green-600" />
+                <span className="text-slate-900 font-medium">Cloud Services</span>
+              </div>
+              <span className="text-green-600 font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Operational
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Container className="w-5 h-5 text-green-600" />
+                <span className="text-slate-900 font-medium">Kubernetes Clusters</span>
+              </div>
+              <span className="text-green-600 font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Healthy
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-4 bg-orange-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Network className="w-5 h-5 text-orange-600" />
+                <span className="text-slate-900 font-medium">API Gateway</span>
+              </div>
+              <span className="text-orange-600 font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                Degraded
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Monitor className="w-5 h-5 text-green-600" />
+                <span className="text-slate-900 font-medium">Monitoring</span>
+              </div>
+              <span className="text-green-600 font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Ask HeroAI Agent Component
+const AskHeroAI = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const suggestedQuestions = [
+    "Which pull requests need review from our team?",
+    "Who owns the payment service codebase?", 
+    "What are my next tasks?",
+    "Which of our services have the most active development?",
+    "Show me authentication-related pull requests",
+    "How do I configure a new deployment?",
+    "What's the status of my cloud onboarding request?",
+    "Help me set up resource configurations"
+  ];
+
+  const handleSuggestedQuestion = (question) => {
+    setUserInput(question);
+    handleSend(question);
+  };
+
+  const handleSend = async (inputText = userInput) => {
+    if (!inputText.trim()) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      text: inputText,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    setUserInput('');
+    setIsTyping(true);
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const responses = {
+        "Which pull requests need review from our team?": "Based on your team's repositories, there are 3 pull requests pending review: \n• EDP Core: Authentication refactor (PR #234) - waiting 2 days\n• TelmaAI: Model optimization (PR #89) - waiting 1 day\n• Corrigo: Database migration (PR #156) - waiting 4 hours",
+        "Who owns the payment service codebase?": "The payment service codebase is owned by:\n• **Technical Owner**: Sarah Wilson (sarah.wilson@jll.com)\n• **Business Owner**: Michael Chen (michael.chen@jll.com)\n• **Team**: FinTech Platform Team\n• **Repository**: github.com/jll/payment-service",
+        "What are my next tasks?": "Here are your upcoming tasks:\n• **Today**: Review TelmaAI deployment configuration\n• **This Week**: Complete EDP Core security audit\n• **Next Week**: Plan Q4 infrastructure scaling\n• **Overdue**: Update project documentation (2 days past due)",
+        "Which of our services have the most active development?": "Most active services by commit activity (last 30 days):\n1. **TelmaAI**: 47 commits, 8 contributors\n2. **EDP Core**: 32 commits, 5 contributors\n3. **Corrigo Core**: 28 commits, 6 contributors\n4. **ScheduleAI**: 15 commits, 3 contributors",
+        "Show me authentication-related pull requests": "Authentication-related pull requests:\n• **EDP Core**: OAuth 2.0 implementation (PR #234) - Open\n• **TelmaAI**: SSO integration (PR #91) - In Review\n• **API Gateway**: JWT validation fix (PR #45) - Approved\n• **User Service**: Password policy update (PR #67) - Draft"
+      };
+      
+      const defaultResponse = "I can help you with Hero Portal configurations, deployments, and questions about your projects. Here are some things I can assist with:\n\n• **Configuration**: Help set up resources, deployments, and infrastructure\n• **Status Updates**: Check on cloud onboarding, deployments, and services\n• **Project Management**: Find project details, team members, and ownership\n• **Guidance**: Provide step-by-step instructions for platform features\n\nWhat would you like help with today?";
+      
+      const aiResponse = {
+        id: Date.now() + 1,
+        text: responses[inputText] || defaultResponse,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  if (!isExpanded) {
+    return (
+      <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+            <span className="text-white text-lg">✨</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-slate-900">Ask HeroAI Agent</h3>
+            <p className="text-gray-600 text-sm">Get instant help with configurations and guidance</p>
+          </div>
+        </div>
+        
+        <div className="space-y-3 mb-6">
+          {suggestedQuestions.slice(0, 5).map((question, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setIsExpanded(true);
+                setTimeout(() => handleSuggestedQuestion(question), 100);
+              }}
+              className="flex items-center gap-3 w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100 hover:border-gray-200"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                <Database className="w-4 h-4 text-gray-600" />
+              </div>
+              <span className="text-gray-800 font-medium">{question}</span>
+            </button>
+          ))}
+        </div>
+        
+        <button 
+          onClick={() => setIsExpanded(true)}
+          className="w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all group"
+        >
+          <span className="text-gray-600 group-hover:text-yellow-700">Ask anything</span>
+          <div className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold group-hover:bg-yellow-600 transition-colors">
+            Ask HeroAI
+          </div>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+              <span className="text-white text-lg">✨</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Ask HeroAI Agent</h3>
+              <p className="text-gray-600 text-sm">AI-powered assistance for Hero Portal</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsExpanded(false)}
+            className="w-8 h-8 rounded-lg hover:bg-gray-200 flex items-center justify-center transition-colors"
+          >
+            <XCircle className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="h-96 overflow-y-auto p-6 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🤖</span>
+            </div>
+            <h4 className="font-bold text-slate-900 mb-2">How can I help you today?</h4>
+            <p className="text-gray-600 text-sm">Ask me about deployments, configurations, project status, or anything else!</p>
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+              message.sender === 'user' 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' 
+                : 'bg-gray-100 text-slate-900'
+            }`}>
+              {message.sender === 'ai' && (
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                    <span className="text-white text-xs">✨</span>
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600">HeroAI</span>
+                </div>
+              )}
+              <div className="whitespace-pre-line text-sm">{message.text}</div>
+              <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
+                {message.timestamp.toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 text-slate-900 px-4 py-3 rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                  <span className="text-white text-xs">✨</span>
+                </div>
+                <span className="text-xs font-semibold text-gray-600">HeroAI</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+                <span className="text-xs text-gray-500">Thinking...</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask anything..."
+            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-medium"
+          />
+          <button
+            onClick={() => handleSend()}
+            disabled={!userInput.trim() || isTyping}
+            className={`px-6 py-3 rounded-xl font-bold transition-all ${
+              userInput.trim() && !isTyping
+                ? 'bg-slate-900 text-white hover:bg-slate-800' 
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Vulnerabilities Dashboard
+const VulnerabilitiesDashboard = () => {
+  const [selectedSource, setSelectedSource] = useState('all');
+  const [selectedProject, setSelectedProject] = useState('all');
+  const [selectedVulnerability, setSelectedVulnerability] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Mock vulnerability data
+  const vulnerabilityData = {
+    sonarqube: [
+      { id: 'SQ001', title: 'SQL Injection in User Authentication', severity: 'critical', project: 'EDP Core', file: 'src/auth/login.js', line: 142, cwe: 'CWE-89', owasp: 'A03:2021', description: 'User input is directly concatenated into SQL query without proper sanitization', recommendation: 'Use parameterized queries or prepared statements' },
+      { id: 'SQ002', title: 'Cross-Site Scripting (XSS) in Comments', severity: 'high', project: 'TelmaAI', file: 'src/components/Comments.jsx', line: 87, cwe: 'CWE-79', owasp: 'A03:2021', description: 'User-generated content rendered without proper escaping', recommendation: 'Implement output encoding and content security policy' },
+      { id: 'SQ003', title: 'Hardcoded API Key', severity: 'high', project: 'Corrigo Core', file: 'src/config/api.js', line: 23, cwe: 'CWE-798', owasp: 'A07:2021', description: 'API key hardcoded in source code', recommendation: 'Use environment variables or secure key management service' },
+      { id: 'SQ004', title: 'Weak Password Hashing', severity: 'medium', project: 'EDP Core', file: 'src/utils/crypto.js', line: 56, cwe: 'CWE-916', owasp: 'A02:2021', description: 'MD5 hash used for password storage', recommendation: 'Use bcrypt, scrypt, or Argon2 for password hashing' },
+      { id: 'SQ005', title: 'Missing CSRF Protection', severity: 'medium', project: 'ScheduleAI', file: 'src/api/routes.js', line: 234, cwe: 'CWE-352', owasp: 'A01:2021', description: 'State-changing operations lack CSRF tokens', recommendation: 'Implement CSRF tokens for all state-changing requests' }
+    ],
+    wiz: [
+      { id: 'WIZ001', title: 'Public S3 Bucket with Sensitive Data', severity: 'critical', project: 'TelmaAI', resource: 'telmai-prod-data', service: 'AWS S3', account: 'prod-123456', description: 'S3 bucket containing customer data is publicly accessible', recommendation: 'Enable bucket privacy settings and implement bucket policies' },
+      { id: 'WIZ002', title: 'Unencrypted RDS Database', severity: 'high', project: 'EDP Core', resource: 'edp-prod-db', service: 'AWS RDS', account: 'prod-123456', description: 'Production database lacks encryption at rest', recommendation: 'Enable RDS encryption and rotate database credentials' },
+      { id: 'WIZ003', title: 'Overly Permissive IAM Role', severity: 'high', project: 'Corrigo Core', resource: 'corrigo-app-role', service: 'AWS IAM', account: 'prod-789012', description: 'IAM role has Administrator access policy attached', recommendation: 'Apply principle of least privilege and scope down permissions' },
+      { id: 'WIZ004', title: 'Exposed Load Balancer without WAF', severity: 'medium', project: 'ScheduleAI', resource: 'schedule-prod-alb', service: 'AWS ALB', account: 'prod-345678', description: 'Application load balancer lacks Web Application Firewall', recommendation: 'Enable AWS WAF with appropriate rule sets' },
+      { id: 'WIZ005', title: 'Unused Security Group with Open Ports', severity: 'low', project: 'EDP Core', resource: 'sg-old-web', service: 'AWS EC2', account: 'prod-123456', description: 'Security group allows unrestricted inbound traffic on port 22', recommendation: 'Remove unused security groups or restrict access' }
+    ],
+    snyk: [
+      { id: 'SNYK001', title: 'Remote Code Execution in lodash', severity: 'critical', project: 'TelmaAI', package: 'lodash', version: '4.17.11', vulnerability: 'CVE-2020-8203', description: 'Prototype pollution vulnerability allowing arbitrary code execution', recommendation: 'Upgrade to lodash 4.17.21 or later' },
+      { id: 'SNYK002', title: 'SQL Injection in sequelize', severity: 'high', project: 'EDP Core', package: 'sequelize', version: '5.21.3', vulnerability: 'CVE-2023-22578', description: 'SQL injection vulnerability in query generation', recommendation: 'Upgrade to sequelize 6.29.0 or later' },
+      { id: 'SNYK003', title: 'XSS in react-scripts', severity: 'medium', project: 'Corrigo Core', package: 'react-scripts', version: '3.4.1', vulnerability: 'CVE-2022-24785', description: 'Cross-site scripting vulnerability in development server', recommendation: 'Upgrade to react-scripts 5.0.1 or later' },
+      { id: 'SNYK004', title: 'Path Traversal in express', severity: 'medium', project: 'ScheduleAI', package: 'express', version: '4.16.0', vulnerability: 'CVE-2022-24999', description: 'Path traversal vulnerability in static file serving', recommendation: 'Upgrade to express 4.18.2 or later' },
+      { id: 'SNYK005', title: 'Denial of Service in ws', severity: 'low', project: 'TelmaAI', package: 'ws', version: '7.4.0', vulnerability: 'CVE-2021-32640', description: 'ReDoS vulnerability in WebSocket handling', recommendation: 'Upgrade to ws 7.4.6 or later' }
+    ]
+  };
+
+  // Calculate vulnerability counts
+  const calculateCounts = () => {
+    let critical = 0, high = 0, medium = 0, low = 0;
+    const sources = selectedSource === 'all' ? ['sonarqube', 'wiz', 'snyk'] : [selectedSource];
+    
+    sources.forEach(source => {
+      vulnerabilityData[source]?.forEach(vuln => {
+        if (selectedProject === 'all' || vuln.project === selectedProject) {
+          switch(vuln.severity) {
+            case 'critical': critical++; break;
+            case 'high': high++; break;
+            case 'medium': medium++; break;
+            case 'low': low++; break;
+          }
+        }
+      });
+    });
+    
+    return { critical, high, medium, low, total: critical + high + medium + low };
+  };
+
+  // Get filtered vulnerabilities
+  const getFilteredVulnerabilities = () => {
+    const sources = selectedSource === 'all' ? ['sonarqube', 'wiz', 'snyk'] : [selectedSource];
+    let filtered = [];
+    
+    sources.forEach(source => {
+      const sourceVulns = vulnerabilityData[source] || [];
+      sourceVulns.forEach(vuln => {
+        if (selectedProject === 'all' || vuln.project === selectedProject) {
+          filtered.push({ ...vuln, source });
+        }
+      });
+    });
+    
+    return filtered.sort((a, b) => {
+      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      return severityOrder[a.severity] - severityOrder[b.severity];
+    });
+  };
+
+  // Calculate security score
+  const calculateSecurityScore = () => {
+    const counts = calculateCounts();
+    const baseScore = 100;
+    const deductions = {
+      critical: 25,
+      high: 15,
+      medium: 5,
+      low: 2
+    };
+    
+    let score = baseScore;
+    score -= counts.critical * deductions.critical;
+    score -= counts.high * deductions.high;
+    score -= counts.medium * deductions.medium;
+    score -= counts.low * deductions.low;
+    
+    return Math.max(0, Math.min(100, score));
+  };
+
+  const counts = calculateCounts();
+  const securityScore = calculateSecurityScore();
+  const filteredVulnerabilities = getFilteredVulnerabilities();
+
+  const handleViewDetails = (vuln) => {
+    setSelectedVulnerability(vuln);
+    setShowDetailModal(true);
+  };
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Security Vulnerabilities</h2>
+        <div className="flex gap-4">
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium"
+          >
+            <option value="all">All Projects</option>
+            <option value="EDP Core">EDP Core</option>
+            <option value="Corrigo Core">Corrigo Core</option>
+            <option value="TelmaAI">TelmaAI</option>
+            <option value="ScheduleAI">ScheduleAI</option>
+          </select>
+          <select 
+            value={selectedSource}
+            onChange={(e) => setSelectedSource(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium"
+          >
+            <option value="all">All Sources</option>
+            <option value="sonarqube">SonarQube</option>
+            <option value="wiz">Wiz</option>
+            <option value="snyk">Snyk</option>
+          </select>
+          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium">
+            <Download className="w-4 h-4 inline mr-2" />
+            Export Report
+          </button>
+        </div>
+      </div>
+
+      {/* Vulnerability Overview */}
+      <div className="grid grid-cols-5 gap-8 mb-12">
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-red-700">{counts.critical}</div>
+          <div className="text-gray-600 font-medium mb-2">Critical</div>
+          <div className="text-sm text-red-600">Immediate action required</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-orange-600">{counts.high}</div>
+          <div className="text-gray-600 font-medium mb-2">High</div>
+          <div className="text-sm text-orange-600">Address within 7 days</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-yellow-600">{counts.medium}</div>
+          <div className="text-gray-600 font-medium mb-2">Medium</div>
+          <div className="text-sm text-yellow-600">Address within 30 days</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-blue-600">{counts.low}</div>
+          <div className="text-gray-600 font-medium mb-2">Low</div>
+          <div className="text-sm text-blue-600">Track and monitor</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-slate-700">{counts.total}</div>
+          <div className="text-gray-600 font-medium mb-2">Total</div>
+          <div className="text-sm text-gray-600">Active vulnerabilities</div>
+        </div>
+      </div>
+
+      {/* Security Scorecard */}
+      <div className="bg-white rounded-2xl p-8 mb-12 shadow-sm border border-gray-100">
+        <h3 className="text-xl font-bold text-slate-900 mb-6">Application Security Score</h3>
+        <div className="flex items-center gap-8">
+          <div className="relative w-32 h-32">
+            <svg className="transform -rotate-90 w-32 h-32">
+              <circle cx="64" cy="64" r="56" stroke="#e5e7eb" strokeWidth="16" fill="none" />
+              <circle 
+                cx="64" 
+                cy="64" 
+                r="56" 
+                stroke={securityScore >= 80 ? '#10b981' : securityScore >= 60 ? '#f59e0b' : '#ef4444'}
+                strokeWidth="16" 
+                fill="none"
+                strokeDasharray={`${(securityScore / 100) * 351.86} 351.86`}
+                className="transition-all duration-1000"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-slate-900">{securityScore}</div>
+                <div className="text-sm text-gray-600">Score</div>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="mb-4">
+              <div className="flex justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Production Readiness</span>
+                <span className={`text-sm font-bold ${
+                  securityScore >= 80 ? 'text-green-600' : 
+                  securityScore >= 60 ? 'text-yellow-600' : 
+                  'text-red-600'
+                }`}>
+                  {securityScore >= 80 ? 'Ready' : securityScore >= 60 ? 'Conditional' : 'Not Ready'}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-1000 ${
+                    securityScore >= 80 ? 'bg-green-500' : 
+                    securityScore >= 60 ? 'bg-yellow-500' : 
+                    'bg-red-500'
+                  }`}
+                  style={{ width: `${securityScore}%` }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Critical Issues: </span>
+                <span className="font-bold text-red-600">{counts.critical}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">High Issues: </span>
+                <span className="font-bold text-orange-600">{counts.high}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Compliance: </span>
+                <span className="font-bold text-green-600">OWASP Top 10</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Last Scan: </span>
+                <span className="font-bold text-slate-700">2 hours ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Vulnerabilities Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="text-xl font-bold text-slate-900">Vulnerability Details</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredVulnerabilities.map((vuln) => (
+                <tr key={`${vuln.source}-${vuln.id}`} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      vuln.source === 'sonarqube' ? 'bg-blue-100 text-blue-800' :
+                      vuln.source === 'wiz' ? 'bg-purple-100 text-purple-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {vuln.source.toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      vuln.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                      vuln.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                      vuln.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {vuln.severity.toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">{vuln.title}</div>
+                    <div className="text-xs text-gray-500">{vuln.id}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {vuln.project}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {vuln.file ? `${vuln.file}:${vuln.line}` : vuln.resource || vuln.package}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button 
+                      onClick={() => handleViewDetails(vuln)}
+                      className="text-red-600 hover:text-red-900 font-medium text-sm"
+                    >
+                      View Details →
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Vulnerability Detail Modal */}
+      {showDetailModal && selectedVulnerability && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">{selectedVulnerability.title}</h3>
+                <div className="flex gap-2">
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    selectedVulnerability.source === 'sonarqube' ? 'bg-blue-100 text-blue-800' :
+                    selectedVulnerability.source === 'wiz' ? 'bg-purple-100 text-purple-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedVulnerability.source.toUpperCase()}
+                  </span>
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    selectedVulnerability.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                    selectedVulnerability.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                    selectedVulnerability.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {selectedVulnerability.severity.toUpperCase()}
+                  </span>
+                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                    {selectedVulnerability.project}
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Vulnerability ID</h4>
+                  <p className="text-sm text-gray-900">{selectedVulnerability.id}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Location</h4>
+                  <p className="text-sm text-gray-900 font-mono">
+                    {selectedVulnerability.file ? `${selectedVulnerability.file}:${selectedVulnerability.line}` : 
+                     selectedVulnerability.resource ? `${selectedVulnerability.service} - ${selectedVulnerability.resource}` :
+                     `${selectedVulnerability.package} v${selectedVulnerability.version}`}
+                  </p>
+                </div>
+                {selectedVulnerability.cwe && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">CWE</h4>
+                    <p className="text-sm text-gray-900">{selectedVulnerability.cwe}</p>
+                  </div>
+                )}
+                {selectedVulnerability.owasp && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">OWASP Category</h4>
+                    <p className="text-sm text-gray-900">{selectedVulnerability.owasp}</p>
+                  </div>
+                )}
+                {selectedVulnerability.vulnerability && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">CVE</h4>
+                    <p className="text-sm text-gray-900">{selectedVulnerability.vulnerability}</p>
+                  </div>
+                )}
+                {selectedVulnerability.account && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Account</h4>
+                    <p className="text-sm text-gray-900">{selectedVulnerability.account}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Description</h4>
+                <p className="text-sm text-gray-900 bg-gray-50 p-4 rounded-lg">
+                  {selectedVulnerability.description}
+                </p>
+              </div>
+
+              {/* Recommendation */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Recommendation</h4>
+                <p className="text-sm text-gray-900 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  {selectedVulnerability.recommendation}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-4 pt-4 border-t border-gray-200">
+                <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium">
+                  Create Jira Ticket
+                </button>
+                <button className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium">
+                  Mark as False Positive
+                </button>
+                <button className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium">
+                  Suppress for 30 Days
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Modern Dashboard Page
+const DashboardPage = () => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const deployments = [15, 22, 18, 28, 20, 35, 32, 16, 12, 15, 18, 21];
+  const currentMonth = 6; // July
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Deployment Dashboard</h2>
+        <div className="flex gap-4">
+          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow">
+            <option>Azara</option>
+            <option>Corrigo</option>
+            <option>TelmaAI</option>
+          </select>
+          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow">
+            <option>Prod</option>
+            <option>Stage</option>
+            <option>Dev</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8 mb-12">
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-red-600">3</div>
+          <div className="text-gray-600 font-medium">Total Deployments This Month</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-green-500">17</div>
+          <div className="text-gray-600 font-medium">Total Successful Deployments / Month</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-red-600">5</div>
+          <div className="text-gray-600 font-medium">Total Failed Deployments / Month</div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+        <h3 className="text-center font-bold text-slate-900 mb-8 text-xl">Monthly Deployment Trends 2025</h3>
+        <div className="flex items-end justify-around h-72 px-8">
+          {months.map((month, idx) => (
+            <div key={month} className="flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-slate-900">
+                  {deployments[idx]}
+                </div>
+                <div 
+                  className={`w-8 rounded-t-lg transition-all duration-500 hover:scale-105 ${
+                    idx < currentMonth ? 'bg-gradient-to-t from-green-500 to-emerald-400 shadow-lg' : 
+                    idx === currentMonth ? 'bg-gradient-to-t from-red-600 to-red-500 shadow-lg' : 
+                    'bg-gradient-to-t from-gray-300 to-gray-200'
+                  }`}
+                  style={{ height: `${(deployments[idx] / 35) * 200}px` }}
+                ></div>
+              </div>
+              <div className={`text-sm mt-3 ${idx === currentMonth ? 'font-bold text-red-600' : 'text-gray-600'}`}>
+                {month}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center gap-8 mt-8 text-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-400 rounded"></div>
+            <span className="text-gray-600 font-medium">Completed</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-gradient-to-r from-red-600 to-red-500 rounded"></div>
+            <span className="text-gray-600 font-medium">Current Month</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-gradient-to-r from-gray-300 to-gray-200 rounded"></div>
+            <span className="text-gray-600 font-medium">Future</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Financial Dashboard
+const FinancialDashboard = () => {
+  const projects = [
+    { name: 'EDP Core', spent: 5234, budget: 6000, color: 'slate' },
+    { name: 'TelmaAI', spent: 3245, budget: 3000, color: 'red' },
+    { name: 'Corrigo Core', spent: 2681, budget: 4000, color: 'green' },
+    { name: 'ScheduleAI', spent: 1687, budget: 2000, color: 'blue' }
+  ];
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Financial Dashboard</h2>
+        <div className="flex gap-4">
+          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium">
+            <option>All Projects</option>
+            <option>EDP Core</option>
+            <option>Corrigo Core</option>
+            <option>TelmaAI</option>
+          </select>
+          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium">
+            <option>July 2025</option>
+            <option>June 2025</option>
+            <option>May 2025</option>
+          </select>
+          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium">
+            <Download className="w-4 h-4 inline mr-2" />
+            Export Report
+          </button>
+        </div>
+      </div>
+
+      {/* Cost Metrics */}
+      <div className="grid grid-cols-4 gap-8 mb-12">
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-slate-700">$12,847</div>
+          <div className="text-gray-600 font-medium mb-2">Current Month Spend</div>
+          <div className="text-sm text-green-600">↗️ +8.3% vs last month</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-green-500">$15,000</div>
+          <div className="text-gray-600 font-medium mb-2">Monthly Budget</div>
+          <div className="text-sm text-green-600">✅ 85.6% utilized</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-blue-600">$2,153</div>
+          <div className="text-gray-600 font-medium mb-2">Budget Remaining</div>
+          <div className="text-sm text-orange-600">⏰ 7 days left</div>
+        </div>
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+          <div className="text-5xl font-bold mb-4 text-red-600">$342</div>
+          <div className="text-gray-600 font-medium mb-2">Cost Anomalies</div>
+          <div className="text-sm text-red-600">🚨 3 alerts active</div>
+        </div>
+      </div>
+
+      {/* Spending Alerts */}
+      <div className="bg-white rounded-2xl p-8 mb-12 shadow-sm border border-gray-100">
+        <h3 className="flex items-center gap-3 mb-8 text-slate-900 font-bold text-xl">
+          <AlertTriangle className="w-6 h-6 text-red-600" />
+          Spending Alerts
+          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">3</span>
+        </h3>
+        
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 p-6 bg-red-50 border-l-4 border-red-600 rounded-xl">
+            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-red-600 mb-1">TelmaAI Project - Budget Exceeded</div>
+              <div className="text-gray-600 text-sm">Current spend: $3,245 | Budget: $3,000 | Overage: $245 (8.2%)</div>
+            </div>
+            <div className="text-sm text-gray-500">2 hours ago</div>
+          </div>
+          
+          <div className="flex items-center gap-4 p-6 bg-orange-50 border-l-4 border-orange-500 rounded-xl">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-orange-700 mb-1">Azure VM Costs Spike - EDP Core</div>
+              <div className="text-gray-600 text-sm">Daily cost increased by 45% ($156 → $226) - Check vm-web-03 instance</div>
+            </div>
+            <div className="text-sm text-gray-500">5 hours ago</div>
+          </div>
+          
+          <div className="flex items-center gap-4 p-6 bg-orange-50 border-l-4 border-orange-500 rounded-xl">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-orange-700 mb-1">Approaching 90% Budget Threshold</div>
+              <div className="text-gray-600 text-sm">ScheduleAI project at $2,687 of $3,000 monthly budget</div>
+            </div>
+            <div className="text-sm text-gray-500">1 day ago</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8">
+        {/* Cost Trends Chart */}
+        <div className="col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-slate-900 font-bold text-xl">Daily Cost Trends - July 2025</h3>
+            <select className="px-4 py-2 border border-gray-200 rounded-lg text-sm">
+              <option>All Services</option>
+              <option>Compute Only</option>
+              <option>Storage Only</option>
+              <option>Networking Only</option>
+            </select>
+          </div>
+          
+          <div className="h-80 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500">
+            <div className="text-center">
+              <TrendingUp className="w-16 h-16 mx-auto mb-4 text-blue-600" />
+              <p className="text-lg font-medium">Cost trend visualization</p>
+              <p className="text-sm">Interactive chart would display here</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Project Cost Breakdown */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-slate-900 font-bold mb-8 text-xl">Project Cost Breakdown</h3>
+          
+          {projects.map((project) => {
+            const percentage = Math.min((project.spent / project.budget) * 100, 100);
+            const isOverBudget = project.spent > project.budget;
+            
+            return (
+              <div key={project.name} className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-slate-900">{project.name}</span>
+                  <span className={`font-bold ${isOverBudget ? 'text-red-600' : 'text-slate-700'}`}>
+                    ${project.spent.toLocaleString()}
+                  </span>
+                </div>
+                <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isOverBudget ? 'bg-gradient-to-r from-red-600 to-red-500' : 
+                      percentage > 80 ? 'bg-gradient-to-r from-orange-500 to-yellow-500' : 
+                      'bg-gradient-to-r from-green-500 to-emerald-500'
+                    }`}
+                    style={{ width: `${percentage}%` }}
+                  ></div>
+                </div>
+                <div className={`text-sm mt-2 ${isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
+                  Budget: ${project.budget.toLocaleString()} • {Math.round(percentage)}% used
+                  {isOverBudget && ' ⚠️'}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Cost Optimization */}
+          <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+            <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center">
+              💡 Cost Optimization
+            </h4>
+            <div className="text-sm text-gray-600 space-y-2">
+              <div>• Resize 3 oversized VMs: <strong className="text-green-600">Save $156/month</strong></div>
+              <div>• Enable auto-scaling: <strong className="text-green-600">Save $89/month</strong></div>
+              <div>• Archive old snapshots: <strong className="text-green-600">Save $34/month</strong></div>
+            </div>
+            <button className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Projects Management Page
+const ProjectsManagement = () => {
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'create', 'view', 'manage'
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Mock project data
+  const [projects, setProjects] = useState([
+    {
+      id: 1,
+      name: 'EDP Core Platform',
+      description: 'Enterprise Data Platform core services and APIs',
+      appName: 'EDP Core',
+      appId: 'APP-001',
+      executiveOwner: 'Michael Chen',
+      appOwner: 'Sarah Wilson',
+      projectOwner: 'Chad Kellerman',
+      environment: 'Production',
+      status: 'Active',
+      created: '2024-01-15',
+      lastModified: '2024-07-15',
+      userCount: 12,
+      users: [
+        { id: 1, email: 'chad.kellerman@jll.com', role: 'Project Admin', status: 'Active', added: '2024-01-15' },
+        { id: 2, email: 'sarah.wilson@jll.com', role: 'Prod Developer', status: 'Active', added: '2024-01-16' },
+        { id: 3, email: 'mike.rodriguez@jll.com', role: 'Non-Prod Developer', status: 'Active', added: '2024-01-20' },
+        { id: 4, email: 'lisa.chen@jll.com', role: 'Prod DBA', status: 'Active', added: '2024-02-01' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'TelmaAI Analytics',
+      description: 'AI-powered analytics and machine learning platform',
+      appName: 'TelmaAI',
+      appId: 'APP-002',
+      executiveOwner: 'David Park',
+      appOwner: 'Lisa Zhang',
+      projectOwner: 'Alex Johnson',
+      environment: 'Production',
+      status: 'Active',
+      created: '2024-02-20',
+      lastModified: '2024-07-10',
+      userCount: 8,
+      users: [
+        { id: 5, email: 'alex.johnson@jll.com', role: 'Project Admin', status: 'Active', added: '2024-02-20' },
+        { id: 6, email: 'lisa.zhang@jll.com', role: 'Prod Developer', status: 'Active', added: '2024-02-21' },
+        { id: 7, email: 'tom.wilson@jll.com', role: 'Non-Prod Developer', status: 'Active', added: '2024-03-01' }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Corrigo Development',
+      description: 'Property management system development environment',
+      appName: 'Corrigo Core',
+      appId: 'APP-003',
+      executiveOwner: 'Jennifer Liu',
+      appOwner: 'Mark Rodriguez',
+      projectOwner: 'Emma Davis',
+      environment: 'Non-Production',
+      status: 'Active',
+      created: '2024-03-10',
+      lastModified: '2024-07-12',
+      userCount: 15,
+      users: [
+        { id: 8, email: 'emma.davis@jll.com', role: 'Project Admin', status: 'Active', added: '2024-03-10' },
+        { id: 9, email: 'mark.rodriguez@jll.com', role: 'Non-Prod Developer', status: 'Active', added: '2024-03-11' },
+        { id: 10, email: 'jane.smith@jll.com', role: 'Non-Prod DBA', status: 'Active', added: '2024-03-15' }
+      ]
+    }
+  ]);
+
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.appName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.appId.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleViewProject = (project) => {
+    setSelectedProject(project);
+    setCurrentView('view');
+  };
+
+  const handleManageProject = (project) => {
+    setSelectedProject(project);
+    setCurrentView('manage');
+  };
+
+  const updateProject = (updatedProject) => {
+    setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+    setCurrentView('list');
+    setSelectedProject(null);
+  };
+
+  if (currentView === 'create') {
+    return <CreateProject setCurrentView={setCurrentView} projects={projects} setProjects={setProjects} />;
+  }
+
+  if (currentView === 'view' && selectedProject) {
+    return <ViewProject project={selectedProject} setCurrentView={setCurrentView} onManage={() => setCurrentView('manage')} />;
+  }
+
+  if (currentView === 'manage' && selectedProject) {
+    return <ManageProject project={selectedProject} setCurrentView={setCurrentView} onSave={updateProject} />;
+  }
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Projects Management</h2>
+        <div className="flex gap-4">
+          <div className="relative">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              className="pl-10 pr-4 py-3 border border-gray-200 rounded-xl w-64 font-medium focus:ring-2 focus:ring-red-600 focus:border-red-600"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Filter
+          </button>
+          <button 
+            onClick={() => setCurrentView('create')}
+            className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Project
+          </button>
+        </div>
+      </div>
+
+      {/* Projects Overview Cards */}
+      <div className="grid grid-cols-4 gap-6 mb-10">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <Layers className="w-8 h-8 text-blue-600" />
+            <div className="text-3xl font-bold text-blue-600">{projects.length}</div>
+          </div>
+          <div className="text-gray-600 font-medium">Total Projects</div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <CheckCircle className="w-8 h-8 text-green-500" />
+            <div className="text-3xl font-bold text-green-500">{projects.filter(p => p.status === 'Active').length}</div>
+          </div>
+          <div className="text-gray-600 font-medium">Active Projects</div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <Users className="w-8 h-8 text-purple-600" />
+            <div className="text-3xl font-bold text-purple-600">{projects.reduce((sum, p) => sum + p.userCount, 0)}</div>
+          </div>
+          <div className="text-gray-600 font-medium">Total Users</div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <Database className="w-8 h-8 text-orange-600" />
+            <div className="text-3xl font-bold text-orange-600">{projects.filter(p => p.environment === 'Production').length}</div>
+          </div>
+          <div className="text-gray-600 font-medium">Prod Projects</div>
+        </div>
+      </div>
+
+      {/* Projects Table */}
+      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Project
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Application
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Project Owner
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Environment
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Users
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredProjects.map((project) => (
+                <tr key={project.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-8 py-6 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-bold text-slate-900">{project.name}</div>
+                      <div className="text-xs text-gray-600">{project.description}</div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-bold text-slate-900">{project.appName}</div>
+                      <div className="text-xs text-gray-600 font-mono">{project.appId}</div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {project.projectOwner}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap">
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                      project.environment === 'Production' 
+                        ? 'bg-red-100 text-red-700 border border-red-200' 
+                        : 'bg-blue-100 text-blue-700 border border-blue-200'
+                    }`}>
+                      {project.environment}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {project.userCount}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap">
+                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 border border-green-200">
+                      {project.status}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleViewProject(project)}
+                        className="px-3 py-2 border border-gray-200 rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleManageProject(project)}
+                        className="px-3 py-2 border border-gray-200 rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Manage
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// View Project Component
+const ViewProject = ({ project, setCurrentView, onManage }) => {
+  const getRoleColor = (role) => {
+    if (role.includes('Admin')) return 'bg-red-100 text-red-700 border-red-200';
+    if (role.includes('Prod')) return 'bg-orange-100 text-orange-700 border-orange-200';
+    if (role.includes('DBA')) return 'bg-purple-100 text-purple-700 border-purple-200';
+    if (role.includes('SRE')) return 'bg-green-100 text-green-700 border-green-200';
+    return 'bg-blue-100 text-blue-700 border-blue-200';
+  };
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h2 className="text-4xl font-bold text-slate-900">{project.name}</h2>
+          <p className="text-gray-600 mt-2">Project Details</p>
+        </div>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setCurrentView('list')}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+          >
+            Back to Projects
+          </button>
+          <button 
+            onClick={onManage}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all font-medium flex items-center gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            Manage Project
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8">
+        {/* Project Information */}
+        <div className="col-span-2 space-y-8">
+          {/* Basic Information */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+              <Layers className="w-6 h-6 text-blue-600" />
+              Project Information
+            </h3>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">Project Name</label>
+                <div className="text-lg font-semibold text-slate-900">{project.name}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">Project Owner</label>
+                <div className="text-lg font-semibold text-slate-900">{project.projectOwner}</div>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-bold text-gray-600 mb-2">Description</label>
+                <div className="text-slate-900">{project.description}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">Environment</label>
+                <span className={`px-3 py-1 text-sm font-bold rounded-full ${
+                  project.environment === 'Production' 
+                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                    : 'bg-blue-100 text-blue-700 border border-blue-200'
+                }`}>
+                  {project.environment}
+                </span>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">Status</label>
+                <span className="px-3 py-1 text-sm font-bold rounded-full bg-green-100 text-green-700 border border-green-200">
+                  {project.status}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Application Information */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+              <Package className="w-6 h-6 text-purple-600" />
+              Associated Application
+            </h3>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">App Name</label>
+                <div className="text-lg font-semibold text-slate-900">{project.appName}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">App ID</label>
+                <div className="text-lg font-semibold text-slate-900 font-mono">{project.appId}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">Executive Owner</label>
+                <div className="text-lg font-semibold text-slate-900">{project.executiveOwner}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 mb-2">App Owner</label>
+                <div className="text-lg font-semibold text-slate-900">{project.appOwner}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Members */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+              <Users className="w-6 h-6 text-green-600" />
+              Team Members ({project.users.length})
+            </h3>
+            <div className="overflow-hidden border border-gray-200 rounded-xl">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">User</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Role</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Added</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {project.users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                        {user.email}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 text-xs font-bold rounded-full border ${getRoleColor(user.role)}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 border border-green-200">
+                          {user.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {new Date(user.added).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h4 className="font-bold text-slate-900 mb-4">Quick Stats</h4>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Created</span>
+                <span className="font-semibold text-slate-900">{new Date(project.created).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Last Modified</span>
+                <span className="font-semibold text-slate-900">{new Date(project.lastModified).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Total Users</span>
+                <span className="font-semibold text-slate-900">{project.users.length}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Role Distribution */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h4 className="font-bold text-slate-900 mb-4">Role Distribution</h4>
+            <div className="space-y-3">
+              {[...new Set(project.users.map(u => u.role))].map(role => {
+                const count = project.users.filter(u => u.role === role).length;
+                return (
+                  <div key={role} className="flex justify-between items-center">
+                    <span className={`px-2 py-1 text-xs font-bold rounded-full border ${getRoleColor(role)}`}>
+                      {role}
+                    </span>
+                    <span className="font-semibold text-slate-900">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h4 className="font-bold text-slate-900 mb-4">Actions</h4>
+            <div className="space-y-3">
+              <button 
+                onClick={onManage}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium flex items-center justify-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Manage Project
+              </button>
+              <button className="w-full px-4 py-3 border border-gray-200 rounded-xl hover:shadow-md transition-all font-medium flex items-center justify-center gap-2">
+                <Download className="w-4 h-4" />
+                Export Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Manage Project Component
+const ManageProject = ({ project, setCurrentView, onSave }) => {
+  const [formData, setFormData] = useState({
+    name: project.name,
+    description: project.description,
+    projectOwner: project.projectOwner
+  });
+  
+  const [users, setUsers] = useState([...project.users]);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState('Non-Prod Read-Only');
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const roles = [
+    'Project Admin',
+    'Non-Prod Read-Only',
+    'Non-Prod Developer',
+    'Non-Prod DBA',
+    'Prod Read-Only',
+    'Prod Developer',
+    'Prod DBA',
+    'Prod SRE'
+  ];
+
+  const handleFormChange = (field, value) => {
+    setFormData(prev => ({...prev, [field]: value}));
+    setHasChanges(true);
+  };
+
+  const addUser = () => {
+    if (!newUserEmail.trim()) return;
+    
+    const newUser = {
+      id: Date.now(),
+      email: newUserEmail,
+      role: newUserRole,
+      status: 'Pending',
+      added: new Date().toISOString()
+    };
+    
+    setUsers([...users, newUser]);
+    setNewUserEmail('');
+    setHasChanges(true);
+  };
+
+  const removeUser = (userId) => {
+    setUsers(users.filter(user => user.id !== userId));
+    setHasChanges(true);
+  };
+
+  const updateUserRole = (userId, newRole) => {
+    setUsers(users.map(user => 
+      user.id === userId ? { ...user, role: newRole } : user
+    ));
+    setHasChanges(true);
+  };
+
+  const handleSave = () => {
+    const updatedProject = {
+      ...project,
+      ...formData,
+      users: users,
+      userCount: users.length,
+      lastModified: new Date().toISOString()
+    };
+    onSave(updatedProject);
+  };
+
+  const getRoleColor = (role) => {
+    if (role.includes('Admin')) return 'bg-red-100 text-red-700 border-red-200';
+    if (role.includes('Prod')) return 'bg-orange-100 text-orange-700 border-orange-200';
+    if (role.includes('DBA')) return 'bg-purple-100 text-purple-700 border-purple-200';
+    if (role.includes('SRE')) return 'bg-green-100 text-green-700 border-green-200';
+    return 'bg-blue-100 text-blue-700 border-blue-200';
+  };
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h2 className="text-4xl font-bold text-slate-900">Manage Project</h2>
+          <p className="text-gray-600 mt-2">Edit project details and team access</p>
+        </div>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setCurrentView('view')}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave}
+            disabled={!hasChanges}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              hasChanges 
+                ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-lg' 
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Project Details */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+            <Settings className="w-6 h-6 text-blue-600" />
+            Project Details
+          </h3>
+
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Project Name *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                value={formData.name}
+                onChange={(e) => handleFormChange('name', e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Project Owner *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                value={formData.projectOwner}
+                onChange={(e) => handleFormChange('projectOwner', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-slate-900 mb-3">
+              Project Description *
+            </label>
+            <textarea 
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+              rows="4"
+              value={formData.description}
+              onChange={(e) => handleFormChange('description', e.target.value)}
+            />
+          </div>
+
+          {/* Read-only Application Info */}
+          <div className="p-6 bg-gray-50 rounded-xl">
+            <h4 className="font-bold text-slate-900 mb-4">Application Information (Read-Only)</h4>
+            <div className="grid grid-cols-2 gap-6 text-sm">
+              <div>
+                <label className="block text-gray-600 mb-1">App Name</label>
+                <div className="font-semibold text-slate-900">{project.appName}</div>
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">App ID</label>
+                <div className="font-semibold text-slate-900 font-mono">{project.appId}</div>
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">Executive Owner</label>
+                <div className="font-semibold text-slate-900">{project.executiveOwner}</div>
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">App Owner</label>
+                <div className="font-semibold text-slate-900">{project.appOwner}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Management */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+            <Users className="w-6 h-6 text-green-600" />
+            Team Management
+          </h3>
+
+          {/* Add User Section */}
+          <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h4 className="font-bold text-slate-900 mb-4">Add Team Member</h4>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <input 
+                  type="email" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                  placeholder="user@jll.com"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                />
+              </div>
+              <div className="w-64">
+                <select 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                  value={newUserRole}
+                  onChange={(e) => setNewUserRole(e.target.value)}
+                >
+                  {roles.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+              <button 
+                onClick={addUser}
+                disabled={!newUserEmail.trim()}
+                className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
+                  newUserEmail.trim()
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="overflow-hidden border border-gray-200 rounded-xl">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">User</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Role</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4">
+                      <select 
+                        className={`px-3 py-1 text-xs font-bold rounded-full border ${getRoleColor(user.role)} bg-transparent`}
+                        value={user.role}
+                        onChange={(e) => updateUserRole(user.id, e.target.value)}
+                      >
+                        {roles.map(role => (
+                          <option key={role} value={role}>{role}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 text-xs font-bold rounded-full border ${
+                        user.status === 'Active' 
+                          ? 'bg-green-100 text-green-700 border-green-200' 
+                          : 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                      }`}>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button 
+                        onClick={() => removeUser(user.id)}
+                        className="text-red-600 hover:text-red-800 font-medium text-sm"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {hasChanges && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600" />
+              <div>
+                <div className="font-bold text-yellow-800">You have unsaved changes</div>
+                <div className="text-yellow-700 text-sm">Don't forget to save your changes before leaving this page.</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Create Project Component
+const CreateProject = ({ setCurrentView, projects, setProjects }) => {
+  const [step, setStep] = useState(1); // 1: App Lookup, 2: Project Details, 3: IAM Setup
+  const [appId, setAppId] = useState('');
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [lookupComplete, setLookupComplete] = useState(false);
+  
+  // Form data
+  const [formData, setFormData] = useState({
+    // From ServiceNow CMDB lookup
+    appName: '',
+    appId: '',
+    executiveOwner: '',
+    appOwner: '',
+    environment: '',
+    // Project specific fields
+    projectName: '',
+    projectDescription: '',
+    projectOwner: ''
+  });
+
+  // IAM state
+  const [users, setUsers] = useState([]);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState('Non-Prod Read-Only');
+
+  const roles = [
+    'Project Admin',
+    'Non-Prod Read-Only',
+    'Non-Prod Developer',
+    'Non-Prod DBA',
+    'Prod Read-Only',
+    'Prod Developer',
+    'Prod DBA',
+    'Prod SRE'
+  ];
+
+  const handleAppLookup = async () => {
+    if (!appId.trim()) return;
+    
+    setIsLookingUp(true);
+    
+    // Simulate ServiceNow CMDB lookup
+    setTimeout(() => {
+      // Mock data based on AppID
+      const mockData = {
+        'APP-001': {
+          appName: 'EDP Core',
+          executiveOwner: 'Michael Chen',
+          appOwner: 'Sarah Wilson',
+          environment: 'Production'
+        },
+        'APP-002': {
+          appName: 'TelmaAI',
+          executiveOwner: 'David Park',
+          appOwner: 'Lisa Zhang',
+          environment: 'Production'
+        },
+        'APP-003': {
+          appName: 'Corrigo Core',
+          executiveOwner: 'Jennifer Liu',
+          appOwner: 'Mark Rodriguez',
+          environment: 'Non-Production'
+        }
+      };
+
+      const data = mockData[appId] || {
+        appName: 'Sample Application',
+        executiveOwner: 'John Doe',
+        appOwner: 'Jane Smith',
+        environment: 'Non-Production'
+      };
+
+      setFormData(prev => ({
+        ...prev,
+        appId: appId,
+        ...data
+      }));
+      
+      setIsLookingUp(false);
+      setLookupComplete(true);
+    }, 1500);
+  };
+
+  const addUser = () => {
+    if (!newUserEmail.trim()) return;
+    
+    const newUser = {
+      id: Date.now(),
+      email: newUserEmail,
+      role: newUserRole,
+      status: 'Pending',
+      added: new Date().toISOString()
+    };
+    
+    setUsers([...users, newUser]);
+    setNewUserEmail('');
+  };
+
+  const removeUser = (userId) => {
+    setUsers(users.filter(user => user.id !== userId));
+  };
+
+  const updateUserRole = (userId, newRole) => {
+    setUsers(users.map(user => 
+      user.id === userId ? { ...user, role: newRole } : user
+    ));
+  };
+
+  const getRoleColor = (role) => {
+    if (role.includes('Admin')) return 'bg-red-100 text-red-700 border-red-200';
+    if (role.includes('Prod')) return 'bg-orange-100 text-orange-700 border-orange-200';
+    if (role.includes('DBA')) return 'bg-purple-100 text-purple-700 border-purple-200';
+    if (role.includes('SRE')) return 'bg-green-100 text-green-700 border-green-200';
+    return 'bg-blue-100 text-blue-700 border-blue-200';
+  };
+
+  const handleSubmit = () => {
+    // Create new project
+    const newProject = {
+      id: Math.max(...projects.map(p => p.id)) + 1,
+      name: formData.projectName,
+      description: formData.projectDescription,
+      appName: formData.appName,
+      appId: formData.appId,
+      executiveOwner: formData.executiveOwner,
+      appOwner: formData.appOwner,
+      projectOwner: formData.projectOwner,
+      environment: formData.environment,
+      status: 'Active',
+      created: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+      userCount: users.length,
+      users: users
+    };
+    
+    // Add to projects list
+    setProjects([...projects, newProject]);
+    setCurrentView('list');
+  };
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h2 className="text-4xl font-bold text-slate-900">Create New Project</h2>
+          <p className="text-gray-600 mt-2">Step {step} of 3: {step === 1 ? 'Application Lookup' : step === 2 ? 'Project Configuration' : 'Identity & Access Management'}</p>
+        </div>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setCurrentView('list')}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+          >
+            Cancel
+          </button>
+          {step > 1 && (
+            <button 
+              onClick={() => setStep(step - 1)}
+              className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+            >
+              Previous
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Progress Indicator */}
+      <div className="mb-10">
+        <div className="flex items-center justify-center">
+          {[1, 2, 3].map((stepNum) => (
+            <div key={stepNum} className="flex items-center">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
+                stepNum <= step 
+                  ? 'bg-red-600 text-white' 
+                  : 'bg-gray-200 text-gray-500'
+              }`}>
+                {stepNum}
+              </div>
+              {stepNum < 3 && (
+                <div className={`w-20 h-1 mx-4 ${
+                  stepNum < step ? 'bg-red-600' : 'bg-gray-200'
+                }`}></div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center mt-4 text-sm text-gray-600">
+          <div className="text-center w-32">App Lookup</div>
+          <div className="text-center w-32 ml-8">Project Details</div>
+          <div className="text-center w-32 ml-8">IAM Setup</div>
+        </div>
+      </div>
+
+      {/* Step 1: Application Lookup */}
+      {step === 1 && (
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+              <Search className="w-6 h-6 text-blue-600" />
+              ServiceNow CMDB Lookup
+            </h3>
+            
+            <div className="mb-8">
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Application ID *
+              </label>
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  placeholder="e.g., APP-001"
+                  value={appId}
+                  onChange={(e) => setAppId(e.target.value)}
+                />
+                <button 
+                  onClick={handleAppLookup}
+                  disabled={isLookingUp || !appId.trim()}
+                  className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
+                    isLookingUp || !appId.trim()
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg'
+                  }`}
+                >
+                  {isLookingUp ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Looking up...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4" />
+                      Lookup
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {lookupComplete && (
+              <div className="border border-green-200 bg-green-50 rounded-xl p-6 mb-8">
+                <h4 className="font-bold text-green-800 mb-4 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Application Found in ServiceNow CMDB
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div><strong>App Name:</strong> {formData.appName}</div>
+                  <div><strong>App ID:</strong> {formData.appId}</div>
+                  <div><strong>Executive Owner:</strong> {formData.executiveOwner}</div>
+                  <div><strong>App Owner:</strong> {formData.appOwner}</div>
+                  <div><strong>Environment:</strong> {formData.environment}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button 
+                onClick={() => setStep(2)}
+                disabled={!lookupComplete}
+                className={`px-8 py-3 rounded-xl font-bold transition-all ${
+                  lookupComplete 
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Continue to Project Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Project Details */}
+      {step === 2 && (
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+              <Settings className="w-6 h-6 text-purple-600" />
+              Project Configuration
+            </h3>
+
+            {/* Application Information (Read-only) */}
+            <div className="mb-8 p-6 bg-gray-50 rounded-xl">
+              <h4 className="font-bold text-slate-900 mb-4">Application Information (from ServiceNow)</h4>
+              <div className="grid grid-cols-3 gap-6 text-sm">
+                <div>
+                  <label className="block text-gray-600 mb-1">App Name</label>
+                  <div className="font-semibold text-slate-900">{formData.appName}</div>
+                </div>
+                <div>
+                  <label className="block text-gray-600 mb-1">App ID</label>
+                  <div className="font-semibold text-slate-900 font-mono">{formData.appId}</div>
+                </div>
+                <div>
+                  <label className="block text-gray-600 mb-1">Environment</label>
+                  <div className="font-semibold text-slate-900">{formData.environment}</div>
+                </div>
+                <div>
+                  <label className="block text-gray-600 mb-1">Executive Owner</label>
+                  <div className="font-semibold text-slate-900">{formData.executiveOwner}</div>
+                </div>
+                <div>
+                  <label className="block text-gray-600 mb-1">App Owner</label>
+                  <div className="font-semibold text-slate-900">{formData.appOwner}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Project Details */}
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Project Name *
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  placeholder="e.g., EDP Core Platform"
+                  value={formData.projectName}
+                  onChange={(e) => setFormData({...formData, projectName: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-3">
+                  Project Owner *
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                  placeholder="e.g., Chad Kellerman"
+                  value={formData.projectOwner}
+                  onChange={(e) => setFormData({...formData, projectOwner: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Project Description *
+              </label>
+              <textarea 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                rows="4"
+                placeholder="Describe the purpose and scope of this project..."
+                value={formData.projectDescription}
+                onChange={(e) => setFormData({...formData, projectDescription: e.target.value})}
+              />
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button 
+                onClick={() => setStep(1)}
+                className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+              >
+                Back
+              </button>
+              <button 
+                onClick={() => setStep(3)}
+                disabled={!formData.projectName || !formData.projectOwner || !formData.projectDescription}
+                className={`px-8 py-3 rounded-xl font-bold transition-all ${
+                  formData.projectName && formData.projectOwner && formData.projectDescription
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Continue to IAM Setup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: IAM Setup */}
+      {step === 3 && (
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+              <Users className="w-6 h-6 text-green-600" />
+              Project Identity & Access Management
+            </h3>
+
+            {/* Add User Section */}
+            <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+              <h4 className="font-bold text-slate-900 mb-4">Add Team Members</h4>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <input 
+                    type="email" 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                    placeholder="user@jll.com"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                  />
+                </div>
+                <div className="w-64">
+                  <select 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-medium"
+                    value={newUserRole}
+                    onChange={(e) => setNewUserRole(e.target.value)}
+                  >
+                    {roles.map(role => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
+                  </select>
+                </div>
+                <button 
+                  onClick={addUser}
+                  disabled={!newUserEmail.trim()}
+                  className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
+                    newUserEmail.trim()
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg' 
+                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add User
+                </button>
+              </div>
+            </div>
+
+            {/* Users Table */}
+            <div className="mb-8">
+              <h4 className="font-bold text-slate-900 mb-4">Team Members ({users.length})</h4>
+              {users.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>No team members added yet</p>
+                  <p className="text-sm">Add users above to manage project access</p>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-100 border-b border-gray-200">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">User</th>
+                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Role</th>
+                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Status</th>
+                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-900">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {users.map((user) => (
+                        <tr key={user.id} className="hover:bg-white transition-colors">
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4">
+                            <select 
+                              className={`px-3 py-1 text-xs font-bold rounded-full border ${getRoleColor(user.role)}`}
+                              value={user.role}
+                              onChange={(e) => updateUserRole(user.id, e.target.value)}
+                            >
+                              {roles.map(role => (
+                                <option key={role} value={role}>{role}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button 
+                              onClick={() => removeUser(user.id)}
+                              className="text-red-600 hover:text-red-800 font-medium text-sm"
+                            >
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Role Descriptions */}
+            <div className="mb-8 p-6 bg-gray-50 rounded-xl">
+              <h4 className="font-bold text-slate-900 mb-4">Role Descriptions</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold">Project Admin:</span> Full project access and user management
+                </div>
+                <div>
+                  <span className="font-semibold">Non-Prod Read-Only:</span> View access to non-production environments
+                </div>
+                <div>
+                  <span className="font-semibold">Non-Prod Developer:</span> Deploy and manage non-production resources
+                </div>
+                <div>
+                  <span className="font-semibold">Non-Prod DBA:</span> Database administration in non-production
+                </div>
+                <div>
+                  <span className="font-semibold">Prod Read-Only:</span> View access to production environments
+                </div>
+                <div>
+                  <span className="font-semibold">Prod Developer:</span> Deploy and manage production resources
+                </div>
+                <div>
+                  <span className="font-semibold">Prod DBA:</span> Database administration in production
+                </div>
+                <div>
+                  <span className="font-semibold">Prod SRE:</span> Site reliability engineering in production
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button 
+                onClick={() => setStep(2)}
+                className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium"
+              >
+                Back
+              </button>
+              <button 
+                onClick={handleSubmit}
+                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:shadow-lg transition-all font-bold"
+              >
+                Create Project
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+const ApplicationManagement = () => {
+  const applications = [
+    {
+      id: 1,
+      name: 'EDP Core',
+      environment: 'Production',
+      status: 'running',
+      lastDeploy: '2 hours ago',
+      version: 'v2.1.4',
+      health: 'healthy',
+      healthIcon: '🟢'
+    },
+    {
+      id: 2,
+      name: 'Corrigo Core',
+      environment: 'Production',
+      status: 'running',
+      lastDeploy: '1 day ago',
+      version: 'v1.8.2',
+      health: 'healthy',
+      healthIcon: '🟢'
+    },
+    {
+      id: 3,
+      name: 'TelmaAI',
+      environment: 'Staging',
+      status: 'deploying',
+      lastDeploy: '30 mins ago',
+      version: 'v3.0.1',
+      health: 'degraded',
+      healthIcon: '🟡'
+    },
+    {
+      id: 4,
+      name: 'ScheduleAI',
+      environment: 'Production',
+      status: 'failed',
+      lastDeploy: '6 hours ago',
+      version: 'v1.2.3',
+      health: 'down',
+      healthIcon: '🔴'
+    }
+  ];
+
+  const getStatusBadgeClass = (status) => {
+    switch(status) {
+      case 'running': return 'bg-green-100 text-green-700 border border-green-200';
+      case 'deploying': return 'bg-orange-100 text-orange-700 border border-orange-200';
+      case 'failed': return 'bg-red-100 text-red-700 border border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
+    }
+  };
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Application Management</h2>
+        <div className="flex gap-4">
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Filter
+          </button>
+          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Deploy New
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Application
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Environment
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Last Deploy
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Version
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Health
+                </th>
+                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {applications.map((app) => (
+                <tr key={app.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">
+                    {app.name}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {app.environment}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap">
+                    <span className={`px-4 py-2 text-xs font-bold rounded-full ${getStatusBadgeClass(app.status)}`}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {app.lastDeploy}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-mono font-medium">
+                    {app.version}
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm">
+                    <span className="flex items-center gap-2 font-medium">
+                      {app.healthIcon} {app.health.charAt(0).toUpperCase() + app.health.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 whitespace-nowrap text-sm">
+                    <button className="px-4 py-2 border border-gray-200 rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2">
+                      <Eye className="w-4 h-4" />
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Cloud Service Provider Onboarding
+const CloudOnboarding = ({ setCurrentPage }) => {
+  const [cloudProvider, setCloudProvider] = useState('azure');
+  const [environment, setEnvironment] = useState('Non-Production');
+  const [nonProdType, setNonProdType] = useState('Dev');
+  const [appName, setAppName] = useState('');
+  const [appId, setAppId] = useState('');
+  const [executiveOwner, setExecutiveOwner] = useState('');
+  const [appOwner, setAppOwner] = useState('');
+  const [project, setProject] = useState('');
+
+  const handleSubmit = () => {
+    setCurrentPage('cloud-onboarding-status');
+  };
+
+  const isFormValid = appName && appId && executiveOwner && appOwner && project;
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Cloud Service Provider (CSP) Onboarding</h2>
+        <div className="flex gap-4">
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
+            Save Draft
+          </button>
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
+            Load Template
+          </button>
+          <button 
+            onClick={handleSubmit}
+            disabled={!isFormValid}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              isFormValid 
+                ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Submit Request
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        {/* Cloud Provider Selection */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-xl font-bold text-slate-900 mb-8">Cloud Provider Selection</h3>
+          <div className="flex gap-6">
+            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+              cloudProvider === 'azure' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+            }`}>
+              <input 
+                type="radio" 
+                name="cloudProvider" 
+                value="azure" 
+                checked={cloudProvider === 'azure'}
+                onChange={(e) => setCloudProvider(e.target.value)}
+                className="w-5 h-5"
+              />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                  Az
+                </div>
+                <span className="font-bold text-lg">Azure</span>
+              </div>
+            </label>
+            
+            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+              cloudProvider === 'aws' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+            }`}>
+              <input 
+                type="radio" 
+                name="cloudProvider" 
+                value="aws"
+                checked={cloudProvider === 'aws'}
+                onChange={(e) => setCloudProvider(e.target.value)}
+                className="w-5 h-5"
+              />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                  AWS
+                </div>
+                <span className="font-bold text-lg">AWS</span>
+              </div>
+            </label>
+            
+            <label className={`flex items-center gap-4 cursor-pointer p-6 rounded-xl border-2 transition-all ${
+              cloudProvider === 'gcp' ? 'border-red-600 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+            }`}>
+              <input 
+                type="radio" 
+                name="cloudProvider" 
+                value="gcp"
+                checked={cloudProvider === 'gcp'}
+                onChange={(e) => setCloudProvider(e.target.value)}
+                className="w-5 h-5"
+              />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                  GCP
+                </div>
+                <span className="font-bold text-lg">Google Cloud</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Environment Configuration */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-xl font-bold text-slate-900 mb-8">Environment Configuration</h3>
+          <div className="grid grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Environment Type *
+              </label>
+              <select 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                value={environment}
+                onChange={(e) => setEnvironment(e.target.value)}
+              >
+                <option>Production</option>
+                <option>Non-Production</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Non-Production Type *
+              </label>
+              <select 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                value={nonProdType}
+                onChange={(e) => setNonProdType(e.target.value)}
+                disabled={environment === 'Production'}
+              >
+                <option>Dev</option>
+                <option>Stage</option>
+                <option>QA</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Region *
+              </label>
+              <select className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium">
+                <option>us-central</option>
+                <option>us-east-2</option>
+                <option>us-west-1</option>
+                <option>eu-west-1</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Application Details */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-xl font-bold text-slate-900 mb-8">Application Details</h3>
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                App Name *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                placeholder="e.g., MyApplication"
+                value={appName}
+                onChange={(e) => setAppName(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                App ID *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                placeholder="e.g., APP-12345"
+                value={appId}
+                onChange={(e) => setAppId(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                Executive Owner *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                placeholder="e.g., John Smith"
+                value={executiveOwner}
+                onChange={(e) => setExecutiveOwner(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-3">
+                App Owner *
+              </label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+                placeholder="e.g., Jane Doe"
+                value={appOwner}
+                onChange={(e) => setAppOwner(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="max-w-sm">
+            <label className="block text-sm font-bold text-slate-900 mb-3">
+              Project *
+            </label>
+            <select 
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-red-600 font-medium"
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+            >
+              <option value="">Select Project</option>
+              <option>EDP Core</option>
+              <option>Corrigo Core</option>
+              <option>TelmaAI</option>
+              <option>ScheduleAI</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Submit Section */}
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-200 text-center">
+          <h4 className="text-slate-900 font-bold mb-4 text-xl">Review and Submit</h4>
+          <p className="text-gray-600 mb-8 text-lg">
+            Your cloud onboarding request will be submitted for approval. You will receive an email notification once the review is complete.
+          </p>
+          <div className="flex justify-center gap-6">
+            <button className="px-8 py-4 bg-white text-gray-600 border border-gray-200 rounded-xl hover:shadow-md transition-all font-medium">
+              Save Draft
+            </button>
+            <button 
+              onClick={handleSubmit}
+              disabled={!isFormValid}
+              className={`px-12 py-4 rounded-xl font-bold transition-all ${
+                isFormValid 
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg' 
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Submit Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Cloud Onboarding Status Page
+const CloudOnboardingStatus = () => {
+  const progressPercentage = 60;
+
+  const steps = [
+    { name: 'AD Group Configuration', status: 'completed', time: 'July 25, 10:30 AM' },
+    { name: 'Subscription Creation', status: 'completed', time: 'July 25, 11:15 AM' },
+    { name: 'IAM Configurations', status: 'completed', time: 'July 25, 12:45 PM' },
+    { name: 'Security Configurations', status: 'in-progress', time: 'ETA: 30 minutes' },
+    { name: 'Network Configurations', status: 'pending', time: 'Waiting' }
+  ];
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900">Cloud Onboarding Status</h2>
+        <div className="flex gap-4">
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
+            View Logs
+          </button>
+          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium">
+            Download Report
+          </button>
+          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium">
+            Refresh Status
+          </button>
+        </div>
+      </div>
+
+      {/* Request Overview */}
+      <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-100">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">Request #REQ-2025-0789</h3>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-gray-600">
+              <span><strong>App Name:</strong> TelmaAI-Analytics</span>
+              <span><strong>Environment:</strong> Non-Production (Dev)</span>
+              <span><strong>Cloud Provider:</strong> Azure</span>
+              <span><strong>Region:</strong> us-central</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-6 py-2 rounded-full text-sm font-bold mb-3 border border-orange-200">
+              IN PROGRESS
+            </div>
+            <div className="text-sm text-gray-600">Submitted: July 25, 2025</div>
+            <div className="text-sm text-gray-600">Last Updated: 2 hours ago</div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-4 gap-6 text-sm bg-gray-50 p-6 rounded-xl">
+          <div><strong>Requestor:</strong> Chad Kellerman</div>
+          <div><strong>App Owner:</strong> Sarah Wilson</div>
+          <div><strong>Executive Owner:</strong> Michael Chen</div>
+          <div><strong>Project:</strong> TelmaAI</div>
+        </div>
+      </div>
+
+      {/* Progress Tracker */}
+      <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-100">
+        <h3 className="text-2xl font-bold text-slate-900 mb-10">Vending Progress</h3>
+        
+        <div className="relative">
+          {/* Progress Line */}
+          <div className="absolute top-6 left-6 right-6 h-1 bg-gray-200 z-0 rounded-full">
+            <div 
+              className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-1000"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+          
+          {/* Steps */}
+          <div className="flex justify-between relative z-10">
+            {steps.map((step, idx) => (
+              <div key={idx} className="flex flex-col items-center max-w-[160px]">
+                <div 
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-xl mb-4 shadow-lg transition-all duration-300 ${
+                    step.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white' :
+                    step.status === 'in-progress' ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white animate-pulse' :
+                    'bg-gray-200 text-gray-500'
+                  }`}
+                >
+                  {step.status === 'completed' ? '✓' : 
+                   step.status === 'in-progress' ? <Loader className="w-6 h-6 animate-spin" /> : 
+                   idx + 1}
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-slate-900 text-sm mb-2">{step.name}</div>
+                  <div className={`text-xs font-semibold ${
+                    step.status === 'completed' ? 'text-green-600' :
+                    step.status === 'in-progress' ? 'text-orange-600' :
+                    'text-gray-500'
+                  }`}>
+                    {step.status === 'completed' ? 'Completed' :
+                     step.status === 'in-progress' ? 'In Progress' :
+                     'Pending'}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{step.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Overall Progress */}
+        <div className="mt-10 p-6 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="font-bold text-slate-900 mb-2 text-lg">Overall Progress: {progressPercentage}% Complete</div>
+              <div className="text-gray-600">Estimated completion in 45 minutes</div>
+            </div>
+            <div className="w-64 bg-gray-200 h-4 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-1000"
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Activity & Logs */}
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        {/* Current Activity */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h4 className="flex items-center gap-3 mb-6 text-slate-900 font-bold text-xl">
+            <Activity className="w-6 h-6 text-orange-600" />
+            Current Activity
+            <span className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-3 py-1 rounded-full text-xs">ACTIVE</span>
+          </h4>
+          
+          <div className="border-l-4 border-orange-500 pl-6 mb-6 bg-orange-50 p-4 rounded-r-xl">
+            <div className="font-bold text-slate-900 mb-2">Configuring Security Policies</div>
+            <div className="text-gray-600 mb-3">Setting up network security groups and firewall rules</div>
+            <div className="text-sm text-orange-600 font-semibold flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Running for 18 minutes
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+            <div className="text-sm text-gray-700">
+              <strong>Next:</strong> Network configuration will begin automatically once security setup is complete
+            </div>
+          </div>
+        </div>
+
+        {/* Activity Log */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <h4 className="mb-6 text-slate-900 font-bold text-xl flex items-center gap-3">
+            <Database className="w-6 h-6 text-slate-700" />
+            Activity Log
+          </h4>
+          
+          <div className="max-h-64 overflow-y-auto space-y-4">
+            {[
+              { time: '1:03 PM', title: 'Security configurations started', desc: 'Initializing NSG rules and firewall policies' },
+              { time: '12:45 PM', title: 'IAM roles configured successfully', desc: 'User permissions and service accounts created' },
+              { time: '12:30 PM', title: 'Key Vault provisioned', desc: 'Secrets management system initialized' },
+              { time: '11:15 AM', title: 'Azure subscription created', desc: 'Subscription ID: sub-789abc-dev' },
+              { time: '10:30 AM', title: 'Active Directory groups configured', desc: 'Groups: TelmaAI-Dev-Admin, TelmaAI-Dev-Users' }
+            ].map((log, idx) => (
+              <div key={idx} className="border-b border-gray-100 pb-3 last:border-b-0">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">{log.title}</div>
+                    <div className="text-xs text-gray-600">{log.desc}</div>
+                  </div>
+                  <div className="text-xs text-gray-500 font-medium">{log.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <button className="w-full mt-6 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm hover:shadow-md transition-all font-medium">
+            View Full Log
+          </button>
+        </div>
+      </div>
+
+      {/* Resource Details */}
+      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+        <h4 className="mb-8 text-slate-900 font-bold text-xl flex items-center gap-3">
+          <Package className="w-6 h-6 text-slate-700" />
+          Provisioned Resources
+        </h4>
+        
+        <div className="grid grid-cols-3 gap-6">
+          {[
+            { icon: Cloud, title: 'Subscription', value: 'sub-789abc-dev', color: 'blue', status: 'completed' },
+            { icon: Database, title: 'Resource Group', value: 'rg-telmai-analytics-dev-001', color: 'green', status: 'completed' },
+            { icon: Shield, title: 'Key Vault', value: 'kv-telmai-dev-001', color: 'purple', status: 'completed' },
+            { icon: Shield, title: 'Security Groups', value: 'nsg-telmai-dev', color: 'orange', status: 'in-progress' },
+            { icon: Globe, title: 'Virtual Network', value: 'vnet-telmai-dev', color: 'gray', status: 'pending' },
+            { icon: Activity, title: 'Load Balancer', value: 'lb-telmai-dev', color: 'gray', status: 'pending' }
+          ].map((resource, idx) => (
+            <div key={idx} className={`border rounded-2xl p-6 transition-all ${
+              resource.status === 'completed' ? 'border-green-200 bg-green-50' :
+              resource.status === 'in-progress' ? 'border-orange-200 bg-orange-50' :
+              'border-gray-200 bg-gray-50 opacity-60'
+            }`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  resource.color === 'blue' ? 'bg-blue-100' :
+                  resource.color === 'green' ? 'bg-green-100' :
+                  resource.color === 'purple' ? 'bg-purple-100' :
+                  resource.color === 'orange' ? 'bg-orange-100' :
+                  'bg-gray-100'
+                }`}>
+                  <resource.icon className={`w-5 h-5 ${
+                    resource.color === 'blue' ? 'text-blue-600' :
+                    resource.color === 'green' ? 'text-green-600' :
+                    resource.color === 'purple' ? 'text-purple-600' :
+                    resource.color === 'orange' ? 'text-orange-600' :
+                    'text-gray-600'
+                  }`} />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-slate-900">{resource.title}</div>
+                  <div className="text-xs text-gray-600 font-mono">{resource.value}</div>
+                </div>
+              </div>
+              <div className={`text-xs font-bold ${
+                resource.status === 'completed' ? 'text-green-600' :
+                resource.status === 'in-progress' ? 'text-orange-600' :
+                'text-gray-500'
+              }`}>
+                {resource.status === 'completed' ? '✓ Completed' :
+                 resource.status === 'in-progress' ? '⏳ In Progress' :
+                 '⏸ Pending'}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  
+  const currentUser = {
+    name: 'Chad Kellerman',
+    email: 'Chad.Kellerman@jll.com'
+  };
+
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'home':
+        return <HomePage setCurrentPage={setCurrentPage} />;
+      case 'dashboard':
+        return <DashboardPage />;
+      case 'financial':
+        return <FinancialDashboard />;
+      case 'applications':
+        return <ApplicationManagement />;
+      case 'projects':
+        return <ProjectsManagement />;
+      case 'cloud-onboarding':
+        return <CloudOnboarding setCurrentPage={setCurrentPage} />;
+      case 'cloud-onboarding-status':
+        return <CloudOnboardingStatus />;
+      case 'vulnerabilities':
+        return <VulnerabilitiesDashboard />;
+      default:
+        return <HomePage setCurrentPage={setCurrentPage} />;
+    }
+  };
+
+  const getPageUrl = () => {
+    const urlMap = {
+      'home': 'https://hero.jll.com',
+      'dashboard': 'https://hero.jll.com/dashboards/deployments',
+      'financial': 'https://hero.jll.com/dashboards/financials',
+      'applications': 'https://hero.jll.com/dashboards/applications',
+      'projects': 'https://hero.jll.com/onboarding/projects',
+      'cloud-onboarding': 'https://hero.jll.com/onboarding/csp',
+      'cloud-onboarding-status': 'https://hero.jll.com/onboarding/csp/status/REQ-2025-0789',
+      'vulnerabilities': 'https://hero.jll.com/dashboards/vulnerabilities'
+    };
+    return urlMap[currentPage] || 'https://hero.jll.com';
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar 
+        currentUser={currentUser} 
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
+      
+      <div className="flex-1 overflow-hidden">
+        <BrowserChrome url={getPageUrl()} hasAlerts={true} />
+        
+        {/* Global Alert Banner - only show on home page */}
+        {currentPage === 'home' && (
+          <div className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-orange-200 px-8 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <span className="text-slate-900 font-medium">
+                <strong>3 alerts require attention:</strong> Budget exceeded for TelmaAI, Azure VM cost spike detected
+              </span>
+            </div>
+            <button 
+              onClick={() => setCurrentPage('financial')}
+              className="text-red-600 hover:text-red-700 font-bold transition-colors"
+            >
+              View Details →
+            </button>
+          </div>
+        )}
+        
+        <Breadcrumb currentPage={currentPage} />
+        
+        <div className="h-full overflow-y-auto">
+          {renderPage()}
+        </div>
+      </div>
+    </div>
+  );
+}
