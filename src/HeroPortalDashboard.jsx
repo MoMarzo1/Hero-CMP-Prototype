@@ -162,7 +162,14 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   <Cloud className="w-4 h-4 inline mr-2" />
                   Cloud Service Provider (CSP)
                 </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <div 
+                  onClick={() => setCurrentPage('kubernetes-onboarding')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('kubernetes-onboarding') || isActive('kubernetes-onboarding-status')
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
                   <Container className="w-4 h-4 inline mr-2" />
                   Kubernetes
                 </div>
@@ -513,7 +520,9 @@ const Breadcrumb = ({ currentPage }) => {
       'applications': ['Home', 'Dashboards', 'Applications'],
       'projects': ['Home', 'Onboarding', 'Projects'],
       'cloud-onboarding': ['Home', 'Onboarding', 'Cloud Service Provider'],
-      'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status']
+      'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status'],
+      'kubernetes-onboarding': ['Home', 'Onboarding', 'Kubernetes'],
+      'kubernetes-onboarding-status': ['Home', 'Onboarding', 'Kubernetes', 'Status']
     };
     
     return breadcrumbMap[currentPage] || ['Home'];
@@ -6280,6 +6289,936 @@ const CloudOnboardingStatus = () => {
   );
 };
 
+// Kubernetes Onboarding Component
+const KubernetesOnboarding = ({ setCurrentPage }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('all');
+  
+  // Form state
+  const [cloudProvider, setCloudProvider] = useState('azure');
+  const [kubernetesService, setKubernetesService] = useState('aks');
+  const [environment, setEnvironment] = useState('non-prod');
+  const [environmentType, setEnvironmentType] = useState('dev');
+  const [region, setRegion] = useState('AM');
+  const [appId, setAppId] = useState('');
+  const [appName, setAppName] = useState('');
+  const [executiveOwner, setExecutiveOwner] = useState('');
+  const [appOwner, setAppOwner] = useState('');
+  const [businessPillar, setBusinessPillar] = useState('');
+  const [vmSize, setVmSize] = useState('');
+  const [maxNodeCount, setMaxNodeCount] = useState('');
+  const [minNodeCount, setMinNodeCount] = useState('');
+  const [adGroupObjectId, setAdGroupObjectId] = useState('');
+  const [adGroupName, setAdGroupName] = useState('');
+  const [workloadGitUrl, setWorkloadGitUrl] = useState('');
+  const [helmChartUrl, setHelmChartUrl] = useState('');
+  const [kubernetesNamespace, setKubernetesNamespace] = useState('');
+  
+  // UI state
+  const [cmdbLoading, setCmdbLoading] = useState(false);
+  const [cmdbError, setCmdbError] = useState('');
+  const [urlVerificationStates, setUrlVerificationStates] = useState({
+    workloadGit: { loading: false, status: null },
+    helmChart: { loading: false, status: null }
+  });
+
+  // Mock data for current Kubernetes applications
+  const kubernetesApps = [
+    {
+      id: 'k8s-app-001',
+      appName: 'TelmaAI Frontend',
+      appId: 'TELMA-001',
+      cluster: 'aks-prod-eastus2',
+      cloudProvider: 'Azure',
+      kubernetesService: 'AKS',
+      environment: 'Production',
+      environmentType: 'prod',
+      region: 'AM',
+      namespace: 'telma-frontend',
+      businessPillar: 'Tech Services',
+      vmSize: 'Standard_D4s_v3',
+      nodeCount: '3-10',
+      status: 'Active',
+      created: '2024-11-15',
+      lastDeployment: '2024-12-08'
+    },
+    {
+      id: 'k8s-app-002', 
+      appName: 'EDP Analytics',
+      appId: 'EDP-ANALYTICS',
+      cluster: 'eks-nonprod-useast1',
+      cloudProvider: 'AWS',
+      kubernetesService: 'EKS',
+      environment: 'Non-Prod',
+      environmentType: 'dev',
+      region: 'AM',
+      namespace: 'edp-analytics-dev',
+      businessPillar: 'Work Dynamics',
+      vmSize: 't3.large',
+      nodeCount: '2-5',
+      status: 'Active',
+      created: '2024-10-22',
+      lastDeployment: '2024-12-07'
+    },
+    {
+      id: 'k8s-app-003',
+      appName: 'Leasing Portal API',
+      appId: 'LEASE-API-001',
+      cluster: 'aks-prod-westeurope',
+      cloudProvider: 'Azure', 
+      kubernetesService: 'AKS',
+      environment: 'Production',
+      environmentType: 'prod',
+      region: 'EMEA',
+      namespace: 'leasing-api',
+      businessPillar: 'Leasing',
+      vmSize: 'Standard_D8s_v3',
+      nodeCount: '5-15',
+      status: 'Active',
+      created: '2024-09-30',
+      lastDeployment: '2024-12-06'
+    }
+  ];
+
+  // Filter applications based on selected project
+  const filteredApps = selectedProject === 'all' 
+    ? kubernetesApps 
+    : kubernetesApps.filter(app => app.businessPillar.toLowerCase() === selectedProject.toLowerCase());
+
+  // Mock CMDB lookup function
+  const lookupAppInCMDB = async () => {
+    if (!appId.trim()) {
+      setCmdbError('Please enter an Application ID');
+      return;
+    }
+
+    setCmdbLoading(true);
+    setCmdbError('');
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock successful lookup
+      if (appId === 'TELMA-001') {
+        setAppName('TelmaAI Platform');
+        setExecutiveOwner('Sarah Chen - VP Technology');
+        setAppOwner('Michael Rodriguez - Senior Developer');
+      } else if (appId === 'EDP-CORE') {
+        setAppName('EDP Core Services');
+        setExecutiveOwner('David Park - CTO');
+        setAppOwner('Lisa Wang - Tech Lead');
+      } else {
+        setAppName('Sample Application');
+        setExecutiveOwner('John Smith - Executive Director');
+        setAppOwner('Jane Doe - Application Owner');
+      }
+    } catch (error) {
+      setCmdbError('Failed to lookup application in CMDB');
+    } finally {
+      setCmdbLoading(false);
+    }
+  };
+
+  // URL verification functions
+  const verifyUrl = async (url, type) => {
+    if (!url.trim()) return;
+
+    setUrlVerificationStates(prev => ({
+      ...prev,
+      [type]: { loading: true, status: null }
+    }));
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock URL verification - check if URL looks valid
+      const isValidUrl = url.includes('github.com') || url.includes('gitlab.com') || url.includes('helm.sh');
+      const status = isValidUrl ? 'success' : 'error';
+      
+      setUrlVerificationStates(prev => ({
+        ...prev,
+        [type]: { loading: false, status }
+      }));
+    } catch (error) {
+      setUrlVerificationStates(prev => ({
+        ...prev,
+        [type]: { loading: false, status: 'error' }
+      }));
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = (action) => {
+    console.log(`${action} Kubernetes onboarding request:`, {
+      cloudProvider,
+      kubernetesService,
+      environment,
+      environmentType,
+      region,
+      appId,
+      appName,
+      executiveOwner,
+      appOwner,
+      businessPillar,
+      vmSize,
+      maxNodeCount,
+      minNodeCount,
+      adGroupObjectId,
+      adGroupName,
+      workloadGitUrl,
+      helmChartUrl,
+      kubernetesNamespace
+    });
+
+    if (action === 'Deploy') {
+      setCurrentPage('kubernetes-onboarding-status');
+    }
+  };
+
+  // Update Kubernetes service when cloud provider changes
+  const handleCloudProviderChange = (provider) => {
+    setCloudProvider(provider);
+    setKubernetesService(provider === 'azure' ? 'aks' : 'eks');
+  };
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900">Kubernetes Management</h2>
+            <p className="text-gray-600 mt-2">Manage and onboard Kubernetes applications (AKS/EKS)</p>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            {showForm ? 'View Applications' : 'New Kubernetes Onboarding'}
+          </button>
+        </div>
+      </div>
+
+      {!showForm ? (
+        // Database view of current onboarded Kubernetes applications
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-slate-900">Current Kubernetes Applications</h3>
+            <div className="flex items-center gap-4">
+              <select
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                <option value="all">All Business Pillars</option>
+                <option value="leasing">Leasing</option>
+                <option value="marketing">Marketing</option>
+                <option value="work dynamics">Work Dynamics</option>
+                <option value="tech services">Tech Services</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Application</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Cluster</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Provider</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Environment</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Region</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Namespace</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Node Count</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Status</th>
+                    <th className="text-left px-6 py-4 font-bold text-slate-900">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredApps.map((app) => (
+                    <tr key={app.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="font-bold text-slate-900">{app.appName}</div>
+                          <div className="text-sm text-gray-600">{app.appId}</div>
+                          <div className="text-xs text-gray-500">{app.businessPillar}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-mono text-sm">{app.cluster}</div>
+                        <div className="text-xs text-gray-500">{app.kubernetesService}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${
+                          app.cloudProvider === 'Azure' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-orange-100 text-orange-800'
+                        }`}>
+                          {app.cloudProvider}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium">{app.environment}</div>
+                        <div className="text-xs text-gray-500">{app.environmentType}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">{app.region}</td>
+                      <td className="px-6 py-4">
+                        <div className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                          {app.namespace}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm">{app.nodeCount}</div>
+                        <div className="text-xs text-gray-500">{app.vmSize}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${
+                          app.status === 'Active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button className="text-gray-400 hover:text-slate-600 p-1">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="text-gray-400 hover:text-slate-600 p-1">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between text-sm text-gray-600">
+            <div>Showing {filteredApps.length} of {kubernetesApps.length} applications</div>
+            <div className="flex items-center gap-4">
+              <span>Created: {kubernetesApps[0]?.created}</span>
+              <span>Last Updated: {new Date().toISOString().split('T')[0]}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // New Kubernetes Onboarding Form
+        <div className="bg-white rounded-xl border border-gray-200 p-8">
+          <h2 className="text-4xl font-bold text-slate-900">New Kubernetes Onboarding Request</h2>
+          <p className="text-gray-600 mt-2 mb-8">Configure your Kubernetes cluster deployment</p>
+
+          <div className="space-y-8">
+            {/* Cloud Provider and Kubernetes Service */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Cloud Provider *
+                </label>
+                <select
+                  value={cloudProvider}
+                  onChange={(e) => handleCloudProviderChange(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="azure">Microsoft Azure</option>
+                  <option value="aws">Amazon Web Services</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Kubernetes Service *
+                </label>
+                <select
+                  value={kubernetesService}
+                  onChange={(e) => setKubernetesService(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  {cloudProvider === 'azure' ? (
+                    <option value="aks">Azure Kubernetes Service (AKS)</option>
+                  ) : (
+                    <option value="eks">Amazon Elastic Kubernetes Service (EKS)</option>
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {/* Environment Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Environment *
+                </label>
+                <select
+                  value={environment}
+                  onChange={(e) => setEnvironment(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="non-prod">Non-Prod</option>
+                  <option value="prod">Prod</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Environment Type *
+                </label>
+                <select
+                  value={environmentType}
+                  onChange={(e) => setEnvironmentType(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="dev">Dev</option>
+                  <option value="cat">CAT</option>
+                  <option value="demo">Demo</option>
+                  <option value="prod">Prod</option>
+                  <option value="staging">Staging</option>
+                  <option value="test">Test</option>
+                  <option value="dr">DR</option>
+                  <option value="qa">QA</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Region *
+                </label>
+                <select
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select Region</option>
+                  <option value="AM">AM (Americas)</option>
+                  <option value="EMEA">EMEA (Europe, Middle East & Africa)</option>
+                  <option value="APAC">APAC (Asia Pacific)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Application Lookup */}
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-lg font-bold text-slate-900 mb-4">Application Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-slate-900 mb-2">
+                    Application ID * (ServiceNow CMDB)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={appId}
+                      onChange={(e) => setAppId(e.target.value)}
+                      placeholder="e.g., TELMA-001"
+                      className="flex-1 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    />
+                    <button
+                      onClick={lookupAppInCMDB}
+                      disabled={cmdbLoading || !appId.trim()}
+                      className="px-4 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400 transition-all"
+                    >
+                      {cmdbLoading ? <Loader className="w-4 h-4 animate-spin" /> : 'Lookup'}
+                    </button>
+                  </div>
+                  {cmdbError && <p className="text-red-600 text-sm mt-1">{cmdbError}</p>}
+                </div>
+              </div>
+
+              {appName && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">App Name</label>
+                    <input
+                      type="text"
+                      value={appName}
+                      readOnly
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Executive Owner</label>
+                    <input
+                      type="text"
+                      value={executiveOwner}
+                      readOnly
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">App Owner</label>
+                    <input
+                      type="text"
+                      value={appOwner}
+                      readOnly
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-100"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Business Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Business Pillar *
+                </label>
+                <select
+                  value={businessPillar}
+                  onChange={(e) => setBusinessPillar(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select Business Pillar</option>
+                  <option value="leasing">Leasing</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="work-dynamics">Work Dynamics</option>
+                  <option value="tech-services">Tech Services</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  VM Size *
+                </label>
+                <select
+                  value={vmSize}
+                  onChange={(e) => setVmSize(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select VM Size</option>
+                  {cloudProvider === 'azure' ? (
+                    <>
+                      <option value="Standard_B2s">Standard_B2s (2 vCPU, 4 GB RAM)</option>
+                      <option value="Standard_B4ms">Standard_B4ms (4 vCPU, 16 GB RAM)</option>
+                      <option value="Standard_D4s_v3">Standard_D4s_v3 (4 vCPU, 16 GB RAM)</option>
+                      <option value="Standard_D8s_v3">Standard_D8s_v3 (8 vCPU, 32 GB RAM)</option>
+                      <option value="Standard_D16s_v3">Standard_D16s_v3 (16 vCPU, 64 GB RAM)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="t3.medium">t3.medium (2 vCPU, 4 GB RAM)</option>
+                      <option value="t3.large">t3.large (2 vCPU, 8 GB RAM)</option>
+                      <option value="t3.xlarge">t3.xlarge (4 vCPU, 16 GB RAM)</option>
+                      <option value="m5.large">m5.large (2 vCPU, 8 GB RAM)</option>
+                      <option value="m5.xlarge">m5.xlarge (4 vCPU, 16 GB RAM)</option>
+                    </>
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {/* Node Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Minimum Node Count *
+                </label>
+                <input
+                  type="number"
+                  value={minNodeCount}
+                  onChange={(e) => setMinNodeCount(e.target.value)}
+                  placeholder="e.g., 2"
+                  min="1"
+                  max="100"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Maximum Node Count *
+                </label>
+                <input
+                  type="number"
+                  value={maxNodeCount}
+                  onChange={(e) => setMaxNodeCount(e.target.value)}
+                  placeholder="e.g., 10"
+                  min="1"
+                  max="100"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+            </div>
+
+            {/* AD Group Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  AD Group Object ID *
+                </label>
+                <select
+                  value={adGroupObjectId}
+                  onChange={(e) => setAdGroupObjectId(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select AD Group</option>
+                  <option value="12345678-1234-1234-1234-123456789012">JLL-TelmaAI-Developers</option>
+                  <option value="87654321-4321-4321-4321-210987654321">JLL-EDP-TeamLead</option>
+                  <option value="11111111-2222-3333-4444-555555555555">JLL-Leasing-DevOps</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  AD Group Name (ArgoCD Access) *
+                </label>
+                <select
+                  value={adGroupName}
+                  onChange={(e) => setAdGroupName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select ArgoCD Group</option>
+                  <option value="ArgoCD-TelmaAI-Access">ArgoCD-TelmaAI-Access</option>
+                  <option value="ArgoCD-EDP-Admin">ArgoCD-EDP-Admin</option>
+                  <option value="ArgoCD-Leasing-Deploy">ArgoCD-Leasing-Deploy</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Git and Helm Configuration */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Workload Git URL *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={workloadGitUrl}
+                    onChange={(e) => setWorkloadGitUrl(e.target.value)}
+                    placeholder="https://github.com/company/repo.git"
+                    className="flex-1 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                  <button
+                    onClick={() => verifyUrl(workloadGitUrl, 'workloadGit')}
+                    disabled={urlVerificationStates.workloadGit.loading || !workloadGitUrl.trim()}
+                    className="px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:bg-gray-400 transition-all"
+                  >
+                    {urlVerificationStates.workloadGit.loading ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Verify'
+                    )}
+                  </button>
+                </div>
+                {urlVerificationStates.workloadGit.status && (
+                  <p className={`text-sm mt-1 ${
+                    urlVerificationStates.workloadGit.status === 'success' 
+                      ? 'text-green-600' 
+                      : 'text-red-600'
+                  }`}>
+                    {urlVerificationStates.workloadGit.status === 'success' 
+                      ? '✓ URL is accessible' 
+                      : '✗ URL could not be verified'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-900 mb-2">
+                  Helm Chart URL *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={helmChartUrl}
+                    onChange={(e) => setHelmChartUrl(e.target.value)}
+                    placeholder="https://charts.company.com/repository"
+                    className="flex-1 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                  <button
+                    onClick={() => verifyUrl(helmChartUrl, 'helmChart')}
+                    disabled={urlVerificationStates.helmChart.loading || !helmChartUrl.trim()}
+                    className="px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:bg-gray-400 transition-all"
+                  >
+                    {urlVerificationStates.helmChart.loading ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Verify'
+                    )}
+                  </button>
+                </div>
+                {urlVerificationStates.helmChart.status && (
+                  <p className={`text-sm mt-1 ${
+                    urlVerificationStates.helmChart.status === 'success' 
+                      ? 'text-green-600' 
+                      : 'text-red-600'
+                  }`}>
+                    {urlVerificationStates.helmChart.status === 'success' 
+                      ? '✓ URL is accessible' 
+                      : '✗ URL could not be verified'}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Kubernetes Namespace */}
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-2">
+                Kubernetes Namespace *
+              </label>
+              <input
+                type="text"
+                value={kubernetesNamespace}
+                onChange={(e) => setKubernetesNamespace(e.target.value)}
+                placeholder="e.g., my-app-dev"
+                pattern="[a-z0-9-]+"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Must be lowercase letters, numbers, and hyphens only
+              </p>
+            </div>
+
+            {/* Submission Buttons */}
+            <div className="border-t border-gray-200 pt-8">
+              <div className="flex items-center justify-between">
+                <p className="text-gray-600">Your Kubernetes onboarding request will be processed and you'll receive a confirmation email.</p>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setShowForm(false)}
+                    className="px-6 py-3 border border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleSubmit('Save')}
+                    className="px-6 py-3 bg-gray-600 text-white rounded-xl font-bold hover:bg-gray-700 transition-all"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => handleSubmit('Preview')}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => handleSubmit('Deploy')}
+                    className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    Deploy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Kubernetes Onboarding Status Page
+const KubernetesOnboardingStatus = () => {
+  const deploymentSteps = [
+    {
+      id: 1,
+      title: 'Request Validation',
+      description: 'Validating configuration and prerequisites',
+      status: 'completed',
+      timestamp: '2025-01-08 09:15:00',
+      duration: '2 minutes'
+    },
+    {
+      id: 2,
+      title: 'Cluster Provisioning',
+      description: 'Creating Kubernetes cluster infrastructure',
+      status: 'completed', 
+      timestamp: '2025-01-08 09:17:00',
+      duration: '15 minutes'
+    },
+    {
+      id: 3,
+      title: 'Network Configuration',
+      description: 'Setting up networking and security groups',
+      status: 'in-progress',
+      timestamp: '2025-01-08 09:32:00',
+      duration: '8 minutes (estimated)'
+    },
+    {
+      id: 4,
+      title: 'Node Group Setup',
+      description: 'Configuring worker nodes and auto-scaling',
+      status: 'pending',
+      timestamp: null,
+      duration: '10 minutes (estimated)'
+    },
+    {
+      id: 5,
+      title: 'ArgoCD Integration',
+      description: 'Setting up GitOps deployment pipeline',
+      status: 'pending',
+      timestamp: null,
+      duration: '5 minutes (estimated)'
+    },
+    {
+      id: 6,
+      title: 'Application Deployment',
+      description: 'Deploying initial application workload',
+      status: 'pending',
+      timestamp: null,
+      duration: '12 minutes (estimated)'
+    }
+  ];
+
+  const clusterResources = [
+    {
+      title: 'Kubernetes Cluster',
+      value: 'aks-telmaai-prod-eastus2',
+      status: 'completed',
+      icon: Container,
+      color: 'blue'
+    },
+    {
+      title: 'Node Pool',
+      value: '3 nodes (Standard_D4s_v3)',
+      status: 'completed',
+      icon: Server,
+      color: 'green'
+    },
+    {
+      title: 'Virtual Network',
+      value: 'vnet-k8s-telmaai-prod',
+      status: 'in-progress',
+      icon: Network,
+      color: 'orange'
+    },
+    {
+      title: 'Load Balancer',
+      value: 'lb-k8s-external',
+      status: 'pending',
+      icon: Globe,
+      color: 'gray'
+    },
+    {
+      title: 'Storage Class',
+      value: 'managed-premium',
+      status: 'pending',
+      icon: HardDrive,
+      color: 'gray'
+    },
+    {
+      title: 'Ingress Controller',
+      value: 'nginx-ingress',
+      status: 'pending',
+      icon: Monitor,
+      color: 'gray'
+    }
+  ];
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-slate-900">Kubernetes Onboarding Status</h2>
+        <p className="text-gray-600 mt-2">Request ID: REQ-K8S-2025-0790 | Started: January 8, 2025 at 9:15 AM</p>
+      </div>
+
+      {/* Overall Progress */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-slate-900">Deployment Progress</h3>
+          <div className="flex items-center gap-2">
+            <Loader className="w-5 h-5 animate-spin text-orange-600" />
+            <span className="text-orange-600 font-bold">In Progress</span>
+          </div>
+        </div>
+        
+        <div className="bg-gray-200 rounded-full h-3 mb-4">
+          <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 rounded-full transition-all duration-500" style={{width: '42%'}}></div>
+        </div>
+        
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>42% Complete</span>
+          <span>Estimated completion: ~25 minutes remaining</span>
+        </div>
+      </div>
+
+      {/* Deployment Steps */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-xl font-bold text-slate-900 mb-6">Deployment Steps</h3>
+          
+          <div className="space-y-4">
+            {deploymentSteps.map((step, index) => (
+              <div key={step.id} className="flex items-start gap-4">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                  step.status === 'completed' ? 'bg-green-600' :
+                  step.status === 'in-progress' ? 'bg-orange-600' :
+                  'bg-gray-400'
+                }`}>
+                  {step.status === 'completed' ? '✓' :
+                   step.status === 'in-progress' ? <Loader className="w-4 h-4 animate-spin" /> :
+                   step.id}
+                </div>
+                
+                <div className="flex-1">
+                  <div className={`font-bold ${
+                    step.status === 'completed' ? 'text-green-600' :
+                    step.status === 'in-progress' ? 'text-orange-600' :
+                    'text-gray-500'
+                  }`}>
+                    {step.title}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-1">{step.description}</div>
+                  <div className="text-xs text-gray-500">
+                    {step.timestamp ? `Started: ${step.timestamp}` : 'Pending'} • 
+                    Duration: {step.duration}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Resource Status */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-xl font-bold text-slate-900 mb-6">Cluster Resources</h3>
+          
+          <div className="space-y-4">
+            {clusterResources.map((resource, index) => (
+              <div key={index} className={`p-4 border rounded-lg ${
+                resource.status === 'completed' ? 'border-green-200 bg-green-50' :
+                resource.status === 'in-progress' ? 'border-orange-200 bg-orange-50' :
+                'border-gray-200 bg-gray-50 opacity-60'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    resource.color === 'blue' ? 'bg-blue-100' :
+                    resource.color === 'green' ? 'bg-green-100' :
+                    resource.color === 'purple' ? 'bg-purple-100' :
+                    resource.color === 'orange' ? 'bg-orange-100' :
+                    'bg-gray-100'
+                  }`}>
+                    <resource.icon className={`w-5 h-5 ${
+                      resource.color === 'blue' ? 'text-blue-600' :
+                      resource.color === 'green' ? 'text-green-600' :
+                      resource.color === 'purple' ? 'text-purple-600' :
+                      resource.color === 'orange' ? 'text-orange-600' :
+                      'text-gray-600'
+                    }`} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">{resource.title}</div>
+                    <div className="text-xs text-gray-600 font-mono">{resource.value}</div>
+                  </div>
+                </div>
+                <div className={`text-xs font-bold ${
+                  resource.status === 'completed' ? 'text-green-600' :
+                  resource.status === 'in-progress' ? 'text-orange-600' :
+                  'text-gray-500'
+                }`}>
+                  {resource.status === 'completed' ? '✓ Completed' :
+                   resource.status === 'in-progress' ? '⏳ In Progress' :
+                   '⏸ Pending'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -6305,6 +7244,10 @@ export default function App() {
         return <CloudOnboarding setCurrentPage={setCurrentPage} />;
       case 'cloud-onboarding-status':
         return <CloudOnboardingStatus />;
+      case 'kubernetes-onboarding':
+        return <KubernetesOnboarding setCurrentPage={setCurrentPage} />;
+      case 'kubernetes-onboarding-status':
+        return <KubernetesOnboardingStatus />;
       case 'vulnerabilities':
         return <VulnerabilitiesDashboard />;
       case 'infrabuilder':
@@ -6323,6 +7266,8 @@ export default function App() {
       'projects': 'https://hero.jll.com/onboarding/projects',
       'cloud-onboarding': 'https://hero.jll.com/onboarding/csp',
       'cloud-onboarding-status': 'https://hero.jll.com/onboarding/csp/status/REQ-2025-0789',
+      'kubernetes-onboarding': 'https://hero.jll.com/onboarding/kubernetes',
+      'kubernetes-onboarding-status': 'https://hero.jll.com/onboarding/kubernetes/status/REQ-2025-0790',
       'vulnerabilities': 'https://hero.jll.com/dashboards/vulnerabilities',
       'infrabuilder': 'https://hero.jll.com/build/infrabuilder'
     };
