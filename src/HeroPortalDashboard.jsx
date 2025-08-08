@@ -201,10 +201,6 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   InfraBuilder
                 </div>
                 <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-                  <Settings className="w-4 h-4 inline mr-2" />
-                  Resource Configurations
-                </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
                   <Zap className="w-4 h-4 inline mr-2" />
                   Deployments
                 </div>
@@ -545,9 +541,12 @@ const HomePage = ({ setCurrentPage }) => {
     <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
       <div className="mb-12">
         <h1 className="text-5xl font-bold text-slate-900 mb-4">
-          Welcome to Hero Portal
+          Welcome to the JLL HERO Portal
         </h1>
-        <p className="text-xl text-gray-600 font-light">Your unified platform for cloud infrastructure management and deployment</p>
+        <p className="text-2xl text-gray-600 font-light mb-4">
+          <span className="font-bold">H</span>elping <span className="font-bold">E</span>ngineers <span className="font-bold">R</span>ealize <span className="font-bold">O</span>pportunities
+        </p>
+        <p className="text-lg text-gray-500 font-light mb-2">Your unified platform for cloud infrastructure management and deployment</p>
       </div>
 
       {/* Statistics Summary */}
@@ -608,39 +607,42 @@ const HomePage = ({ setCurrentPage }) => {
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-slate-900 mb-8">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
-            <div className="mb-6 group-hover:scale-110 transition-transform">
-              <Zap className="w-12 h-12 text-white" />
+          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
+            <div className="mb-4 group-hover:scale-110 transition-transform">
+              <Zap className="w-10 h-10 text-white" />
             </div>
             <h3 className="font-bold text-lg mb-2">New Deployment</h3>
             <p className="text-white/80">Deploy your applications</p>
           </div>
           <div 
             onClick={() => setCurrentPage('cloud-onboarding')}
-            className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+            className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
           >
-            <div className="mb-6 group-hover:scale-110 transition-transform">
-              <Cloud className="w-12 h-12 text-white" />
+            <div className="mb-4 group-hover:scale-110 transition-transform">
+              <Cloud className="w-10 h-10 text-white" />
             </div>
             <h3 className="font-bold text-lg mb-2">Cloud Onboarding</h3>
             <p className="text-white/80">Request cloud resources</p>
           </div>
           <div 
             onClick={() => setCurrentPage('financial')}
-            className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+            className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
           >
-            <div className="mb-6 group-hover:scale-110 transition-transform">
-              <DollarSign className="w-12 h-12 text-white" />
+            <div className="mb-4 group-hover:scale-110 transition-transform">
+              <DollarSign className="w-10 h-10 text-white" />
             </div>
             <h3 className="font-bold text-lg mb-2">Cost Analytics</h3>
             <p className="text-white/80">Monitor cloud spending</p>
           </div>
-          <div className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
-            <div className="mb-6 group-hover:scale-110 transition-transform">
-              <Code className="w-12 h-12 text-white" />
+          <div 
+            onClick={() => setCurrentPage('infrabuilder')}
+            className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+          >
+            <div className="mb-4 group-hover:scale-110 transition-transform">
+              <PencilRuler className="w-10 h-10 text-white" />
             </div>
-            <h3 className="font-bold text-lg mb-2">Architecture</h3>
-            <p className="text-white/80">Browse templates</p>
+            <h3 className="font-bold text-lg mb-2">InfraBuilder</h3>
+            <p className="text-white/80">Design infrastructure</p>
           </div>
         </div>
       </div>
