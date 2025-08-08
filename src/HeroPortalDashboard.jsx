@@ -7,7 +7,7 @@ import {
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
-  GitBranch, Package, Layers, Monitor, Trash2
+  GitBranch, Package, Layers, Monitor, Trash2, PencilRuler
 } from 'lucide-react';
 
 // Enhanced Sidebar Component with HeroAI chat
@@ -197,7 +197,7 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                       : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
-                  <Code className="w-4 h-4 inline mr-2" />
+                  <PencilRuler className="w-4 h-4 inline mr-2" />
                   InfraBuilder
                 </div>
                 <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
@@ -1604,7 +1604,7 @@ const InfraBuilder = () => {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-          <Layers className="w-8 h-8 text-blue-600" />
+          <PencilRuler className="w-8 h-8 text-blue-600" />
           InfraBuilder
         </h1>
         <p className="text-gray-600 mt-2">Design and manage infrastructure components for your projects</p>
@@ -1636,7 +1636,10 @@ const InfraBuilder = () => {
       {/* Component Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-slate-900">Component Table</h2>
+          <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+            <Layers className="w-5 h-5 text-blue-600" />
+            Component Table
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -1926,6 +1929,9 @@ const ComponentBuilder = ({
 
 // Stack Definition Page
 const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustomStack }) => {
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewStack, setPreviewStack] = useState(null);
+
   const prebuiltStacks = [
     { 
       id: 1, 
@@ -1965,12 +1971,32 @@ const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustom
     }
   ];
 
+  const handlePreview = (stack) => {
+    setPreviewStack(stack);
+    setShowPreview(true);
+  };
+
   if (showCustomStack) {
     return <CustomStackBuilder 
       onBack={() => setShowCustomStack(false)}
       onSave={(stack) => {
         onSelectStack(stack);
         setShowCustomStack(false);
+      }}
+    />;
+  }
+
+  if (showPreview && previewStack) {
+    return <StackPreview 
+      stack={previewStack}
+      onBack={() => {
+        setShowPreview(false);
+        setPreviewStack(null);
+      }}
+      onSelect={() => {
+        onSelectStack(previewStack);
+        setShowPreview(false);
+        setPreviewStack(null);
       }}
     />;
   }
@@ -2028,7 +2054,10 @@ const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustom
                 )}
 
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1">
+                  <button 
+                    onClick={() => handlePreview(stack)}
+                    className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1"
+                  >
                     Preview
                   </button>
                   <button 
@@ -2067,148 +2096,708 @@ const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustom
   );
 };
 
+// Stack Preview Component
+const StackPreview = ({ stack, onBack, onSelect }) => {
+  const [previewResources] = useState(() => 
+    stack.resources.map((resourceName, idx) => ({
+      id: `preview-${resourceName.toLowerCase().replace(/\s+/g, '-')}-${idx}`,
+      name: resourceName,
+      position: { 
+        x: 150 + (idx % 3) * 350,
+        y: 120 + Math.floor(idx / 3) * 200
+      },
+      icon: getResourceIcon(resourceName),
+      color: getResourceColor(resourceName)
+    }))
+  );
+
+  const [connections] = useState(() => generateDefaultConnections(previewResources));
+
+  // Helper functions (same as in StackConfiguration)
+  function getResourceIcon(resourceName) {
+    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return Server;
+    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket') || resourceName.toLowerCase().includes('blob')) return HardDrive;
+    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql') || resourceName.toLowerCase().includes('cosmos') || resourceName.toLowerCase().includes('dynamo') || resourceName.toLowerCase().includes('rds')) return Database;
+    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc') || resourceName.toLowerCase().includes('vnet')) return Network;
+    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('balancer') || resourceName.toLowerCase().includes('gateway')) return Activity;
+    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks') || resourceName.toLowerCase().includes('ecs')) return Container;
+    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return Zap;
+    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics') || resourceName.toLowerCase().includes('synapse') || resourceName.toLowerCase().includes('databricks')) return BarChart3;
+    if (resourceName.toLowerCase().includes('app') || resourceName.toLowerCase().includes('web')) return Globe;
+    return Server;
+  }
+
+  function getResourceColor(resourceName) {
+    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return 'blue';
+    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket')) return 'green';
+    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql')) return 'orange';
+    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc')) return 'cyan';
+    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('gateway')) return 'indigo';
+    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks')) return 'purple';
+    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return 'yellow';
+    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics')) return 'pink';
+    return 'blue';
+  }
+
+  function generateDefaultConnections(resources) {
+    const connections = [];
+    for (let i = 0; i < resources.length - 1; i++) {
+      connections.push({
+        id: `${resources[i].id}-${resources[i + 1].id}`,
+        from: resources[i].id,
+        to: resources[i + 1].id,
+        label: ''
+      });
+    }
+    return connections;
+  }
+
+  const getResourceCenter = (resource) => {
+    return {
+      x: resource.position.x + 125,
+      y: resource.position.y + 60
+    };
+  };
+
+  return (
+    <div className="h-screen bg-gray-900 flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700 bg-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={onBack}
+              className="text-gray-400 hover:text-white flex items-center gap-2"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Back to Stack Selection
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-white">Stack Preview: {stack.name}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                  APPROVED
+                </span>
+                <span className="text-gray-400 text-sm">{stack.resources.length} resources</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={onBack}
+              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onSelect}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              Use This Stack
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex">
+        {/* Left Panel - Stack Details */}
+        <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Stack Information</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-300 mb-2">Description</h3>
+                <p className="text-gray-400 text-sm">{stack.description}</p>
+              </div>
+
+              {stack.cost && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-300 mb-2">Estimated Cost</h3>
+                  <p className="text-green-400 font-semibold">{stack.cost}</p>
+                </div>
+              )}
+
+              {stack.deployTime && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-300 mb-2">Deployment Time</h3>
+                  <p className="text-blue-400 font-semibold">{stack.deployTime}</p>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-300 mb-3">Included Resources</h3>
+                <div className="space-y-2">
+                  {stack.resources.map((resource, idx) => {
+                    const Icon = getResourceIcon(resource);
+                    const color = getResourceColor(resource);
+                    return (
+                      <div key={idx} className="flex items-center gap-3 p-2 bg-gray-700 rounded-lg">
+                        <div className={`w-8 h-8 rounded-lg bg-${color}-600 flex items-center justify-center`}>
+                          <Icon className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-white text-sm font-medium">{resource}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-300 mb-3">Key Features</h3>
+                <div className="space-y-2 text-sm text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Production-ready configuration</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Security best practices included</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Auto-scaling capabilities</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Monitoring and logging enabled</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Backup and disaster recovery</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Visual Preview */}
+        <div className="flex-1 flex flex-col">
+          <div className="p-4 border-b border-gray-700 bg-gray-800">
+            <h2 className="text-lg font-semibold text-white">Architecture Preview</h2>
+            <p className="text-gray-400 text-sm mt-1">Visual representation of the stack components and their connections</p>
+          </div>
+
+          <div className="flex-1 bg-gray-900 relative overflow-hidden"
+               style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+            
+            {/* Preview overlay */}
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span className="text-sm font-medium">Preview Mode - Read Only</span>
+            </div>
+
+            {/* SVG for connection lines */}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none z-10"
+              style={{ zIndex: 1 }}
+            >
+              {connections.map(connection => {
+                const fromResource = previewResources.find(r => r.id === connection.from);
+                const toResource = previewResources.find(r => r.id === connection.to);
+                
+                if (!fromResource || !toResource) return null;
+                
+                const fromCenter = getResourceCenter(fromResource);
+                const toCenter = getResourceCenter(toResource);
+                
+                return (
+                  <g key={connection.id}>
+                    <defs>
+                      <marker
+                        id={`preview-arrowhead-${connection.id}`}
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="9"
+                        refY="3.5"
+                        orient="auto"
+                      >
+                        <polygon
+                          points="0 0, 10 3.5, 0 7"
+                          fill="#A855F7"
+                        />
+                      </marker>
+                    </defs>
+                    
+                    <line
+                      x1={fromCenter.x}
+                      y1={fromCenter.y}
+                      x2={toCenter.x}
+                      y2={toCenter.y}
+                      stroke="#A855F7"
+                      strokeWidth="2"
+                      strokeDasharray="5,5"
+                      markerEnd={`url(#preview-arrowhead-${connection.id})`}
+                    />
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Resources */}
+            <div className="relative w-full h-full" style={{ zIndex: 2 }}>
+              {previewResources.map((resource) => {
+                const Icon = resource.icon;
+                
+                return (
+                  <div 
+                    key={resource.id}
+                    className="absolute cursor-default"
+                    style={{ left: resource.position.x, top: resource.position.y }}
+                  >
+                    <div className="bg-gray-800 border-2 border-purple-500 rounded-lg p-4 min-w-[250px] shadow-lg shadow-purple-500/20 hover:scale-105 transition-transform">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-lg bg-${resource.color}-600 flex items-center justify-center`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium text-sm">{resource.name}</h4>
+                          <p className="text-purple-400 text-xs">Ready for configuration</p>
+                        </div>
+                      </div>
+                      
+                      {/* Connection points */}
+                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="absolute -right-1 top-1/2 transform -translate-y-1/2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom Info Bar */}
+          <div className="p-4 bg-gray-800 border-t border-gray-700">
+            <div className="flex items-center justify-between text-sm text-gray-400">
+              <div className="flex items-center gap-4">
+                <span>Resources: {previewResources.length}</span>
+                <span>Connections: {connections.length}</span>
+                <span>Status: Preview Mode</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span>Cost: {stack.cost || 'N/A'}</span>
+                <span>Deploy: {stack.deployTime || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Stack Configuration Page
 const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourceConfigs, configuredResources, setConfiguredResources }) => {
   const [showResourceConfig, setShowResourceConfig] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
+  const [isDraggingResource, setIsDraggingResource] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [stackResources, setStackResources] = useState(() => 
+    stack.resources.map((resourceName, idx) => ({
+      id: `${resourceName.toLowerCase().replace(/\s+/g, '-')}-${idx}`,
+      name: resourceName,
+      position: { 
+        x: 150 + (idx % 3) * 350,  // Increased spacing from 250 to 350
+        y: 120 + Math.floor(idx / 3) * 200  // Increased spacing from 150 to 200
+      },
+      configured: configuredResources.has(resourceName),
+      icon: getResourceIcon(resourceName),
+      color: getResourceColor(resourceName)
+    }))
+  );
+  const [connections, setConnections] = useState(() => generateDefaultConnections(stackResources));
 
-  const handleResourceClick = (resource) => {
-    setSelectedResource(resource);
-    setShowResourceConfig(true);
+  // Helper functions to assign icons and colors based on resource name
+  function getResourceIcon(resourceName) {
+    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return Server;
+    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket') || resourceName.toLowerCase().includes('blob')) return HardDrive;
+    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql') || resourceName.toLowerCase().includes('cosmos') || resourceName.toLowerCase().includes('dynamo') || resourceName.toLowerCase().includes('rds')) return Database;
+    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc') || resourceName.toLowerCase().includes('vnet')) return Network;
+    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('balancer') || resourceName.toLowerCase().includes('gateway')) return Activity;
+    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks') || resourceName.toLowerCase().includes('ecs')) return Container;
+    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return Zap;
+    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics') || resourceName.toLowerCase().includes('synapse') || resourceName.toLowerCase().includes('databricks')) return BarChart3;
+    if (resourceName.toLowerCase().includes('app') || resourceName.toLowerCase().includes('web')) return Globe;
+    return Server; // Default icon
+  }
+
+  function getResourceColor(resourceName) {
+    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return 'blue';
+    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket')) return 'green';
+    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql')) return 'orange';
+    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc')) return 'cyan';
+    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('gateway')) return 'indigo';
+    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks')) return 'purple';
+    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return 'yellow';
+    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics')) return 'pink';
+    return 'blue'; // Default color
+  }
+
+  function generateDefaultConnections(resources) {
+    const connections = [];
+    // Create logical connections based on common patterns
+    for (let i = 0; i < resources.length - 1; i++) {
+      if (i < resources.length - 1) {
+        connections.push({
+          id: `${resources[i].id}-${resources[i + 1].id}`,
+          from: resources[i].id,
+          to: resources[i + 1].id,
+          label: ''
+        });
+      }
+    }
+    return connections;
+  }
+
+  // Handle manual dragging of resources on canvas
+  const handleResourceMouseDown = (e, resource) => {
+    if (e.button !== 0) return; // Only handle left mouse button
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+    
+    setIsDraggingResource(resource.id);
+    setSelectedResource(resource.name);
+  };
+
+  const handleCanvasMouseMove = (e) => {
+    if (isDraggingResource) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left - dragOffset.x;
+      const y = e.clientY - rect.top - dragOffset.y;
+      
+      setStackResources(prev => prev.map(r => 
+        r.id === isDraggingResource 
+          ? { ...r, position: { x: Math.max(0, Math.min(x, rect.width - 250)), y: Math.max(0, Math.min(y, rect.height - 120)) }}
+          : r
+      ));
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsDraggingResource(false);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handleResourceClick = (e, resource) => {
+    e.stopPropagation();
+    
+    // Only open config if not dragging
+    if (!isDraggingResource) {
+      setSelectedResource(resource.name);
+      setShowResourceConfig(true);
+    }
   };
 
   const handleSaveResourceConfig = (config) => {
     setResourceConfigs({...resourceConfigs, [selectedResource]: config});
     setConfiguredResources(new Set([...configuredResources, selectedResource]));
+    
+    // Update the resource in stackResources
+    setStackResources(prev => prev.map(r => 
+      r.name === selectedResource 
+        ? { ...r, configured: true }
+        : r
+    ));
+    
     setShowResourceConfig(false);
     setSelectedResource(null);
   };
 
-  const allResourcesConfigured = stack.resources.every(r => configuredResources.has(r));
+  const allResourcesConfigured = stackResources.every(r => r.configured);
+
+  const getResourceCenter = (resource) => {
+    return {
+      x: resource.position.x + 100, // Half of resource width
+      y: resource.position.y + 50   // Half of resource height
+    };
+  };
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <button 
-          onClick={onBack}
-          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Back to Stack Selection
-        </button>
-        <h1 className="text-3xl font-bold text-slate-900">Configure Stack: {stack.name}</h1>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <p className="text-gray-600 mb-6">
-          Configure the Terraform parameters for each resource. Resources with red borders need configuration.
-        </p>
-
-        <div className="grid grid-cols-3 gap-6 mb-6">
-          {stack.resources.map((resource, idx) => (
-            <div 
-              key={idx}
-              onClick={() => handleResourceClick(resource)}
-              className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                configuredResources.has(resource) 
-                  ? 'border-green-500 bg-green-50 hover:bg-green-100' 
-                  : 'border-red-500 bg-red-50 hover:bg-red-100'
+    <div className="h-screen bg-gray-900 flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700 bg-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={onBack}
+              className="text-gray-400 hover:text-white flex items-center gap-2"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Back to Stack Selection
+            </button>
+            <h1 className="text-xl font-semibold text-white">Configure Stack: {stack.name}</h1>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={onBack}
+              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => onSave(stack)}
+              disabled={!allResourcesConfigured}
+              className={`px-6 py-2 rounded-lg transition-colors ${
+                allResourcesConfigured
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
               }`}
             >
-              <Server className={`w-8 h-8 mb-3 ${
-                configuredResources.has(resource) ? 'text-green-600' : 'text-red-600'
-              }`} />
-              <h3 className="font-semibold text-gray-900">{resource}</h3>
-              <p className="text-sm text-gray-600 mt-2">
-                {configuredResources.has(resource) ? 'Configured' : 'Click to configure'}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-end gap-3">
-          <button 
-            onClick={onBack}
-            className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={() => onSave(stack)}
-            disabled={!allResourcesConfigured}
-            className={`px-6 py-2 rounded-lg transition-colors ${
-              allResourcesConfigured
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Save Stack
-          </button>
+              Save Stack
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Resource Configuration Modal */}
+      {/* Canvas */}
+      <div className="flex-1 bg-gray-900 relative overflow-hidden select-none"
+           style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+           onMouseMove={handleCanvasMouseMove}
+           onMouseUp={handleCanvasMouseUp}
+           onMouseLeave={handleCanvasMouseUp}>
+        
+        {/* Instruction overlay */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
+          <Settings className="w-4 h-4" />
+          <span className="text-sm font-medium">
+            Drag resources to move them • Click to configure • Resources with red borders need configuration
+          </span>
+        </div>
+
+        {/* SVG for connection lines */}
+        <svg 
+          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          style={{ zIndex: 1 }}
+        >
+          {connections.map(connection => {
+            const fromResource = stackResources.find(r => r.id === connection.from);
+            const toResource = stackResources.find(r => r.id === connection.to);
+            
+            if (!fromResource || !toResource) return null;
+            
+            const fromCenter = getResourceCenter(fromResource);
+            const toCenter = getResourceCenter(toResource);
+            
+            return (
+              <g key={connection.id}>
+                <defs>
+                  <marker
+                    id={`arrowhead-${connection.id}`}
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="9"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon
+                      points="0 0, 10 3.5, 0 7"
+                      fill="#60A5FA"
+                    />
+                  </marker>
+                </defs>
+                
+                <line
+                  x1={fromCenter.x}
+                  y1={fromCenter.y}
+                  x2={toCenter.x}
+                  y2={toCenter.y}
+                  stroke="#60A5FA"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  markerEnd={`url(#arrowhead-${connection.id})`}
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Resources */}
+        <div className="relative w-full h-full" style={{ zIndex: 2 }}>
+          {stackResources.map((resource) => {
+            const Icon = resource.icon;
+            const isDragging = isDraggingResource === resource.id;
+            
+            return (
+              <div 
+                key={resource.id}
+                className={`absolute group ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                style={{ 
+                  left: resource.position.x, 
+                  top: resource.position.y,
+                  zIndex: isDragging ? 1000 : selectedResource === resource.name ? 100 : 10
+                }}
+                onMouseDown={(e) => handleResourceMouseDown(e, resource)}
+                onClick={(e) => handleResourceClick(e, resource)}
+              >
+                <div className={`bg-gray-800 border-2 rounded-lg p-4 min-w-[250px] transition-all ${
+                  resource.configured 
+                    ? 'border-green-500 shadow-lg shadow-green-500/20' 
+                    : 'border-red-500 shadow-lg shadow-red-500/20'
+                } ${selectedResource === resource.name ? 'ring-2 ring-blue-500' : ''}
+                ${isDragging ? 'scale-105 rotate-1' : 'hover:scale-102'}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-10 h-10 rounded-lg bg-${resource.color}-600 flex items-center justify-center`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium text-sm">{resource.name}</h4>
+                      <p className={`text-xs ${resource.configured ? 'text-green-400' : 'text-red-400'}`}>
+                        {resource.configured ? 'Configured' : 'Click to configure'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Connection points */}
+                  <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  </div>
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  </div>
+                  <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  </div>
+                  <div className="absolute -right-1 top-1/2 transform -translate-y-1/2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Bottom Status Bar */}
+      <div className="p-4 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
+        <div className="flex items-center gap-4 text-sm text-gray-400">
+          <span>Resources: {stackResources.length}</span>
+          <span>Configured: {stackResources.filter(r => r.configured).length}</span>
+          <span>Connections: {connections.length}</span>
+          {isDraggingResource && (
+            <span className="text-blue-400 flex items-center gap-1">
+              <Activity className="w-3 h-3" />
+              Dragging Resource
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-4 text-sm text-gray-400">
+          <span>Estimated Cost: {stack.cost || 'N/A'}</span>
+          <span>Deploy Time: {stack.deployTime || 'N/A'}</span>
+          <span>Tips: Drag to move • Click to configure</span>
+        </div>
+      </div>
+
+      {/* Resource Configuration Panel */}
       {showResourceConfig && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Configure {selectedResource}</h2>
+          <div className="bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-700">
+            <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-white">Configure {selectedResource}</h2>
+              <button 
+                onClick={() => setShowResourceConfig(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
             
-            <div className="space-y-4">
+            <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Resource Name
                 </label>
                 <input 
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   placeholder="Enter resource name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  SKU / Size
-                </label>
-                <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option>Standard_B2s</option>
-                  <option>Standard_D2s_v3</option>
-                  <option>Standard_D4s_v3</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Region
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                   <option>East US</option>
                   <option>West US</option>
                   <option>Central US</option>
+                  <option>North Europe</option>
+                  <option>West Europe</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Additional Variables
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  SKU / Size
+                </label>
+                <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  <option>Standard_B1s (1 vCPU, 1 GB RAM)</option>
+                  <option>Standard_B2s (2 vCPU, 4 GB RAM)</option>
+                  <option>Standard_D2s_v3 (2 vCPU, 8 GB RAM)</option>
+                  <option>Standard_D4s_v3 (4 vCPU, 16 GB RAM)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Tags
+                </label>
+                <div className="space-y-2">
+                  <input 
+                    type="text"
+                    placeholder="Environment: production"
+                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  />
+                  <input 
+                    type="text"
+                    placeholder="Project: infrastructure"
+                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Additional Configuration
                 </label>
                 <textarea 
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   rows="3"
-                  placeholder="key=value format, one per line"
+                  placeholder="Custom terraform variables..."
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="p-6 border-t border-gray-700 flex justify-end gap-3">
               <button 
                 onClick={() => setShowResourceConfig(false)}
-                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => handleSaveResourceConfig({})}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
                 Save Configuration
               </button>
@@ -2224,15 +2813,60 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
 const CustomStackBuilder = ({ onBack, onSave }) => {
   const [customStack, setCustomStack] = useState({ name: '', resources: [] });
   const [draggedResource, setDraggedResource] = useState(null);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [expandedCategories, setExpandedCategories] = useState(['azure', 'aws']);
+  const [connections, setConnections] = useState([]);
+  const [showConfigPanel, setShowConfigPanel] = useState(false);
+  const [isDraggingResource, setIsDraggingResource] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionStart, setConnectionStart] = useState(null);
+  const [tempConnection, setTempConnection] = useState(null);
 
-  const availableResources = [
-    { id: 'vm', name: 'Azure VM', icon: Server },
-    { id: 'storage', name: 'Azure Storage Account', icon: HardDrive },
-    { id: 'aks', name: 'Azure AKS Cluster', icon: Container },
-    { id: 'sql', name: 'Azure SQL Database', icon: Database },
-    { id: 'network', name: 'Azure Virtual Network', icon: Network },
-    { id: 'lb', name: 'Azure Load Balancer', icon: Activity }
-  ];
+  const resourceCategories = {
+    azure: {
+      name: 'Azure Services',
+      icon: Cloud,
+      color: 'blue',
+      resources: [
+        { id: 'azure-vm', name: 'Azure Virtual Machine', icon: Server, color: 'blue', category: 'compute' },
+        { id: 'azure-storage', name: 'Azure Storage Account', icon: HardDrive, color: 'green', category: 'storage' },
+        { id: 'azure-aks', name: 'Azure Kubernetes Service', icon: Container, color: 'purple', category: 'compute' },
+        { id: 'azure-sql', name: 'Azure SQL Database', icon: Database, color: 'orange', category: 'database' },
+        { id: 'azure-vnet', name: 'Azure Virtual Network', icon: Network, color: 'cyan', category: 'network' },
+        { id: 'azure-lb', name: 'Azure Load Balancer', icon: Activity, color: 'indigo', category: 'network' },
+        { id: 'azure-appservice', name: 'Azure App Service', icon: Globe, color: 'teal', category: 'compute' },
+        { id: 'azure-functions', name: 'Azure Functions', icon: Zap, color: 'yellow', category: 'compute' },
+        { id: 'azure-cosmosdb', name: 'Azure Cosmos DB', icon: Database, color: 'pink', category: 'database' },
+        { id: 'azure-redis', name: 'Azure Cache for Redis', icon: Monitor, color: 'red', category: 'database' }
+      ]
+    },
+    aws: {
+      name: 'AWS Services',
+      icon: Cloud,
+      color: 'orange',
+      resources: [
+        { id: 'aws-ec2', name: 'AWS EC2 Instance', icon: Server, color: 'orange', category: 'compute' },
+        { id: 'aws-s3', name: 'AWS S3 Bucket', icon: HardDrive, color: 'green', category: 'storage' },
+        { id: 'aws-lambda', name: 'AWS Lambda', icon: Zap, color: 'yellow', category: 'compute' },
+        { id: 'aws-rds', name: 'AWS RDS Database', icon: Database, color: 'blue', category: 'database' },
+        { id: 'aws-vpc', name: 'AWS VPC', icon: Network, color: 'cyan', category: 'network' },
+        { id: 'aws-elb', name: 'AWS Load Balancer', icon: Activity, color: 'indigo', category: 'network' },
+        { id: 'aws-dynamodb', name: 'AWS DynamoDB', icon: Database, color: 'purple', category: 'database' },
+        { id: 'aws-apigateway', name: 'AWS API Gateway', icon: Globe, color: 'teal', category: 'network' },
+        { id: 'aws-cloudfront', name: 'AWS CloudFront', icon: Monitor, color: 'pink', category: 'network' },
+        { id: 'aws-ecs', name: 'AWS ECS', icon: Container, color: 'red', category: 'compute' }
+      ]
+    }
+  };
+
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
 
   const handleDragStart = (resource) => {
     setDraggedResource(resource);
@@ -2244,105 +2878,827 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
     if (draggedResource) {
+      const newResource = {
+        ...draggedResource,
+        instanceId: `${draggedResource.id}-${Date.now()}`,
+        position: { x: Math.max(0, x - 100), y: Math.max(0, y - 50) },
+        configured: false,
+        config: getDefaultConfig(draggedResource.id)
+      };
       setCustomStack({
         ...customStack,
-        resources: [...customStack.resources, draggedResource.name]
+        resources: [...customStack.resources, newResource]
       });
       setDraggedResource(null);
     }
   };
 
-  return (
-    <div className="p-8">
-      <div className="mb-6">
-        <button 
-          onClick={onBack}
-          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Back to Stack Definition
-        </button>
-        <h1 className="text-3xl font-bold text-slate-900">Custom Stack Builder</h1>
-      </div>
+  // Handle manual dragging of resources on canvas
+  const handleResourceMouseDown = (e, resource) => {
+    if (e.button !== 0) return; // Only handle left mouse button
+    if (isConnecting) return; // Don't drag while connecting
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const canvasRect = e.currentTarget.closest('.canvas-container').getBoundingClientRect();
+    
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+    
+    setIsDraggingResource(resource.instanceId);
+    setSelectedResource(resource);
+  };
 
-      <div className="grid grid-cols-4 gap-6">
-        {/* Available Resources */}
-        <div className="col-span-1">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Cloud Resources</h2>
-          <div className="space-y-2">
-            {availableResources.map((resource) => {
-              const Icon = resource.icon;
-              return (
-                <div 
-                  key={resource.id}
-                  draggable
-                  onDragStart={() => handleDragStart(resource)}
-                  className="p-3 bg-white rounded-lg border border-gray-200 cursor-move hover:shadow-md transition-shadow flex items-center gap-2"
-                >
-                  <Icon className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium">{resource.name}</span>
-                </div>
-              );
-            })}
-          </div>
+  const handleCanvasMouseMove = (e) => {
+    if (isDraggingResource) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left - dragOffset.x;
+      const y = e.clientY - rect.top - dragOffset.y;
+      
+      setCustomStack(prev => ({
+        ...prev,
+        resources: prev.resources.map(r => 
+          r.instanceId === isDraggingResource 
+            ? { ...r, position: { x: Math.max(0, Math.min(x, rect.width - 200)), y: Math.max(0, Math.min(y, rect.height - 100)) }}
+            : r
+        )
+      }));
+    }
+    
+    if (tempConnection) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setTempConnection(prev => ({
+        ...prev,
+        endX: e.clientX - rect.left,
+        endY: e.clientY - rect.top
+      }));
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsDraggingResource(false);
+    setDragOffset({ x: 0, y: 0 });
+    
+    if (tempConnection) {
+      setTempConnection(null);
+    }
+  };
+
+  const handleResourceClick = (e, resource) => {
+    e.stopPropagation();
+    
+    if (isConnecting) {
+      if (!connectionStart) {
+        // Start connection
+        setConnectionStart(resource);
+        const rect = e.currentTarget.getBoundingClientRect();
+        const canvasRect = e.currentTarget.closest('.canvas-container').getBoundingClientRect();
+        setTempConnection({
+          startX: rect.left - canvasRect.left + rect.width / 2,
+          startY: rect.top - canvasRect.top + rect.height / 2,
+          endX: rect.left - canvasRect.left + rect.width / 2,
+          endY: rect.top - canvasRect.top + rect.height / 2
+        });
+      } else if (connectionStart.instanceId !== resource.instanceId) {
+        // Complete connection
+        const newConnection = {
+          id: `${connectionStart.instanceId}-${resource.instanceId}`,
+          from: connectionStart.instanceId,
+          to: resource.instanceId,
+          label: ''
+        };
+        
+        // Check if connection already exists
+        const exists = connections.find(c => 
+          (c.from === newConnection.from && c.to === newConnection.to) ||
+          (c.from === newConnection.to && c.to === newConnection.from)
+        );
+        
+        if (!exists) {
+          setConnections(prev => [...prev, newConnection]);
+        }
+        
+        setConnectionStart(null);
+        setTempConnection(null);
+        setIsConnecting(false);
+      }
+    } else {
+      setSelectedResource(resource);
+      setShowConfigPanel(true);
+    }
+  };
+
+  const toggleConnectionMode = () => {
+    setIsConnecting(!isConnecting);
+    setConnectionStart(null);
+    setTempConnection(null);
+  };
+
+  const deleteConnection = (connectionId) => {
+    setConnections(prev => prev.filter(c => c.id !== connectionId));
+  };
+
+  const getResourceCenter = (resource) => {
+    return {
+      x: resource.position.x + 100, // Half of resource width (200px)
+      y: resource.position.y + 50   // Half of resource height (100px)
+    };
+  };
+
+  const getDefaultConfig = (resourceId) => {
+    const baseConfig = {
+      tags: { environment: 'dev', project: '', owner: '', cost_center: '' },
+      region: resourceId.startsWith('azure') ? 'East US' : 'us-east-1'
+    };
+
+    switch (resourceId) {
+      case 'azure-vm':
+        return {
+          ...baseConfig,
+          vm_size: 'Standard_B2s',
+          os_disk_type: 'Premium_LRS',
+          admin_username: 'azureuser',
+          availability_zone: '1',
+          enable_backup: true,
+          auto_shutdown: true,
+          environment_variables: {},
+          custom_data: ''
+        };
+      case 'aws-ec2':
+        return {
+          ...baseConfig,
+          instance_type: 't3.medium',
+          ami_id: 'ami-0c02fb55956c7d316',
+          key_name: '',
+          availability_zone: 'us-east-1a',
+          enable_monitoring: true,
+          ebs_optimized: true,
+          environment_variables: {},
+          user_data: ''
+        };
+      case 'azure-storage':
+        return {
+          ...baseConfig,
+          account_tier: 'Standard',
+          account_replication_type: 'LRS',
+          enable_https_traffic: true,
+          min_tls_version: 'TLS1_2',
+          allow_blob_public_access: false,
+          container_access_type: 'private'
+        };
+      case 'aws-s3':
+        return {
+          ...baseConfig,
+          bucket_name: '',
+          versioning: true,
+          encryption: 'AES256',
+          block_public_acls: true,
+          block_public_policy: true,
+          ignore_public_acls: true,
+          restrict_public_buckets: true
+        };
+      default:
+        return baseConfig;
+    }
+  };
+
+  const updateResourceConfig = (resourceId, config) => {
+    setCustomStack({
+      ...customStack,
+      resources: customStack.resources.map(r => 
+        r.instanceId === resourceId 
+          ? { ...r, config: { ...r.config, ...config }, configured: true }
+          : r
+      )
+    });
+  };
+
+  const removeResource = (resourceId) => {
+    setCustomStack({
+      ...customStack,
+      resources: customStack.resources.filter(r => r.instanceId !== resourceId)
+    });
+    setSelectedResource(null);
+    setShowConfigPanel(false);
+  };
+
+  return (
+    <div className="h-screen bg-gray-900 flex">
+      {/* Left Sidebar - Resource Library */}
+      <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto">
+        <div className="p-4 border-b border-gray-700">
+          <button 
+            onClick={onBack}
+            className="text-gray-400 hover:text-white flex items-center gap-2 mb-4"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back to Stack Definition
+          </button>
+          <h2 className="text-white font-semibold text-lg">Add New Resource</h2>
         </div>
 
-        {/* Canvas */}
-        <div className="col-span-3">
-          <div className="mb-4">
+        <div className="p-4">
+          <input 
+            type="text"
+            placeholder="Search Resources"
+            className="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+
+          {Object.entries(resourceCategories).map(([key, category]) => (
+            <div key={key} className="mb-4">
+              <button
+                onClick={() => toggleCategory(key)}
+                className="w-full flex items-center justify-between p-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <category.icon className="w-5 h-5" />
+                  <span className="font-medium">{category.name}</span>
+                </div>
+                <ChevronRight className={`w-4 h-4 transition-transform ${
+                  expandedCategories.includes(key) ? 'rotate-90' : ''
+                }`} />
+              </button>
+
+              {expandedCategories.includes(key) && (
+                <div className="mt-2 space-y-1">
+                  {category.resources.map((resource) => {
+                    const Icon = resource.icon;
+                    return (
+                      <div 
+                        key={resource.id}
+                        draggable
+                        onDragStart={() => handleDragStart(resource)}
+                        className={`p-3 bg-gray-600 hover:bg-gray-500 rounded-lg cursor-move transition-colors flex items-center gap-3 group`}
+                      >
+                        <div className={`w-8 h-8 rounded-lg bg-${resource.color}-600 flex items-center justify-center`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-white text-sm font-medium">{resource.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Center Canvas */}
+      <div className="flex-1 flex flex-col">
+        <div className="p-4 border-b border-gray-700 bg-gray-800">
+          <div className="flex items-center justify-between">
             <input 
               type="text"
               value={customStack.name}
               onChange={(e) => setCustomStack({...customStack, name: e.target.value})}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="bg-gray-700 text-white placeholder-gray-400 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-lg font-semibold"
               placeholder="Enter stack name"
             />
+            <div className="flex gap-2">
+              <button 
+                onClick={toggleConnectionMode}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  isConnecting 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-gray-700 text-gray-300 hover:text-white'
+                }`}
+              >
+                <GitBranch className="w-4 h-4" />
+                {isConnecting ? 'Cancel Connect' : 'Connect Resources'}
+              </button>
+              <button 
+                onClick={onBack}
+                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => onSave(customStack)}
+                disabled={customStack.resources.length === 0}
+                className={`px-6 py-2 rounded-lg transition-colors ${
+                  customStack.resources.length > 0
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Save Stack
+              </button>
+            </div>
           </div>
-          
-          <div 
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            className="min-h-[500px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-6"
+        </div>
+
+        <div 
+          className="canvas-container flex-1 bg-gray-900 relative overflow-hidden select-none"
+          style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseUp={handleCanvasMouseUp}
+          onMouseLeave={handleCanvasMouseUp}
+        >
+          {/* Connection mode overlay */}
+          {isConnecting && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
+              <GitBranch className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {connectionStart ? 'Click another resource to connect' : 'Click a resource to start connecting'}
+              </span>
+            </div>
+          )}
+
+          {/* SVG for connection lines */}
+          <svg 
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
+            style={{ zIndex: 1 }}
           >
-            {customStack.resources.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[450px] text-gray-500">
-                <Layers className="w-16 h-16 mb-4" />
-                <p>Drag resources here to build your custom stack</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-4">
-                {customStack.resources.map((resource, idx) => (
-                  <div key={idx} className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
-                    <Server className="w-6 h-6 text-orange-600 mb-2" />
-                    <p className="text-sm font-medium">{resource}</p>
-                    <p className="text-xs text-orange-600 mt-2">Configuration Required</p>
+            {/* Render existing connections */}
+            {connections.map(connection => {
+              const fromResource = customStack.resources.find(r => r.instanceId === connection.from);
+              const toResource = customStack.resources.find(r => r.instanceId === connection.to);
+              
+              if (!fromResource || !toResource) return null;
+              
+              const fromCenter = getResourceCenter(fromResource);
+              const toCenter = getResourceCenter(toResource);
+              
+              return (
+                <g key={connection.id}>
+                  {/* Connection line */}
+                  <line
+                    x1={fromCenter.x}
+                    y1={fromCenter.y}
+                    x2={toCenter.x}
+                    y2={toCenter.y}
+                    stroke="#60A5FA"
+                    strokeWidth="2"
+                    strokeDasharray="5,5"
+                    className="cursor-pointer hover:stroke-red-400"
+                    onClick={() => deleteConnection(connection.id)}
+                  />
+                  
+                  {/* Arrow marker */}
+                  <defs>
+                    <marker
+                      id={`arrowhead-${connection.id}`}
+                      markerWidth="10"
+                      markerHeight="7"
+                      refX="9"
+                      refY="3.5"
+                      orient="auto"
+                    >
+                      <polygon
+                        points="0 0, 10 3.5, 0 7"
+                        fill="#60A5FA"
+                      />
+                    </marker>
+                  </defs>
+                  
+                  <line
+                    x1={fromCenter.x}
+                    y1={fromCenter.y}
+                    x2={toCenter.x}
+                    y2={toCenter.y}
+                    stroke="#60A5FA"
+                    strokeWidth="2"
+                    markerEnd={`url(#arrowhead-${connection.id})`}
+                    className="pointer-events-none"
+                  />
+                  
+                  {/* Connection label background */}
+                  {connection.label && (
+                    <>
+                      <rect
+                        x={(fromCenter.x + toCenter.x) / 2 - 20}
+                        y={(fromCenter.y + toCenter.y) / 2 - 8}
+                        width="40"
+                        height="16"
+                        fill="#374151"
+                        rx="8"
+                      />
+                      <text
+                        x={(fromCenter.x + toCenter.x) / 2}
+                        y={(fromCenter.y + toCenter.y) / 2}
+                        textAnchor="middle"
+                        alignmentBaseline="central"
+                        fill="white"
+                        fontSize="12"
+                        className="pointer-events-none"
+                      >
+                        {connection.label}
+                      </text>
+                    </>
+                  )}
+                </g>
+              );
+            })}
+            
+            {/* Temporary connection line while connecting */}
+            {tempConnection && (
+              <line
+                x1={tempConnection.startX}
+                y1={tempConnection.startY}
+                x2={tempConnection.endX}
+                y2={tempConnection.endY}
+                stroke="#60A5FA"
+                strokeWidth="2"
+                strokeDasharray="3,3"
+                className="pointer-events-none"
+              />
+            )}
+          </svg>
+
+          {customStack.resources.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500">
+              <Layers className="w-16 h-16 mb-4" />
+              <p className="text-xl">Drag resources here to build your custom stack</p>
+              <p className="text-sm mt-2">Start by dragging services from the left sidebar</p>
+            </div>
+          ) : (
+            <div className="relative w-full h-full" style={{ zIndex: 2 }}>
+              {customStack.resources.map((resource) => {
+                const Icon = resource.icon;
+                const isDragging = isDraggingResource === resource.instanceId;
+                const isConnectionTarget = connectionStart && connectionStart.instanceId === resource.instanceId;
+                
+                return (
+                  <div 
+                    key={resource.instanceId}
+                    className={`absolute group ${isDragging ? 'cursor-grabbing' : isConnecting ? 'cursor-crosshair' : 'cursor-grab'}`}
+                    style={{ 
+                      left: resource.position.x, 
+                      top: resource.position.y,
+                      zIndex: isDragging ? 1000 : selectedResource?.instanceId === resource.instanceId ? 100 : 10
+                    }}
+                    onMouseDown={(e) => handleResourceMouseDown(e, resource)}
+                    onClick={(e) => handleResourceClick(e, resource)}
+                  >
+                    <div className={`bg-gray-800 border-2 rounded-lg p-4 min-w-[200px] transition-all ${
+                      resource.configured 
+                        ? 'border-green-500 shadow-lg shadow-green-500/20' 
+                        : 'border-red-500 shadow-lg shadow-red-500/20'
+                    } ${selectedResource?.instanceId === resource.instanceId ? 'ring-2 ring-blue-500' : ''}
+                    ${isConnectionTarget ? 'ring-2 ring-yellow-500 shadow-yellow-500/20' : ''}
+                    ${isDragging ? 'scale-105 rotate-1' : 'hover:scale-102'}`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-lg bg-${resource.color}-600 flex items-center justify-center`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium text-sm">{resource.name}</h4>
+                          <p className={`text-xs ${resource.configured ? 'text-green-400' : 'text-red-400'}`}>
+                            {resource.configured ? 'Configured' : 'Configuration Required'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Connection points */}
+                      <div className={`absolute -top-1 left-1/2 transform -translate-x-1/2 transition-all ${isConnecting ? 'scale-150' : ''}`}>
+                        <div className={`w-2 h-2 rounded-full ${isConnecting ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`}></div>
+                      </div>
+                      <div className={`absolute -bottom-1 left-1/2 transform -translate-x-1/2 transition-all ${isConnecting ? 'scale-150' : ''}`}>
+                        <div className={`w-2 h-2 rounded-full ${isConnecting ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`}></div>
+                      </div>
+                      <div className={`absolute -left-1 top-1/2 transform -translate-y-1/2 transition-all ${isConnecting ? 'scale-150' : ''}`}>
+                        <div className={`w-2 h-2 rounded-full ${isConnecting ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`}></div>
+                      </div>
+                      <div className={`absolute -right-1 top-1/2 transform -translate-y-1/2 transition-all ${isConnecting ? 'scale-150' : ''}`}>
+                        <div className={`w-2 h-2 rounded-full ${isConnecting ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`}></div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Status Bar */}
+        <div className="p-4 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
+          <div className="flex items-center gap-4 text-sm text-gray-400">
+            <span>Resources: {customStack.resources.length}</span>
+            <span>Configured: {customStack.resources.filter(r => r.configured).length}</span>
+            <span>Connections: {connections.length}</span>
+            {isConnecting && (
+              <span className="text-yellow-400 flex items-center gap-1">
+                <GitBranch className="w-3 h-3" />
+                Connection Mode
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-4 text-sm text-gray-400">
+            <span>Tips: Drag resources to move them • Click "Connect Resources" to link them</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Configuration Panel */}
+      {showConfigPanel && selectedResource && (
+        <div className="w-96 bg-gray-800 border-l border-gray-700 overflow-y-auto">
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+            <h3 className="text-white font-semibold">Configure {selectedResource.name}</h3>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => removeResource(selectedResource.instanceId)}
+                className="text-red-400 hover:text-red-300"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setShowConfigPanel(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <ResourceConfigPanel 
+            resource={selectedResource}
+            onConfigUpdate={(config) => updateResourceConfig(selectedResource.instanceId, config)}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Resource Configuration Panel Component
+const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
+  const [config, setConfig] = useState(resource.config);
+  const [expandedSections, setExpandedSections] = useState(['basic']);
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => 
+      prev.includes(section) 
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    );
+  };
+
+  const updateConfig = (key, value) => {
+    const newConfig = { ...config, [key]: value };
+    setConfig(newConfig);
+    onConfigUpdate(newConfig);
+  };
+
+  const updateTags = (key, value) => {
+    const newTags = { ...config.tags, [key]: value };
+    updateConfig('tags', newTags);
+  };
+
+  const updateEnvironmentVariables = (key, value) => {
+    const newEnvVars = { ...config.environment_variables, [key]: value };
+    updateConfig('environment_variables', newEnvVars);
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Basic Configuration */}
+      <div>
+        <button
+          onClick={() => toggleSection('basic')}
+          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+        >
+          <span className="font-medium">Basic Configuration</span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${
+            expandedSections.includes('basic') ? 'rotate-90' : ''
+          }`} />
+        </button>
+
+        {expandedSections.includes('basic') && (
+          <div className="mt-2 space-y-3 pl-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Region</label>
+              <select 
+                value={config.region}
+                onChange={(e) => updateConfig('region', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                {resource.id.startsWith('azure') ? (
+                  <>
+                    <option value="East US">East US</option>
+                    <option value="West US">West US</option>
+                    <option value="Central US">Central US</option>
+                    <option value="North Europe">North Europe</option>
+                    <option value="West Europe">West Europe</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="us-east-1">US East (N. Virginia)</option>
+                    <option value="us-west-2">US West (Oregon)</option>
+                    <option value="eu-west-1">Europe (Ireland)</option>
+                    <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            {/* Resource-specific basic config */}
+            {(resource.id === 'azure-vm' || resource.id === 'aws-ec2') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  {resource.id === 'azure-vm' ? 'VM Size' : 'Instance Type'}
+                </label>
+                <select 
+                  value={resource.id === 'azure-vm' ? config.vm_size : config.instance_type}
+                  onChange={(e) => updateConfig(resource.id === 'azure-vm' ? 'vm_size' : 'instance_type', e.target.value)}
+                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  {resource.id === 'azure-vm' ? (
+                    <>
+                      <option value="Standard_B1s">Standard_B1s (1 vCPU, 1 GB RAM)</option>
+                      <option value="Standard_B2s">Standard_B2s (2 vCPU, 4 GB RAM)</option>
+                      <option value="Standard_D2s_v3">Standard_D2s_v3 (2 vCPU, 8 GB RAM)</option>
+                      <option value="Standard_D4s_v3">Standard_D4s_v3 (4 vCPU, 16 GB RAM)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="t3.micro">t3.micro (2 vCPU, 1 GB RAM)</option>
+                      <option value="t3.small">t3.small (2 vCPU, 2 GB RAM)</option>
+                      <option value="t3.medium">t3.medium (2 vCPU, 4 GB RAM)</option>
+                      <option value="m5.large">m5.large (2 vCPU, 8 GB RAM)</option>
+                    </>
+                  )}
+                </select>
               </div>
             )}
           </div>
+        )}
+      </div>
 
-          <div className="flex justify-end gap-3 mt-6">
-            <button 
-              onClick={onBack}
-              className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => onSave(customStack)}
-              disabled={customStack.resources.length === 0}
-              className={`px-6 py-2 rounded-lg transition-colors ${
-                customStack.resources.length > 0
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              Save Custom Stack
-            </button>
+      {/* Tags Section */}
+      <div>
+        <button
+          onClick={() => toggleSection('tags')}
+          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+        >
+          <span className="font-medium">Resource Tags</span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${
+            expandedSections.includes('tags') ? 'rotate-90' : ''
+          }`} />
+        </button>
+
+        {expandedSections.includes('tags') && (
+          <div className="mt-2 space-y-3 pl-4">
+            {Object.entries(config.tags).map(([key, value]) => (
+              <div key={key}>
+                <label className="block text-sm font-medium text-gray-300 mb-1 capitalize">{key.replace('_', ' ')}</label>
+                <input 
+                  type="text"
+                  value={value}
+                  onChange={(e) => updateTags(key, e.target.value)}
+                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder={`Enter ${key.replace('_', ' ')}`}
+                />
+              </div>
+            ))}
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Environment Variables */}
+      <div>
+        <button
+          onClick={() => toggleSection('env')}
+          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+        >
+          <span className="font-medium">Environment Variables</span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${
+            expandedSections.includes('env') ? 'rotate-90' : ''
+          }`} />
+        </button>
+
+        {expandedSections.includes('env') && (
+          <div className="mt-2 space-y-3 pl-4">
+            <div className="space-y-2">
+              {Object.entries(config.environment_variables || {}).map(([key, value], index) => (
+                <div key={index} className="flex gap-2">
+                  <input 
+                    type="text"
+                    value={key}
+                    placeholder="Variable name"
+                    className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    readOnly
+                  />
+                  <input 
+                    type="text"
+                    value={value}
+                    onChange={(e) => updateEnvironmentVariables(key, e.target.value)}
+                    placeholder="Variable value"
+                    className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              ))}
+              <button
+                onClick={() => updateEnvironmentVariables(`VAR_${Date.now()}`, '')}
+                className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add Variable
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Advanced Configuration */}
+      <div>
+        <button
+          onClick={() => toggleSection('advanced')}
+          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+        >
+          <span className="font-medium">Advanced Configuration</span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${
+            expandedSections.includes('advanced') ? 'rotate-90' : ''
+          }`} />
+        </button>
+
+        {expandedSections.includes('advanced') && (
+          <div className="mt-2 space-y-3 pl-4">
+            {/* Advanced configs based on resource type */}
+            {resource.id === 'azure-vm' && (
+              <>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-300">Enable Backup</label>
+                  <input 
+                    type="checkbox"
+                    checked={config.enable_backup}
+                    onChange={(e) => updateConfig('enable_backup', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-300">Auto Shutdown</label>
+                  <input 
+                    type="checkbox"
+                    checked={config.auto_shutdown}
+                    onChange={(e) => updateConfig('auto_shutdown', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  />
+                </div>
+              </>
+            )}
+
+            {resource.id === 'aws-ec2' && (
+              <>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-300">Enable Monitoring</label>
+                  <input 
+                    type="checkbox"
+                    checked={config.enable_monitoring}
+                    onChange={(e) => updateConfig('enable_monitoring', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-300">EBS Optimized</label>
+                  <input 
+                    type="checkbox"
+                    checked={config.ebs_optimized}
+                    onChange={(e) => updateConfig('ebs_optimized', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  />
+                </div>
+              </>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                {resource.id.includes('vm') || resource.id.includes('ec2') ? 
+                  (resource.id.startsWith('azure') ? 'Custom Data' : 'User Data') : 
+                  'Custom Configuration'
+                }
+              </label>
+              <textarea 
+                value={resource.id.startsWith('azure') ? config.custom_data : config.user_data || ''}
+                onChange={(e) => updateConfig(resource.id.startsWith('azure') ? 'custom_data' : 'user_data', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                rows="4"
+                placeholder="Enter initialization script or configuration"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Save Button */}
+      <div className="pt-4 border-t border-gray-700">
+        <button
+          onClick={() => {}}
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+        >
+          Save Configuration
+        </button>
       </div>
     </div>
   );
@@ -5000,7 +6356,8 @@ export default function App() {
           </div>
         )}
         
-        <Breadcrumb currentPage={currentPage} />
+        {/* Hide breadcrumb for InfraBuilder pages */}
+        {currentPage !== 'infrabuilder' && <Breadcrumb currentPage={currentPage} />}
         
         <div className="flex-1 overflow-y-auto">
           {renderPage()}
