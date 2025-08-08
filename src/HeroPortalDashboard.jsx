@@ -189,9 +189,16 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
             </div>
             {expandedSections.includes('build') && (
               <div className="space-y-2">
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <div 
+                  onClick={() => setCurrentPage('infrabuilder')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('infrabuilder') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
                   <Code className="w-4 h-4 inline mr-2" />
-                  Architecture Templates
+                  InfraBuilder
                 </div>
                 <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
                   <Settings className="w-4 h-4 inline mr-2" />
@@ -1445,6 +1452,895 @@ const DashboardPage = () => {
           <div className="flex items-center gap-3">
             <div className="w-4 h-4 bg-gradient-to-r from-gray-300 to-gray-200 rounded"></div>
             <span className="text-gray-600 font-medium">Future</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// InfraBuilder Component with Component Table
+const InfraBuilder = () => {
+  const [selectedProject, setSelectedProject] = useState('Project Alpha');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showComponentBuilder, setShowComponentBuilder] = useState(false);
+  const [selectedComponent, setSelectedComponent] = useState(null);
+  const [showStackDefinition, setShowStackDefinition] = useState(false);
+  const [showStackConfig, setShowStackConfig] = useState(false);
+  const [selectedStack, setSelectedStack] = useState(null);
+  const [newComponent, setNewComponent] = useState({
+    project: '',
+    name: '',
+    description: ''
+  });
+
+  // Sample components data - different for each project
+  const componentsData = {
+    'Project Alpha': [
+      { 
+        id: 1, 
+        name: 'Web Application Front End', 
+        description: 'React-based SPA with Redux state management', 
+        version: 'v2.1.0', 
+        lastDeployment: '2025-01-06 14:23 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 2, 
+        name: 'API Gateway', 
+        description: 'Kong-based API gateway with rate limiting', 
+        version: 'v1.8.2', 
+        lastDeployment: '2025-01-05 09:15 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 3, 
+        name: 'Application Compute Layer', 
+        description: 'Kubernetes cluster with auto-scaling', 
+        version: 'v3.0.1', 
+        lastDeployment: '2025-01-04 16:45 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 4, 
+        name: 'Database Cluster', 
+        description: 'PostgreSQL HA cluster with read replicas', 
+        version: 'v14.5', 
+        lastDeployment: '2025-01-02 11:30 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 5, 
+        name: 'Application Storage', 
+        description: 'Azure Blob Storage with CDN integration', 
+        version: 'v1.2.0', 
+        lastDeployment: '2025-01-03 08:00 UTC',
+        status: 'deployed'
+      }
+    ],
+    'Project Beta': [
+      { 
+        id: 6, 
+        name: 'Event-Driven Data Processing', 
+        description: 'Apache Kafka cluster with Spark streaming', 
+        version: 'v2.8.0', 
+        lastDeployment: '2025-01-07 10:20 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 7, 
+        name: 'API Gateway', 
+        description: 'AWS API Gateway with Lambda integration', 
+        version: 'v2.0.0', 
+        lastDeployment: '2025-01-06 15:30 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 8, 
+        name: 'Database Cluster', 
+        description: 'MongoDB sharded cluster', 
+        version: 'v5.0.3', 
+        lastDeployment: '2025-01-05 12:00 UTC',
+        status: 'deployed'
+      }
+    ],
+    'Project Gamma': [
+      { 
+        id: 9, 
+        name: 'Web Application Front End', 
+        description: 'Vue.js application with Vuex', 
+        version: 'v1.5.0', 
+        lastDeployment: '2025-01-07 09:00 UTC',
+        status: 'deployed'
+      },
+      { 
+        id: 10, 
+        name: 'Application Compute Layer', 
+        description: 'Docker Swarm cluster', 
+        version: 'v2.3.1', 
+        lastDeployment: '2025-01-06 13:45 UTC',
+        status: 'deployed'
+      }
+    ]
+  };
+
+  const components = componentsData[selectedProject] || [];
+
+  const handleCreateComponent = () => {
+    console.log('Creating new component:', newComponent);
+    setShowCreateModal(false);
+    setNewComponent({ project: '', name: '', description: '' });
+  };
+
+  const handleViewComponent = (component) => {
+    setSelectedComponent(component);
+    setShowComponentBuilder(true);
+  };
+
+  const handleManageComponent = (component) => {
+    setSelectedComponent(component);
+    setShowComponentBuilder(true);
+  };
+
+  // Component Builder Page
+  if (showComponentBuilder) {
+    return <ComponentBuilder 
+      component={selectedComponent} 
+      onBack={() => {
+        setShowComponentBuilder(false);
+        setSelectedComponent(null);
+      }}
+      onOpenStackDefinition={() => setShowStackDefinition(true)}
+      showStackDefinition={showStackDefinition}
+      setShowStackDefinition={setShowStackDefinition}
+      showStackConfig={showStackConfig}
+      setShowStackConfig={setShowStackConfig}
+      selectedStack={selectedStack}
+      setSelectedStack={setSelectedStack}
+    />;
+  }
+
+  return (
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
+          <Layers className="w-8 h-8 text-blue-600" />
+          InfraBuilder
+        </h1>
+        <p className="text-gray-600 mt-2">Design and manage infrastructure components for your projects</p>
+      </div>
+
+      {/* Project Selector and Create Button */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-semibold text-gray-700">Project:</label>
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="Project Alpha">Project Alpha</option>
+            <option value="Project Beta">Project Beta</option>
+            <option value="Project Gamma">Project Gamma</option>
+          </select>
+        </div>
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-semibold shadow-lg"
+        >
+          <Plus className="w-5 h-5" />
+          Create New Component
+        </button>
+      </div>
+
+      {/* Component Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-slate-900">Component Table</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Component Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Description
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Version
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Project
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Last Deployment
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {components.map((component) => (
+                <tr key={component.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div 
+                      className="font-medium text-slate-900 cursor-pointer hover:text-blue-600 transition-colors"
+                      onClick={() => handleViewComponent(component)}
+                    >
+                      {component.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {component.description}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                      {component.version}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {selectedProject}
+                  </td>
+                  <td className="px-6 py-4">
+                    <a href="#" className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                      {component.lastDeployment}
+                    </a>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleViewComponent(component)}
+                        className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleManageComponent(component)}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-1"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Manage
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Create New Component Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Create New Component</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Project
+                </label>
+                <select 
+                  value={newComponent.project}
+                  onChange={(e) => setNewComponent({...newComponent, project: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Choose a project...</option>
+                  <option value="Project Alpha">Project Alpha</option>
+                  <option value="Project Beta">Project Beta</option>
+                  <option value="Project Gamma">Project Gamma</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Component Name
+                </label>
+                <input 
+                  type="text"
+                  value={newComponent.name}
+                  onChange={(e) => setNewComponent({...newComponent, name: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter component name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Component Description
+                </label>
+                <textarea 
+                  value={newComponent.description}
+                  onChange={(e) => setNewComponent({...newComponent, description: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows="3"
+                  placeholder="Enter component description"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setShowCreateModal(false)}
+                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleCreateComponent}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Create Component
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Component Builder Page
+const ComponentBuilder = ({ 
+  component, 
+  onBack, 
+  onOpenStackDefinition,
+  showStackDefinition,
+  setShowStackDefinition,
+  showStackConfig,
+  setShowStackConfig,
+  selectedStack,
+  setSelectedStack
+}) => {
+  const [stacks, setStacks] = useState([]);
+  const [showCustomStack, setShowCustomStack] = useState(false);
+  const [resourceConfigs, setResourceConfigs] = useState({});
+  const [configuredResources, setConfiguredResources] = useState(new Set());
+
+  if (showStackDefinition) {
+    return <StackDefinition 
+      onBack={() => setShowStackDefinition(false)}
+      onSelectStack={(stack) => {
+        setSelectedStack(stack);
+        setShowStackDefinition(false);
+        setShowStackConfig(true);
+      }}
+      showCustomStack={showCustomStack}
+      setShowCustomStack={setShowCustomStack}
+    />;
+  }
+
+  if (showStackConfig) {
+    return <StackConfiguration
+      stack={selectedStack}
+      onBack={() => {
+        setShowStackConfig(false);
+        setSelectedStack(null);
+      }}
+      onSave={(stack) => {
+        setStacks([...stacks, stack]);
+        setShowStackConfig(false);
+        setSelectedStack(null);
+      }}
+      resourceConfigs={resourceConfigs}
+      setResourceConfigs={setResourceConfigs}
+      configuredResources={configuredResources}
+      setConfiguredResources={setConfiguredResources}
+    />;
+  }
+
+  return (
+    <div className="p-8">
+      <div className="mb-6">
+        <button 
+          onClick={onBack}
+          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Back to Components
+        </button>
+        <h1 className="text-3xl font-bold text-slate-900">Component Builder</h1>
+      </div>
+
+      {/* Component Details Box */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Component Details</h2>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-semibold text-gray-600">Name:</span>
+            <p className="text-gray-900 mt-1">{component.name}</p>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Version:</span>
+            <p className="text-gray-900 mt-1">{component.version}</p>
+          </div>
+          <div className="col-span-2">
+            <span className="font-semibold text-gray-600">Description:</span>
+            <p className="text-gray-900 mt-1">{component.description}</p>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Last Deployment:</span>
+            <p className="text-gray-900 mt-1">{component.lastDeployment}</p>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Status:</span>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+              {component.status}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Graph UI Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Component Architecture</h2>
+        
+        <div className="min-h-[400px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 relative">
+          {stacks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[400px]">
+              <Layers className="w-16 h-16 text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-4">No stacks configured yet</p>
+              <button 
+                onClick={onOpenStackDefinition}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Add Stacks
+              </button>
+            </div>
+          ) : (
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Configured Stacks</h3>
+                <button 
+                  onClick={onOpenStackDefinition}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Stack
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {stacks.map((stack, index) => (
+                  <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Server className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-gray-900">{stack.name}</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">{stack.resources.length} resources</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Stack Definition Page
+const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustomStack }) => {
+  const prebuiltStacks = [
+    { 
+      id: 1, 
+      name: 'Azure VM + Storage', 
+      description: 'Virtual Machine deployment with corresponding Azure Storage Account, Network Security Groups, and backup configuration',
+      resources: ['Azure Virtual Machine', 'Storage Account (Blob + Files)', 'Virtual Network + Subnet', 'Network Security Group', 'Recovery Services Vault'],
+      image: 'stackTemplate1.png',
+      cost: '$180-320/month',
+      deployTime: '8-12 minutes'
+    },
+    { 
+      id: 2, 
+      name: 'AKS + PaaS Database', 
+      description: 'Azure Kubernetes Service with managed SQL Server database connectivity, including ingress, monitoring, and secrets management',
+      resources: ['AKS Cluster (3 nodes)', 'Azure SQL Database', 'Application Gateway', 'Key Vault for secrets', 'Azure Monitor + Log Analytics'],
+      image: 'stackTemplate1.png',
+      cost: '$450-800/month',
+      deployTime: '15-20 minutes'
+    },
+    { 
+      id: 3, 
+      name: 'Multi-Tier Web App', 
+      description: 'Complete 3-tier web application with load balancer, multiple VMs, and database backend with Redis caching layer',
+      resources: ['Load Balancer + 2 Web VMs', 'Application VM (API tier)', 'Azure SQL Database', 'Redis Cache', 'Storage Account + CDN'],
+      image: 'stackTemplate2.png',
+      cost: '$650-1200/month',
+      deployTime: '20-25 minutes'
+    },
+    { 
+      id: 4, 
+      name: 'Data Analytics Platform', 
+      description: 'Complete data platform with ingestion, processing, and analytics capabilities using Azure data services',
+      resources: ['Data Factory (ETL)', 'Azure Synapse Analytics', 'Data Lake Storage Gen2', 'Power BI Embedded', 'Event Hub for streaming'],
+      image: 'stackTemplate2.png',
+      cost: '$800-1500/month',
+      deployTime: '25-30 minutes'
+    }
+  ];
+
+  if (showCustomStack) {
+    return <CustomStackBuilder 
+      onBack={() => setShowCustomStack(false)}
+      onSave={(stack) => {
+        onSelectStack(stack);
+        setShowCustomStack(false);
+      }}
+    />;
+  }
+
+  return (
+    <div className="p-8">
+      <div className="mb-6">
+        <button 
+          onClick={onBack}
+          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Back to Component Builder
+        </button>
+        <h1 className="text-3xl font-bold text-slate-900">Stack Definition</h1>
+      </div>
+
+      <div className="grid grid-cols-2 gap-8">
+        {/* PreBuilt Stacks */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">PreBuilt Stacks</h2>
+          <div className="space-y-4">
+            {prebuiltStacks.map((stack) => (
+              <div key={stack.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">{stack.name}</h3>
+                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                    APPROVED
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">{stack.description}</p>
+                
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-gray-500 mb-2">INCLUDES:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {stack.resources.map((resource, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                        {resource}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {stack.cost && (
+                  <div className="mb-4 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Est. Cost:</span>
+                      <span className="font-semibold text-gray-900">{stack.cost}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Deploy Time:</span>
+                      <span className="font-semibold text-gray-900">{stack.deployTime}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1">
+                    Preview
+                  </button>
+                  <button 
+                    onClick={() => onSelectStack(stack)}
+                    className="px-6 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    Use Pattern
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Stacks */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Custom Stacks</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex flex-col items-center justify-center py-8">
+              <Package className="w-16 h-16 text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-4 text-center">
+                Build your own custom stack by selecting and configuring individual cloud resources
+              </p>
+              <button 
+                onClick={() => setShowCustomStack(true)}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Create Custom Stack
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Stack Configuration Page
+const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourceConfigs, configuredResources, setConfiguredResources }) => {
+  const [showResourceConfig, setShowResourceConfig] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+
+  const handleResourceClick = (resource) => {
+    setSelectedResource(resource);
+    setShowResourceConfig(true);
+  };
+
+  const handleSaveResourceConfig = (config) => {
+    setResourceConfigs({...resourceConfigs, [selectedResource]: config});
+    setConfiguredResources(new Set([...configuredResources, selectedResource]));
+    setShowResourceConfig(false);
+    setSelectedResource(null);
+  };
+
+  const allResourcesConfigured = stack.resources.every(r => configuredResources.has(r));
+
+  return (
+    <div className="p-8">
+      <div className="mb-6">
+        <button 
+          onClick={onBack}
+          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Back to Stack Selection
+        </button>
+        <h1 className="text-3xl font-bold text-slate-900">Configure Stack: {stack.name}</h1>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <p className="text-gray-600 mb-6">
+          Configure the Terraform parameters for each resource. Resources with red borders need configuration.
+        </p>
+
+        <div className="grid grid-cols-3 gap-6 mb-6">
+          {stack.resources.map((resource, idx) => (
+            <div 
+              key={idx}
+              onClick={() => handleResourceClick(resource)}
+              className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${
+                configuredResources.has(resource) 
+                  ? 'border-green-500 bg-green-50 hover:bg-green-100' 
+                  : 'border-red-500 bg-red-50 hover:bg-red-100'
+              }`}
+            >
+              <Server className={`w-8 h-8 mb-3 ${
+                configuredResources.has(resource) ? 'text-green-600' : 'text-red-600'
+              }`} />
+              <h3 className="font-semibold text-gray-900">{resource}</h3>
+              <p className="text-sm text-gray-600 mt-2">
+                {configuredResources.has(resource) ? 'Configured' : 'Click to configure'}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button 
+            onClick={onBack}
+            className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={() => onSave(stack)}
+            disabled={!allResourcesConfigured}
+            className={`px-6 py-2 rounded-lg transition-colors ${
+              allResourcesConfigured
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Save Stack
+          </button>
+        </div>
+      </div>
+
+      {/* Resource Configuration Modal */}
+      {showResourceConfig && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Configure {selectedResource}</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Resource Name
+                </label>
+                <input 
+                  type="text"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter resource name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  SKU / Size
+                </label>
+                <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option>Standard_B2s</option>
+                  <option>Standard_D2s_v3</option>
+                  <option>Standard_D4s_v3</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Region
+                </label>
+                <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option>East US</option>
+                  <option>West US</option>
+                  <option>Central US</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Additional Variables
+                </label>
+                <textarea 
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows="3"
+                  placeholder="key=value format, one per line"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setShowResourceConfig(false)}
+                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleSaveResourceConfig({})}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Configuration
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Custom Stack Builder
+const CustomStackBuilder = ({ onBack, onSave }) => {
+  const [customStack, setCustomStack] = useState({ name: '', resources: [] });
+  const [draggedResource, setDraggedResource] = useState(null);
+
+  const availableResources = [
+    { id: 'vm', name: 'Azure VM', icon: Server },
+    { id: 'storage', name: 'Azure Storage Account', icon: HardDrive },
+    { id: 'aks', name: 'Azure AKS Cluster', icon: Container },
+    { id: 'sql', name: 'Azure SQL Database', icon: Database },
+    { id: 'network', name: 'Azure Virtual Network', icon: Network },
+    { id: 'lb', name: 'Azure Load Balancer', icon: Activity }
+  ];
+
+  const handleDragStart = (resource) => {
+    setDraggedResource(resource);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (draggedResource) {
+      setCustomStack({
+        ...customStack,
+        resources: [...customStack.resources, draggedResource.name]
+      });
+      setDraggedResource(null);
+    }
+  };
+
+  return (
+    <div className="p-8">
+      <div className="mb-6">
+        <button 
+          onClick={onBack}
+          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Back to Stack Definition
+        </button>
+        <h1 className="text-3xl font-bold text-slate-900">Custom Stack Builder</h1>
+      </div>
+
+      <div className="grid grid-cols-4 gap-6">
+        {/* Available Resources */}
+        <div className="col-span-1">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Cloud Resources</h2>
+          <div className="space-y-2">
+            {availableResources.map((resource) => {
+              const Icon = resource.icon;
+              return (
+                <div 
+                  key={resource.id}
+                  draggable
+                  onDragStart={() => handleDragStart(resource)}
+                  className="p-3 bg-white rounded-lg border border-gray-200 cursor-move hover:shadow-md transition-shadow flex items-center gap-2"
+                >
+                  <Icon className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium">{resource.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Canvas */}
+        <div className="col-span-3">
+          <div className="mb-4">
+            <input 
+              type="text"
+              value={customStack.name}
+              onChange={(e) => setCustomStack({...customStack, name: e.target.value})}
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter stack name"
+            />
+          </div>
+          
+          <div 
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className="min-h-[500px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-6"
+          >
+            {customStack.resources.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[450px] text-gray-500">
+                <Layers className="w-16 h-16 mb-4" />
+                <p>Drag resources here to build your custom stack</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {customStack.resources.map((resource, idx) => (
+                  <div key={idx} className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
+                    <Server className="w-6 h-6 text-orange-600 mb-2" />
+                    <p className="text-sm font-medium">{resource}</p>
+                    <p className="text-xs text-orange-600 mt-2">Configuration Required</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+            <button 
+              onClick={onBack}
+              className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => onSave(customStack)}
+              disabled={customStack.resources.length === 0}
+              className={`px-6 py-2 rounded-lg transition-colors ${
+                customStack.resources.length > 0
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Save Custom Stack
+            </button>
           </div>
         </div>
       </div>
@@ -4053,6 +4949,8 @@ export default function App() {
         return <CloudOnboardingStatus />;
       case 'vulnerabilities':
         return <VulnerabilitiesDashboard />;
+      case 'infrabuilder':
+        return <InfraBuilder />;
       default:
         return <HomePage setCurrentPage={setCurrentPage} />;
     }
@@ -4067,7 +4965,8 @@ export default function App() {
       'projects': 'https://hero.jll.com/onboarding/projects',
       'cloud-onboarding': 'https://hero.jll.com/onboarding/csp',
       'cloud-onboarding-status': 'https://hero.jll.com/onboarding/csp/status/REQ-2025-0789',
-      'vulnerabilities': 'https://hero.jll.com/dashboards/vulnerabilities'
+      'vulnerabilities': 'https://hero.jll.com/dashboards/vulnerabilities',
+      'infrabuilder': 'https://hero.jll.com/build/infrabuilder'
     };
     return urlMap[currentPage] || 'https://hero.jll.com';
   };
@@ -4080,7 +4979,7 @@ export default function App() {
         setCurrentPage={setCurrentPage}
       />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <BrowserChrome url={getPageUrl()} hasAlerts={true} />
         
         {/* Global Alert Banner - only show on home page */}
@@ -4103,7 +5002,7 @@ export default function App() {
         
         <Breadcrumb currentPage={currentPage} />
         
-        <div className="h-full overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {renderPage()}
         </div>
       </div>
