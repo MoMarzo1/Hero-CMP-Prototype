@@ -555,7 +555,7 @@ const HomePage = ({ setCurrentPage }) => {
         <p className="text-2xl text-gray-600 font-light mb-4">
           <span className="font-bold">H</span>elping <span className="font-bold">E</span>ngineers <span className="font-bold">R</span>ealize <span className="font-bold">O</span>pportunities
         </p>
-        <p className="text-lg text-gray-500 font-light mb-2">Your unified platform for cloud infrastructure management and deployment</p>
+        <p className="text-lg text-gray-500 font-light mb-2">Your unified cloud management platform</p>
       </div>
 
       {/* Statistics Summary */}
@@ -616,42 +616,42 @@ const HomePage = ({ setCurrentPage }) => {
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-slate-900 mb-8">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105">
+          <div className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100">
             <div className="mb-4 group-hover:scale-110 transition-transform">
               <Zap className="w-10 h-10 text-white" />
             </div>
-            <h3 className="font-bold text-lg mb-2">New Deployment</h3>
-            <p className="text-white/80">Deploy your applications</p>
+            <h3 className="font-semibold text-lg mb-2 text-white">New Deployment</h3>
+            <p className="text-white/90 text-sm">Deploy your applications</p>
           </div>
           <div 
             onClick={() => setCurrentPage('cloud-onboarding')}
-            className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
           >
             <div className="mb-4 group-hover:scale-110 transition-transform">
               <Cloud className="w-10 h-10 text-white" />
             </div>
-            <h3 className="font-bold text-lg mb-2">Cloud Onboarding</h3>
-            <p className="text-white/80">Request cloud resources</p>
+            <h3 className="font-semibold text-lg mb-2 text-white">Cloud Onboarding</h3>
+            <p className="text-white/90 text-sm">Request cloud resources</p>
           </div>
           <div 
             onClick={() => setCurrentPage('financial')}
-            className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
           >
             <div className="mb-4 group-hover:scale-110 transition-transform">
               <DollarSign className="w-10 h-10 text-white" />
             </div>
-            <h3 className="font-bold text-lg mb-2">Cost Analytics</h3>
-            <p className="text-white/80">Monitor cloud spending</p>
+            <h3 className="font-semibold text-lg mb-2 text-white">Cost Analytics</h3>
+            <p className="text-white/90 text-sm">Monitor cloud spending</p>
           </div>
           <div 
             onClick={() => setCurrentPage('infrabuilder')}
-            className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 text-white group hover:scale-105"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
           >
             <div className="mb-4 group-hover:scale-110 transition-transform">
               <PencilRuler className="w-10 h-10 text-white" />
             </div>
-            <h3 className="font-bold text-lg mb-2">InfraBuilder</h3>
-            <p className="text-white/80">Design infrastructure</p>
+            <h3 className="font-semibold text-lg mb-2 text-white">InfraBuilder</h3>
+            <p className="text-white/90 text-sm">Design infrastructure</p>
           </div>
         </div>
       </div>
