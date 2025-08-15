@@ -544,210 +544,150 @@ const Breadcrumb = ({ currentPage }) => {
   );
 };
 
-// Modern Home Page
+// Modern Minimal Home Page
 const HomePage = ({ setCurrentPage }) => {
   return (
-    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
-      <div className="mb-12">
-        <h1 className="text-5xl font-bold text-slate-900 mb-4">
+    <div className="p-12 bg-white min-h-screen">
+      {/* Simplified Header */}
+      <div className="mb-16">
+        <h1 className="text-4xl font-light text-slate-900 mb-2">
           Welcome to the JLL HERO Portal
         </h1>
-        <p className="text-2xl text-gray-600 font-light mb-4">
-          <span className="font-bold">H</span>elping <span className="font-bold">E</span>ngineers <span className="font-bold">R</span>ealize <span className="font-bold">O</span>pportunities
-        </p>
-        <p className="text-lg text-gray-500 font-light mb-2">Your unified cloud management platform</p>
+        <p className="text-sm text-gray-500 uppercase tracking-wider">Cloud Infrastructure Management</p>
       </div>
 
-      {/* Statistics Summary */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8">Today's Overview</h2>
-        <div className="grid grid-cols-4 gap-6">
+      {/* Minimal Statistics */}
+      <div className="mb-16">
+        <div className="grid grid-cols-4 gap-8">
           <div 
             onClick={() => setCurrentPage('dashboard')}
-            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-600/20 group"
+            className="cursor-pointer group"
           >
-            <div className="flex items-center justify-between mb-4">
-              <Activity className="w-8 h-8 text-red-600 group-hover:scale-110 transition-transform" />
-              <div className="text-4xl font-bold text-red-600">17</div>
-            </div>
-            <div className="text-gray-600 font-medium">Active Deployments</div>
-            <div className="text-sm text-green-600 mt-2 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-1" />
-              +3 from yesterday
-            </div>
+            <div className="text-3xl font-light text-slate-900 mb-2 group-hover:text-[#003E51] transition-colors">17</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Active Deployments</div>
+            <div className="text-xs text-green-600 mt-1">↑ 3</div>
           </div>
           <div 
             onClick={() => setCurrentPage('dashboard')}
-            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-400/20 group"
+            className="cursor-pointer group"
           >
-            <div className="flex items-center justify-between mb-4">
-              <CheckCircle className="w-8 h-8 text-green-500 group-hover:scale-110 transition-transform" />
-              <div className="text-4xl font-bold text-green-500">96%</div>
-            </div>
-            <div className="text-gray-600 font-medium">Success Rate</div>
-            <div className="text-sm text-gray-500 mt-2">Last 7 days</div>
+            <div className="text-3xl font-light text-slate-900 mb-2 group-hover:text-[#003E51] transition-colors">96%</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Success Rate</div>
+            <div className="text-xs text-gray-400 mt-1">7 days</div>
           </div>
           <div 
             onClick={() => setCurrentPage('financial')}
-            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-400/20 group"
+            className="cursor-pointer group"
           >
-            <div className="flex items-center justify-between mb-4">
-              <DollarSign className="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform" />
-              <div className="text-4xl font-bold text-blue-600">$12.8K</div>
-            </div>
-            <div className="text-gray-600 font-medium">Monthly Spend</div>
-            <div className="text-sm text-orange-600 mt-2">85% of budget</div>
+            <div className="text-3xl font-light text-slate-900 mb-2 group-hover:text-[#003E51] transition-colors">$12.8K</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Monthly Spend</div>
+            <div className="text-xs text-orange-600 mt-1">85% budget</div>
           </div>
           <div 
             onClick={() => setCurrentPage('financial')}
-            className="bg-white rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-600/20 group"
+            className="cursor-pointer group"
           >
-            <div className="flex items-center justify-between mb-4">
-              <AlertTriangle className="w-8 h-8 text-red-600 group-hover:scale-110 transition-transform" />
-              <div className="text-4xl font-bold text-red-600">3</div>
-            </div>
-            <div className="text-gray-600 font-medium">Active Alerts</div>
-            <div className="text-sm text-red-600 mt-2">Action required</div>
+            <div className="text-3xl font-light text-slate-900 mb-2 group-hover:text-[#003E51] transition-colors">3</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Active Alerts</div>
+            <div className="text-xs text-red-600 mt-1">Action required</div>
           </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8">Quick Actions</h2>
-        <div className="grid grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100">
-            <div className="mb-4 group-hover:scale-110 transition-transform">
-              <Zap className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2 text-white">New Deployment</h3>
-            <p className="text-white/90 text-sm">Deploy your applications</p>
+      {/* Refined Quick Actions */}
+      <div className="mb-16">
+        <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group">
+            <Zap className="w-6 h-6 text-white mb-3" />
+            <h3 className="font-medium text-sm text-white">New Deployment</h3>
           </div>
           <div 
             onClick={() => setCurrentPage('cloud-onboarding')}
-            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group"
           >
-            <div className="mb-4 group-hover:scale-110 transition-transform">
-              <Cloud className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2 text-white">Cloud Onboarding</h3>
-            <p className="text-white/90 text-sm">Request cloud resources</p>
+            <Cloud className="w-6 h-6 text-white mb-3" />
+            <h3 className="font-medium text-sm text-white">Cloud Onboarding</h3>
           </div>
           <div 
             onClick={() => setCurrentPage('financial')}
-            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group"
           >
-            <div className="mb-4 group-hover:scale-110 transition-transform">
-              <DollarSign className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2 text-white">Cost Analytics</h3>
-            <p className="text-white/90 text-sm">Monitor cloud spending</p>
+            <DollarSign className="w-6 h-6 text-white mb-3" />
+            <h3 className="font-medium text-sm text-white">Cost Analytics</h3>
           </div>
           <div 
             onClick={() => setCurrentPage('infrabuilder')}
-            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-2xl p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 group hover:scale-105 border border-gray-100"
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group"
           >
-            <div className="mb-4 group-hover:scale-110 transition-transform">
-              <PencilRuler className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2 text-white">InfraBuilder</h3>
-            <p className="text-white/90 text-sm">Design infrastructure</p>
+            <PencilRuler className="w-6 h-6 text-white mb-3" />
+            <h3 className="font-medium text-sm text-white">InfraBuilder</h3>
           </div>
         </div>
       </div>
 
-      {/* Ask HeroAI Agent */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8">AI Assistant</h2>
+      {/* AI Assistant - Minimal */}
+      <div className="mb-16">
+        <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-6">AI Assistant</h2>
         <AskHeroAI />
       </div>
 
-      {/* Recent Activity */}
+      {/* Streamlined Activity */}
       <div className="grid grid-cols-2 gap-8">
-        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-slate-900 mb-6 text-xl">Recent Deployments</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl border border-green-100">
+        <div>
+          <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-6">Recent Deployments</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <div>
-                  <div className="font-semibold text-slate-900">EDP Core v2.1.4</div>
-                  <div className="text-sm text-gray-600">Production</div>
+                  <div className="text-sm font-medium text-slate-900">EDP Core v2.1.4</div>
+                  <div className="text-xs text-gray-500">Production</div>
                 </div>
               </div>
-              <div className="text-sm text-green-600 font-medium">Success • 2h ago</div>
+              <div className="text-xs text-gray-500">2h ago</div>
             </div>
-            <div className="flex justify-between items-center p-4 bg-red-50 rounded-xl border border-red-100">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                  <XCircle className="w-4 h-4 text-red-600" />
-                </div>
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 <div>
-                  <div className="font-semibold text-slate-900">TelmaAI v3.0.0</div>
-                  <div className="text-sm text-gray-600">Staging</div>
+                  <div className="text-sm font-medium text-slate-900">TelmaAI v3.0.0</div>
+                  <div className="text-xs text-gray-500">Staging</div>
                 </div>
               </div>
-              <div className="text-sm text-red-600 font-medium">Failed • 4h ago</div>
+              <div className="text-xs text-gray-500">4h ago</div>
             </div>
-            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl border border-green-100">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <div>
-                  <div className="font-semibold text-slate-900">Corrigo Core v1.8.2</div>
-                  <div className="text-sm text-gray-600">Production</div>
+                  <div className="text-sm font-medium text-slate-900">Corrigo Core v1.8.2</div>
+                  <div className="text-xs text-gray-500">Production</div>
                 </div>
               </div>
-              <div className="text-sm text-green-600 font-medium">Success • 1d ago</div>
+              <div className="text-xs text-gray-500">1d ago</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-slate-900 mb-6 text-xl">Platform Health</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Cloud className="w-5 h-5 text-green-600" />
-                <span className="text-slate-900 font-medium">Cloud Services</span>
-              </div>
-              <span className="text-green-600 font-semibold flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Operational
-              </span>
+        <div>
+          <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-6">Platform Health</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-sm text-slate-900">Cloud Services</span>
+              <span className="text-xs text-green-600 font-medium">Operational</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Container className="w-5 h-5 text-green-600" />
-                <span className="text-slate-900 font-medium">Kubernetes Clusters</span>
-              </div>
-              <span className="text-green-600 font-semibold flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Healthy
-              </span>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-sm text-slate-900">Kubernetes Clusters</span>
+              <span className="text-xs text-green-600 font-medium">Healthy</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-orange-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Network className="w-5 h-5 text-orange-600" />
-                <span className="text-slate-900 font-medium">API Gateway</span>
-              </div>
-              <span className="text-orange-600 font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Degraded
-              </span>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-sm text-slate-900">API Gateway</span>
+              <span className="text-xs text-orange-600 font-medium">Degraded</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Monitor className="w-5 h-5 text-green-600" />
-                <span className="text-slate-900 font-medium">Monitoring</span>
-              </div>
-              <span className="text-green-600 font-semibold flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Active
-              </span>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-sm text-slate-900">Monitoring</span>
+              <span className="text-xs text-green-600 font-medium">Active</span>
             </div>
           </div>
         </div>
@@ -7283,7 +7223,7 @@ export default function App() {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <BrowserChrome url={getPageUrl()} hasAlerts={true} />
+        
         
         {/* Global Alert Banner - only show on home page */}
         {currentPage === 'home' && (
