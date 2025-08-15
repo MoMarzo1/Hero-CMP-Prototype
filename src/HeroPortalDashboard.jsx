@@ -7,7 +7,7 @@ import {
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
-  GitBranch, Package, Layers, Monitor, Trash2, PencilRuler
+  GitBranch, Package, Layers, Monitor, Trash2, PencilRuler, Info
 } from 'lucide-react';
 
 // Enhanced Sidebar Component with HeroAI chat
@@ -207,7 +207,14 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   <PencilRuler className="w-4 h-4 inline mr-2" />
                   InfraBuilder
                 </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <div 
+                  onClick={() => setCurrentPage('deployments')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('deployments') 
+                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
                   <Zap className="w-4 h-4 inline mr-2" />
                   Deployments
                 </div>
@@ -522,7 +529,10 @@ const Breadcrumb = ({ currentPage }) => {
       'cloud-onboarding': ['Home', 'Onboarding', 'Cloud Service Provider'],
       'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status'],
       'kubernetes-onboarding': ['Home', 'Onboarding', 'Kubernetes'],
-      'kubernetes-onboarding-status': ['Home', 'Onboarding', 'Kubernetes', 'Status']
+      'kubernetes-onboarding-status': ['Home', 'Onboarding', 'Kubernetes', 'Status'],
+      'vulnerabilities': ['Home', 'Dashboards', 'Vulnerabilities'],
+      'infrabuilder': ['Home', 'Build', 'InfraBuilder'],
+      'deployments': ['Home', 'Build', 'Deployments']
     };
     
     return breadcrumbMap[currentPage] || ['Home'];
@@ -3650,6 +3660,979 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
         >
           Save Configuration
         </button>
+      </div>
+    </div>
+  );
+};
+
+// Deployment Management Component
+const DeploymentManagement = ({ setCurrentPage }) => {
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+  const [showNewDeployment, setShowNewDeployment] = useState(false);
+  const [selectedDeployment, setSelectedDeployment] = useState(null);
+  const [filterEnvironment, setFilterEnvironment] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+
+  // Sample deployment data aligned with InfraBuilder components
+  const deployments = [
+    {
+      id: 'dep-001',
+      component: 'API Gateway',
+      project: 'Project Alpha',
+      csp: 'AWS',
+      deploymentTarget: 'aws-prod-123456',
+      environment: 'Prod',
+      environmentType: 'Prod',
+      region: 'us-east-1',
+      version: 'v2.3.1',
+      lastDeployment: '2025-01-15 14:30:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-002',
+      component: 'Web Application',
+      project: 'Project Beta',
+      csp: 'Azure',
+      deploymentTarget: 'azure-sub-789012',
+      environment: 'Non-Prod',
+      environmentType: 'Stage',
+      region: 'East US',
+      version: 'v1.8.5',
+      lastDeployment: '2025-01-15 12:15:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-003',
+      component: 'Load Balancer',
+      project: 'Project Alpha',
+      csp: 'GCP',
+      deploymentTarget: 'gcp-project-456789',
+      environment: 'Non-Prod',
+      environmentType: 'Dev',
+      region: 'us-central1',
+      version: 'v3.0.0',
+      lastDeployment: '2025-01-15 10:45:00',
+      status: 'Warning'
+    },
+    {
+      id: 'dep-004',
+      component: 'Container Registry',
+      project: 'Project Gamma',
+      csp: 'AWS',
+      deploymentTarget: 'aws-dev-234567',
+      environment: 'Non-Prod',
+      environmentType: 'UAT',
+      region: 'eu-west-1',
+      version: 'v1.2.3',
+      lastDeployment: '2025-01-14 16:20:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-005',
+      component: 'Database',
+      project: 'Project Alpha',
+      csp: 'Azure',
+      deploymentTarget: 'azure-sub-345678',
+      environment: 'Prod',
+      environmentType: 'Prod-DR',
+      region: 'West Europe',
+      version: 'v4.1.0',
+      lastDeployment: '2025-01-14 09:00:00',
+      status: 'Failure'
+    },
+    {
+      id: 'dep-006',
+      component: 'Storage',
+      project: 'Project Delta',
+      csp: 'GCP',
+      deploymentTarget: 'gcp-project-789123',
+      environment: 'Non-Prod',
+      environmentType: 'Test',
+      region: 'europe-west1',
+      version: 'v2.0.0',
+      lastDeployment: '2025-01-13 11:30:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-007',
+      component: 'Kubernetes Cluster',
+      project: 'Project Beta',
+      csp: 'AWS',
+      deploymentTarget: 'aws-prod-567890',
+      environment: 'Prod',
+      environmentType: 'Prod',
+      region: 'ap-southeast-1',
+      version: 'v1.27.3',
+      lastDeployment: '2025-01-13 08:45:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-008',
+      component: 'CDN',
+      project: 'Project Alpha',
+      csp: 'Azure',
+      deploymentTarget: 'azure-sub-901234',
+      environment: 'Non-Prod',
+      environmentType: 'Demo',
+      region: 'Global',
+      version: 'v1.5.2',
+      lastDeployment: '2025-01-12 15:00:00',
+      status: 'Success'
+    },
+    {
+      id: 'dep-009',
+      component: 'Monitoring',
+      project: 'Project Epsilon',
+      csp: 'GCP',
+      deploymentTarget: 'gcp-project-234567',
+      environment: 'Non-Prod',
+      environmentType: 'QA',
+      region: 'asia-east1',
+      version: 'v3.2.1',
+      lastDeployment: '2025-01-12 13:20:00',
+      status: 'Warning'
+    },
+    {
+      id: 'dep-010',
+      component: 'VPC',
+      project: 'Project Alpha',
+      csp: 'AWS',
+      deploymentTarget: 'aws-prod-678901',
+      environment: 'Prod',
+      environmentType: 'Prod',
+      region: 'us-west-2',
+      version: 'v2.0.0',
+      lastDeployment: '2025-01-11 10:00:00',
+      status: 'Success'
+    }
+  ];
+
+  // Filter deployments based on selected filters
+  const filteredDeployments = deployments.filter(dep => {
+    const projectMatch = selectedProject === 'All Projects' || dep.project === selectedProject;
+    const envMatch = filterEnvironment === 'All' || dep.environment === filterEnvironment;
+    const statusMatch = filterStatus === 'All' || dep.status === filterStatus;
+    return projectMatch && envMatch && statusMatch;
+  });
+
+  // Get unique projects for dropdown
+  const projects = ['All Projects', ...new Set(deployments.map(d => d.project))];
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Success': return 'text-green-500';
+      case 'Failure': return 'text-red-500';
+      case 'Warning': return 'text-orange-500';
+      default: return 'text-gray-500';
+    }
+  };
+
+  const getStatusBgColor = (status) => {
+    switch(status) {
+      case 'Success': return 'bg-green-500/10 border-green-500/20';
+      case 'Failure': return 'bg-red-500/10 border-red-500/20';
+      case 'Warning': return 'bg-orange-500/10 border-orange-500/20';
+      default: return 'bg-gray-500/10 border-gray-500/20';
+    }
+  };
+
+  const getCspIcon = (csp) => {
+    switch(csp) {
+      case 'AWS':
+        return <Cloud className="w-4 h-4 text-orange-500" />;
+      case 'Azure':
+        return <Cloud className="w-4 h-4 text-blue-500" />;
+      case 'GCP':
+        return <Cloud className="w-4 h-4 text-red-500" />;
+      default:
+        return <Cloud className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Deployment Management</h1>
+        <p className="text-gray-600">Manage and monitor your component deployments across all environments</p>
+      </div>
+
+      {/* Filters and Actions */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex justify-between items-center">
+          <div className="flex gap-4">
+            <select 
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              {projects.map(project => (
+                <option key={project} value={project}>{project}</option>
+              ))}
+            </select>
+            <select 
+              value={filterEnvironment}
+              onChange={(e) => setFilterEnvironment(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="All">All Environments</option>
+              <option value="Prod">Production</option>
+              <option value="Non-Prod">Non-Production</option>
+            </select>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="All">All Status</option>
+              <option value="Success">Success</option>
+              <option value="Failure">Failure</option>
+              <option value="Warning">Warning</option>
+            </select>
+          </div>
+          <button
+            onClick={() => setShowNewDeployment(true)}
+            className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            New Deployment
+          </button>
+        </div>
+      </div>
+
+      {/* Deployments Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Component</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CSP</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deployment Target</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Environment</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Env Type</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Deployment</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredDeployments.map((deployment) => (
+                <tr key={deployment.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-slate-900">{deployment.component}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      {getCspIcon(deployment.csp)}
+                      <span className="text-sm text-gray-700">{deployment.csp}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600 font-mono">{deployment.deploymentTarget}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      deployment.environment === 'Prod' 
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {deployment.environment}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{deployment.environmentType}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{deployment.region}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm font-mono text-gray-700">{deployment.version}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">{deployment.lastDeployment}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getStatusBgColor(deployment.status)} ${getStatusColor(deployment.status)}`}>
+                      {deployment.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setSelectedDeployment(deployment)}
+                        className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
+                        className="p-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="Manage"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                      <button 
+                        className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Deploy"
+                      >
+                        <Zap className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* New Deployment Modal */}
+      {showNewDeployment && <NewDeploymentModal onClose={() => setShowNewDeployment(false)} />}
+    </div>
+  );
+};
+
+// New Deployment Configuration Modal
+const NewDeploymentModal = ({ onClose }) => {
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedComponent, setSelectedComponent] = useState('');
+  const [deploymentTarget, setDeploymentTarget] = useState('');
+  const [environment, setEnvironment] = useState('');
+  const [environmentType, setEnvironmentType] = useState('');
+  const [region, setRegion] = useState('');
+  const [showVulnerabilities, setShowVulnerabilities] = useState(false);
+  const [showVulnerabilityReport, setShowVulnerabilityReport] = useState(false);
+
+  // Project-component mapping
+  const projectComponents = {
+    'Project Alpha': ['API Gateway', 'Web Application', 'Database', 'Load Balancer', 'VPC', 'CDN'],
+    'Project Beta': ['Web Application', 'Kubernetes Cluster', 'Container Registry', 'Storage'],
+    'Project Gamma': ['Container Registry', 'Database', 'Monitoring', 'API Gateway'],
+    'Project Delta': ['Storage', 'CDN', 'Load Balancer', 'Web Application'],
+    'Project Epsilon': ['Monitoring', 'API Gateway', 'Database', 'VPC']
+  };
+
+  const deploymentTargets = {
+    'AWS': ['aws-prod-123456', 'aws-dev-234567', 'aws-prod-567890', 'aws-prod-678901'],
+    'Azure': ['azure-sub-789012', 'azure-sub-345678', 'azure-sub-901234'],
+    'GCP': ['gcp-project-456789', 'gcp-project-789123', 'gcp-project-234567']
+  };
+
+  const regions = {
+    'AWS': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'],
+    'Azure': ['East US', 'West Europe', 'Southeast Asia', 'UK South'],
+    'GCP': ['us-central1', 'europe-west1', 'asia-east1', 'australia-southeast1']
+  };
+
+  // Component-specific vulnerability data
+  const componentVulnerabilities = {
+    // Components with blocking vulnerabilities (critical/high)
+    'Database': {
+      critical: 3,
+      high: 7,
+      medium: 15,
+      low: 28,
+      details: [
+        { severity: 'critical', cve: 'CVE-2024-1234', description: 'SQL injection vulnerability in connection handler', package: 'pg-client v8.2.1' },
+        { severity: 'critical', cve: 'CVE-2024-1235', description: 'Authentication bypass in admin panel', package: 'admin-ui v2.3.0' },
+        { severity: 'critical', cve: 'CVE-2024-1236', description: 'Remote code execution via query parser', package: 'query-parser v1.5.2' },
+        { severity: 'high', cve: 'CVE-2024-2345', description: 'Privilege escalation in user management', package: 'user-mgmt v3.1.0' },
+        { severity: 'high', cve: 'CVE-2024-2346', description: 'Data exposure through error messages', package: 'error-handler v1.2.0' }
+      ]
+    },
+    'Web Application': {
+      critical: 2,
+      high: 4,
+      medium: 18,
+      low: 35,
+      details: [
+        { severity: 'critical', cve: 'CVE-2024-3456', description: 'Cross-site scripting (XSS) in form inputs', package: 'react-forms v4.2.0' },
+        { severity: 'critical', cve: 'CVE-2024-3457', description: 'Insecure deserialization of user data', package: 'serializer v2.1.0' },
+        { severity: 'high', cve: 'CVE-2024-4567', description: 'Session fixation vulnerability', package: 'session-mgr v3.0.5' },
+        { severity: 'high', cve: 'CVE-2024-4568', description: 'Directory traversal in file upload', package: 'file-upload v1.8.3' }
+      ]
+    },
+    'API Gateway': {
+      critical: 1,
+      high: 3,
+      medium: 8,
+      low: 15,
+      details: [
+        { severity: 'critical', cve: 'CVE-2024-5678', description: 'Rate limiting bypass vulnerability', package: 'rate-limiter v2.0.1' },
+        { severity: 'high', cve: 'CVE-2024-6789', description: 'JWT token validation bypass', package: 'jwt-validator v3.2.0' },
+        { severity: 'high', cve: 'CVE-2024-6790', description: 'API key exposure in logs', package: 'logger v4.1.2' },
+        { severity: 'high', cve: 'CVE-2024-6791', description: 'CORS misconfiguration allowing any origin', package: 'cors-handler v1.3.0' }
+      ]
+    },
+    'Container Registry': {
+      critical: 2,
+      high: 5,
+      medium: 10,
+      low: 20,
+      details: [
+        { severity: 'critical', cve: 'CVE-2024-7890', description: 'Image tampering vulnerability', package: 'registry-core v2.8.0' },
+        { severity: 'critical', cve: 'CVE-2024-7891', description: 'Unauthorized access to private repositories', package: 'auth-module v3.1.0' },
+        { severity: 'high', cve: 'CVE-2024-8901', description: 'Manifest injection attack', package: 'manifest-parser v1.5.0' }
+      ]
+    },
+    // Components without blocking vulnerabilities (safe to deploy)
+    'Load Balancer': {
+      critical: 0,
+      high: 0,
+      medium: 5,
+      low: 12,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-9012', description: 'Inefficient routing algorithm', package: 'lb-router v3.2.1' },
+        { severity: 'medium', cve: 'CVE-2024-9013', description: 'Minor memory leak in connection pool', package: 'conn-pool v2.5.0' },
+        { severity: 'low', cve: 'CVE-2024-9014', description: 'Verbose error logging', package: 'error-logger v1.8.0' }
+      ]
+    },
+    'VPC': {
+      critical: 0,
+      high: 0,
+      medium: 3,
+      low: 8,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-1012', description: 'Suboptimal network segmentation', package: 'vpc-manager v4.0.0' },
+        { severity: 'low', cve: 'CVE-2024-1013', description: 'Deprecated API usage', package: 'api-client v2.3.0' }
+      ]
+    },
+    'CDN': {
+      critical: 0,
+      high: 0,
+      medium: 7,
+      low: 18,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-1112', description: 'Cache poisoning under specific conditions', package: 'cache-mgr v3.5.0' },
+        { severity: 'medium', cve: 'CVE-2024-1113', description: 'Inefficient cache invalidation', package: 'cache-invalidator v1.2.0' }
+      ]
+    },
+    'Storage': {
+      critical: 0,
+      high: 0,
+      medium: 4,
+      low: 10,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-1212', description: 'Weak encryption for metadata', package: 'metadata-encrypt v2.1.0' },
+        { severity: 'low', cve: 'CVE-2024-1213', description: 'Unnecessary permissions in IAM role', package: 'iam-config v1.0.0' }
+      ]
+    },
+    'Kubernetes Cluster': {
+      critical: 0,
+      high: 0,
+      medium: 6,
+      low: 15,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-1312', description: 'Pod security policy not enforced', package: 'k8s-security v1.27.0' },
+        { severity: 'medium', cve: 'CVE-2024-1313', description: 'Network policy allows broad access', package: 'network-policy v2.0.0' }
+      ]
+    },
+    'Monitoring': {
+      critical: 0,
+      high: 0,
+      medium: 2,
+      low: 7,
+      details: [
+        { severity: 'medium', cve: 'CVE-2024-1412', description: 'Metrics API exposes sensitive data', package: 'metrics-api v3.1.0' },
+        { severity: 'low', cve: 'CVE-2024-1413', description: 'Dashboard uses outdated visualization library', package: 'viz-lib v4.2.0' }
+      ]
+    }
+  };
+
+  // Get vulnerabilities for selected component
+  const vulnerabilities = selectedComponent && componentVulnerabilities[selectedComponent] 
+    ? componentVulnerabilities[selectedComponent]
+    : { critical: 0, high: 0, medium: 0, low: 0, details: [] };
+
+  const hasBlockingVulnerabilities = vulnerabilities.critical > 0 || vulnerabilities.high > 0;
+
+  // Sample stack resources for preview
+  const stackResources = [
+    { id: 'vpc', type: 'VPC', name: 'Production VPC', icon: Network },
+    { id: 'alb', type: 'Load Balancer', name: 'Application LB', icon: Layers },
+    { id: 'app', type: 'Application', name: 'Web App', icon: Globe },
+    { id: 'db', type: 'Database', name: 'PostgreSQL', icon: Database },
+    { id: 'storage', type: 'Storage', name: 'S3 Bucket', icon: HardDrive }
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Configure New Deployment</h2>
+            <p className="text-gray-600 mt-1">Set up a new component deployment to your cloud environment</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <XCircle className="w-6 h-6 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="flex h-[calc(90vh-100px)]">
+          {/* Left Panel - Configuration Form */}
+          <div className="w-1/2 p-8 overflow-y-auto border-r border-gray-200">
+            <div className="space-y-6">
+              {/* Project Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project *
+                </label>
+                <select
+                  value={selectedProject}
+                  onChange={(e) => {
+                    setSelectedProject(e.target.value);
+                    setSelectedComponent('');
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select a project</option>
+                  {Object.keys(projectComponents).map(project => (
+                    <option key={project} value={project}>{project}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Component Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Component *
+                </label>
+                <select
+                  value={selectedComponent}
+                  onChange={(e) => setSelectedComponent(e.target.value)}
+                  disabled={!selectedProject}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
+                >
+                  <option value="">Select a component</option>
+                  {selectedProject && projectComponents[selectedProject].map(component => (
+                    <option key={component} value={component}>{component}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Cloud Provider Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cloud Provider *
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  <button className="p-3 border-2 border-orange-500 bg-orange-50 rounded-lg flex items-center justify-center gap-2">
+                    <Cloud className="w-5 h-5 text-orange-500" />
+                    <span className="font-medium">AWS</span>
+                  </button>
+                  <button className="p-3 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50">
+                    <Cloud className="w-5 h-5 text-blue-500" />
+                    <span>Azure</span>
+                  </button>
+                  <button className="p-3 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50">
+                    <Cloud className="w-5 h-5 text-red-500" />
+                    <span>GCP</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Deployment Target */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Deployment Target *
+                </label>
+                <select
+                  value={deploymentTarget}
+                  onChange={(e) => setDeploymentTarget(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select deployment target</option>
+                  {deploymentTargets['AWS'].map(target => (
+                    <option key={target} value={target}>{target}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Environment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Environment *
+                </label>
+                <select
+                  value={environment}
+                  onChange={(e) => {
+                    setEnvironment(e.target.value);
+                    setEnvironmentType('');
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select environment</option>
+                  <option value="Prod">Production</option>
+                  <option value="Non-Prod">Non-Production</option>
+                </select>
+              </div>
+
+              {/* Environment Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Environment Type *
+                </label>
+                <select
+                  value={environmentType}
+                  onChange={(e) => setEnvironmentType(e.target.value)}
+                  disabled={!environment}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
+                >
+                  <option value="">Select environment type</option>
+                  {environment === 'Prod' ? (
+                    <>
+                      <option value="Prod">Prod</option>
+                      <option value="Prod-DR">Prod-DR</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Dev">Dev</option>
+                      <option value="Stage">Stage</option>
+                      <option value="UAT">UAT</option>
+                      <option value="Test">Test</option>
+                      <option value="Demo">Demo</option>
+                      <option value="QA">QA</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              {/* Region */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Region *
+                </label>
+                <select
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Select region</option>
+                  {regions['AWS'].map(region => (
+                    <option key={region} value={region}>{region}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Vulnerability Assessment */}
+              {selectedComponent && (
+                <div className="border-t pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-slate-900">Vulnerability Assessment</h3>
+                    <button
+                      onClick={() => setShowVulnerabilities(!showVulnerabilities)}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      {showVulnerabilities ? 'Hide' : 'Show'} Details
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className={`${vulnerabilities.critical > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-3`}>
+                      <div className={`text-2xl font-bold ${vulnerabilities.critical > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                        {vulnerabilities.critical}
+                      </div>
+                      <div className={`text-xs ${vulnerabilities.critical > 0 ? 'text-red-700' : 'text-gray-500'}`}>Critical</div>
+                    </div>
+                    <div className={`${vulnerabilities.high > 0 ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-3`}>
+                      <div className={`text-2xl font-bold ${vulnerabilities.high > 0 ? 'text-orange-600' : 'text-gray-400'}`}>
+                        {vulnerabilities.high}
+                      </div>
+                      <div className={`text-xs ${vulnerabilities.high > 0 ? 'text-orange-700' : 'text-gray-500'}`}>High</div>
+                    </div>
+                    <div className={`${vulnerabilities.medium > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-3`}>
+                      <div className={`text-2xl font-bold ${vulnerabilities.medium > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
+                        {vulnerabilities.medium}
+                      </div>
+                      <div className={`text-xs ${vulnerabilities.medium > 0 ? 'text-yellow-700' : 'text-gray-500'}`}>Medium</div>
+                    </div>
+                    <div className={`${vulnerabilities.low > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-3`}>
+                      <div className={`text-2xl font-bold ${vulnerabilities.low > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                        {vulnerabilities.low}
+                      </div>
+                      <div className={`text-xs ${vulnerabilities.low > 0 ? 'text-blue-700' : 'text-gray-500'}`}>Low</div>
+                    </div>
+                  </div>
+
+                  {hasBlockingVulnerabilities ? (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-red-900">Deployment Blocked</p>
+                          <p className="text-sm text-red-700 mt-1">
+                            This component cannot be deployed until all critical and high vulnerabilities are remediated.
+                          </p>
+                          <button 
+                            onClick={() => setShowVulnerabilityReport(true)}
+                            className="text-sm text-red-600 hover:text-red-700 font-medium mt-2"
+                          >
+                            View Vulnerability Report →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    selectedComponent && !hasBlockingVulnerabilities && (
+                      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-green-900">Ready for Deployment</p>
+                            <p className="text-sm text-green-700 mt-1">
+                              No critical or high vulnerabilities detected. This component is cleared for deployment.
+                            </p>
+                            {(vulnerabilities.medium > 0 || vulnerabilities.low > 0) && (
+                              <button 
+                                onClick={() => setShowVulnerabilityReport(true)}
+                                className="text-sm text-green-600 hover:text-green-700 font-medium mt-2"
+                              >
+                                View Vulnerability Report →
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel - Stack Preview */}
+          <div className="w-1/2 p-8 bg-gray-50">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Stack Preview</h3>
+            
+            {selectedComponent ? (
+              <div className="bg-white rounded-xl border border-gray-200 p-6 h-[calc(100%-3rem)]">
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600">Component: <span className="font-medium text-slate-900">{selectedComponent}</span></p>
+                  <p className="text-sm text-gray-600">Project: <span className="font-medium text-slate-900">{selectedProject}</span></p>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Infrastructure Resources</h4>
+                  <div className="space-y-3">
+                    {stackResources.map((resource) => {
+                      const Icon = resource.icon;
+                      return (
+                        <div key={resource.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 bg-white rounded-lg">
+                            <Icon className="w-5 h-5 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-slate-900">{resource.name}</p>
+                            <p className="text-xs text-gray-500">{resource.type}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Configuration Summary</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Auto-scaling</span>
+                      <span className="text-green-600 font-medium">Enabled</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Monitoring</span>
+                      <span className="text-green-600 font-medium">Configured</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Backup</span>
+                      <span className="text-green-600 font-medium">Daily</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Encryption</span>
+                      <span className="text-green-600 font-medium">AES-256</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 p-6 h-[calc(100%-3rem)] flex items-center justify-center">
+                <div className="text-center">
+                  <Layers className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">Select a component to preview its stack</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-gray-200 flex justify-between items-center bg-white">
+          <div className="text-sm text-gray-600">
+            * Required fields
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              disabled={hasBlockingVulnerabilities}
+              className={`px-6 py-2 rounded-lg transition-colors ${
+                hasBlockingVulnerabilities
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg'
+              }`}
+            >
+              Deploy Component
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Vulnerability Report Modal */}
+      {showVulnerabilityReport && (
+        <VulnerabilityReportModal 
+          component={selectedComponent}
+          vulnerabilities={vulnerabilities}
+          onClose={() => setShowVulnerabilityReport(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+// Vulnerability Report Modal
+const VulnerabilityReportModal = ({ component, vulnerabilities, onClose }) => {
+  const getSeverityColor = (severity) => {
+    switch(severity) {
+      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
+      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'low': return 'text-blue-600 bg-blue-50 border-blue-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getSeverityIcon = (severity) => {
+    switch(severity) {
+      case 'critical': return <AlertTriangle className="w-4 h-4" />;
+      case 'high': return <AlertCircle className="w-4 h-4" />;
+      case 'medium': return <AlertCircle className="w-4 h-4" />;
+      case 'low': return <Info className="w-4 h-4" />;
+      default: return <Info className="w-4 h-4" />;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[85vh] overflow-hidden">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Vulnerability Report</h2>
+            <p className="text-gray-600 mt-1">Component: {component}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <XCircle className="w-6 h-6 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="px-8 py-6 bg-gray-50 border-b border-gray-200">
+          <div className="grid grid-cols-4 gap-4">
+            <div className={`rounded-lg border p-4 ${vulnerabilities.critical > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${vulnerabilities.critical > 0 ? 'text-red-700' : 'text-gray-600'}`}>Critical</span>
+                <span className={`text-2xl font-bold ${vulnerabilities.critical > 0 ? 'text-red-600' : 'text-gray-400'}`}>{vulnerabilities.critical}</span>
+              </div>
+            </div>
+            <div className={`rounded-lg border p-4 ${vulnerabilities.high > 0 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-200'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${vulnerabilities.high > 0 ? 'text-orange-700' : 'text-gray-600'}`}>High</span>
+                <span className={`text-2xl font-bold ${vulnerabilities.high > 0 ? 'text-orange-600' : 'text-gray-400'}`}>{vulnerabilities.high}</span>
+              </div>
+            </div>
+            <div className={`rounded-lg border p-4 ${vulnerabilities.medium > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-white border-gray-200'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${vulnerabilities.medium > 0 ? 'text-yellow-700' : 'text-gray-600'}`}>Medium</span>
+                <span className={`text-2xl font-bold ${vulnerabilities.medium > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>{vulnerabilities.medium}</span>
+              </div>
+            </div>
+            <div className={`rounded-lg border p-4 ${vulnerabilities.low > 0 ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${vulnerabilities.low > 0 ? 'text-blue-700' : 'text-gray-600'}`}>Low</span>
+                <span className={`text-2xl font-bold ${vulnerabilities.low > 0 ? 'text-blue-600' : 'text-gray-400'}`}>{vulnerabilities.low}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Vulnerability Details */}
+        <div className="px-8 py-6 overflow-y-auto max-h-[calc(85vh-280px)]">
+          {vulnerabilities.details && vulnerabilities.details.length > 0 ? (
+            <div className="space-y-4">
+              {vulnerabilities.details.map((vuln, index) => (
+                <div key={index} className={`rounded-lg border p-4 ${getSeverityColor(vuln.severity)}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">{getSeverityIcon(vuln.severity)}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-mono text-sm font-semibold">{vuln.cve}</span>
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded uppercase ${getSeverityColor(vuln.severity)}`}>
+                          {vuln.severity}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-2">{vuln.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Package className="w-3 h-3" />
+                        <span className="font-mono">{vuln.package}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Shield className="w-12 h-12 text-green-500 mx-auto mb-3" />
+              <p className="text-gray-600">No vulnerability details available</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
+              >
+                Close
+              </button>
+              <button className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:shadow-lg transition-all">
+                Export Report
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -7192,6 +8175,8 @@ export default function App() {
         return <VulnerabilitiesDashboard />;
       case 'infrabuilder':
         return <InfraBuilder />;
+      case 'deployments':
+        return <DeploymentManagement setCurrentPage={setCurrentPage} />;
       default:
         return <HomePage setCurrentPage={setCurrentPage} />;
     }
@@ -7209,7 +8194,8 @@ export default function App() {
       'kubernetes-onboarding': 'https://hero.jll.com/onboarding/kubernetes',
       'kubernetes-onboarding-status': 'https://hero.jll.com/onboarding/kubernetes/status/REQ-2025-0790',
       'vulnerabilities': 'https://hero.jll.com/dashboards/vulnerabilities',
-      'infrabuilder': 'https://hero.jll.com/build/infrabuilder'
+      'infrabuilder': 'https://hero.jll.com/build/infrabuilder',
+      'deployments': 'https://hero.jll.com/build/deployments'
     };
     return urlMap[currentPage] || 'https://hero.jll.com';
   };
