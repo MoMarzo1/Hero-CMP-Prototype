@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, Settings, Cloud, Shield, Code, DollarSign, 
   AlertCircle, Cpu, Database, Globe, Activity, 
@@ -217,10 +217,6 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                 >
                   <Zap className="w-4 h-4 inline mr-2" />
                   Deployments
-                </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-                  <Clock className="w-4 h-4 inline mr-2" />
-                  Deployment History
                 </div>
               </div>
             )}
@@ -4011,15 +4007,16 @@ const DeploymentManagement = ({ setCurrentPage }) => {
       </div>
 
       {/* New Deployment Modal */}
-      {showNewDeployment && <NewDeploymentModal onClose={() => setShowNewDeployment(false)} />}
+      {showNewDeployment && <NewDeploymentModal onClose={() => setShowNewDeployment(false)} setCurrentPage={setCurrentPage} />}
     </div>
   );
 };
 
 // New Deployment Configuration Modal
-const NewDeploymentModal = ({ onClose }) => {
+const NewDeploymentModal = ({ onClose, setCurrentPage }) => {
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedComponent, setSelectedComponent] = useState('');
+  const [selectedCSP, setSelectedCSP] = useState('');
   const [deploymentTarget, setDeploymentTarget] = useState('');
   const [environment, setEnvironment] = useState('');
   const [environmentType, setEnvironmentType] = useState('');
@@ -4170,6 +4167,11 @@ const NewDeploymentModal = ({ onClose }) => {
 
   const hasBlockingVulnerabilities = vulnerabilities.critical > 0 || vulnerabilities.high > 0;
 
+  // Form validation function
+  const isFormValid = () => {
+    return selectedProject && selectedComponent && selectedCSP && deploymentTarget && environment && environmentType && region;
+  };
+
   // Sample stack resources for preview
   const stackResources = [
     { id: 'vpc', type: 'VPC', name: 'Production VPC', icon: Network },
@@ -4181,7 +4183,7 @@ const NewDeploymentModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-center">
           <div>
@@ -4196,7 +4198,7 @@ const NewDeploymentModal = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="flex h-[calc(90vh-100px)]">
+        <div className="flex flex-1 min-h-0">
           {/* Left Panel - Configuration Form */}
           <div className="w-1/2 p-8 overflow-y-auto border-r border-gray-200">
             <div className="space-y-6">
@@ -4244,17 +4246,50 @@ const NewDeploymentModal = ({ onClose }) => {
                   Cloud Provider *
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  <button className="p-3 border-2 border-orange-500 bg-orange-50 rounded-lg flex items-center justify-center gap-2">
+                  <button 
+                    onClick={() => {
+                      setSelectedCSP('AWS');
+                      setDeploymentTarget('');
+                      setRegion('');
+                    }}
+                    className={`p-3 border-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                      selectedCSP === 'AWS' 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
                     <Cloud className="w-5 h-5 text-orange-500" />
-                    <span className="font-medium">AWS</span>
+                    <span className={selectedCSP === 'AWS' ? 'font-medium' : ''}>AWS</span>
                   </button>
-                  <button className="p-3 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50">
+                  <button 
+                    onClick={() => {
+                      setSelectedCSP('Azure');
+                      setDeploymentTarget('');
+                      setRegion('');
+                    }}
+                    className={`p-3 border-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                      selectedCSP === 'Azure' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
                     <Cloud className="w-5 h-5 text-blue-500" />
-                    <span>Azure</span>
+                    <span className={selectedCSP === 'Azure' ? 'font-medium' : ''}>Azure</span>
                   </button>
-                  <button className="p-3 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50">
+                  <button 
+                    onClick={() => {
+                      setSelectedCSP('GCP');
+                      setDeploymentTarget('');
+                      setRegion('');
+                    }}
+                    className={`p-3 border-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                      selectedCSP === 'GCP' 
+                        ? 'border-red-500 bg-red-50' 
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
                     <Cloud className="w-5 h-5 text-red-500" />
-                    <span>GCP</span>
+                    <span className={selectedCSP === 'GCP' ? 'font-medium' : ''}>GCP</span>
                   </button>
                 </div>
               </div>
@@ -4267,10 +4302,13 @@ const NewDeploymentModal = ({ onClose }) => {
                 <select
                   value={deploymentTarget}
                   onChange={(e) => setDeploymentTarget(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  disabled={!selectedCSP}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select deployment target</option>
-                  {deploymentTargets['AWS'].map(target => (
+                  <option value="">
+                    {selectedCSP ? 'Select deployment target' : 'Select cloud provider first'}
+                  </option>
+                  {selectedCSP && deploymentTargets[selectedCSP]?.map(target => (
                     <option key={target} value={target}>{target}</option>
                   ))}
                 </select>
@@ -4333,11 +4371,14 @@ const NewDeploymentModal = ({ onClose }) => {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  disabled={!selectedCSP}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select region</option>
-                  {regions['AWS'].map(region => (
-                    <option key={region} value={region}>{region}</option>
+                  <option value="">
+                    {selectedCSP ? 'Select region' : 'Select cloud provider first'}
+                  </option>
+                  {selectedCSP && regions[selectedCSP]?.map(regionOption => (
+                    <option key={regionOption} value={regionOption}>{regionOption}</option>
                   ))}
                 </select>
               </div>
@@ -4493,7 +4534,7 @@ const NewDeploymentModal = ({ onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-4 border-t border-gray-200 flex justify-between items-center bg-white">
+        <div className="px-8 py-4 border-t border-gray-200 flex justify-between items-center bg-white flex-shrink-0">
           <div className="text-sm text-gray-600">
             * Required fields
           </div>
@@ -4505,14 +4546,46 @@ const NewDeploymentModal = ({ onClose }) => {
               Cancel
             </button>
             <button
-              disabled={hasBlockingVulnerabilities}
-              className={`px-6 py-2 rounded-lg transition-colors ${
-                hasBlockingVulnerabilities
+              onClick={() => {
+                if (!hasBlockingVulnerabilities && isFormValid()) {
+                  // Create deployment object
+                  const deploymentData = {
+                    id: `dep-${Date.now()}`,
+                    project: selectedProject,
+                    component: selectedComponent,
+                    csp: selectedCSP,
+                    deploymentTarget,
+                    environment,
+                    environmentType,
+                    region,
+                    timestamp: new Date().toISOString()
+                  };
+                  
+                  // Navigate to deployment progress page
+                  setCurrentPage('deployment-progress');
+                  // Store deployment data for the progress page (we'll need to add this)
+                  window.currentDeployment = deploymentData;
+                  onClose();
+                }
+              }}
+              disabled={hasBlockingVulnerabilities || !isFormValid()}
+              className={`px-6 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                hasBlockingVulnerabilities || !isFormValid()
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg'
+                  : 'bg-green-600 hover:bg-green-700 text-white hover:shadow-lg'
               }`}
             >
-              Deploy Component
+              {hasBlockingVulnerabilities ? (
+                <>
+                  <AlertTriangle className="w-4 h-4" />
+                  Blocked by Vulnerabilities
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4" />
+                  Deploy Component
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -9203,6 +9276,670 @@ const KubernetesOnboardingStatus = () => {
   );
 };
 
+// Deployment Progress Page
+const DeploymentProgress = ({ setCurrentPage }) => {
+  const [currentStage, setCurrentStage] = useState(0);
+  const [stageStatus, setStageStatus] = useState({});
+  const [selectedStage, setSelectedStage] = useState(null);
+  const [deploymentData, setDeploymentData] = useState(null);
+
+  useEffect(() => {
+    // Get deployment data from window (temporary storage)
+    if (window.currentDeployment) {
+      setDeploymentData(window.currentDeployment);
+    }
+
+    // Define deployment scenarios based on component and environment
+    const getDeploymentScenario = (deploymentData) => {
+      if (!deploymentData) return 'success';
+      
+      const { component, environment, environmentType, csp } = deploymentData;
+      
+      // Failed scenarios
+      if (component === 'Database' && environment === 'Prod') {
+        return 'security-failure'; // Fails at security stage
+      }
+      if (component === 'Web Application' && environmentType === 'Dev') {
+        return 'plan-failure'; // Fails at terraform plan stage
+      }
+      if (component === 'Container Registry' && csp === 'AWS') {
+        return 'testing-failure'; // Fails at testing stage
+      }
+      if (component === 'API Gateway' && environmentType === 'UAT') {
+        return 'apply-failure'; // Fails at terraform apply stage
+      }
+      
+      // Warning scenarios (deployment succeeds but with warnings)
+      if (component === 'Load Balancer' && environment === 'Prod') {
+        return 'cost-warnings'; // Warnings on cost/testing stages
+      }
+      if (component === 'Monitoring' && environmentType === 'QA') {
+        return 'security-warnings'; // Warnings on security stage
+      }
+      if (component === 'Storage' && csp === 'GCP') {
+        return 'validation-warnings'; // Warnings on validation stage
+      }
+      
+      // Success scenarios
+      return 'success';
+    };
+
+    const scenario = getDeploymentScenario(window.currentDeployment);
+    
+    // Define stage outcomes based on scenario
+    const stageOutcomes = {
+      'success': {
+        validate: 'success',
+        security: 'success', 
+        init: 'success',
+        plan: 'success',
+        testing: 'success',
+        apply: 'success',
+        postValidation: 'success'
+      },
+      'security-failure': {
+        validate: 'success',
+        security: 'failure',
+        init: 'not-run',
+        plan: 'not-run',
+        testing: 'not-run',
+        apply: 'not-run',
+        postValidation: 'not-run'
+      },
+      'plan-failure': {
+        validate: 'success',
+        security: 'success',
+        init: 'success',
+        plan: 'failure',
+        testing: 'not-run',
+        apply: 'not-run',
+        postValidation: 'not-run'
+      },
+      'testing-failure': {
+        validate: 'success',
+        security: 'success',
+        init: 'success',
+        plan: 'success',
+        testing: 'failure',
+        apply: 'not-run',
+        postValidation: 'not-run'
+      },
+      'apply-failure': {
+        validate: 'success',
+        security: 'success',
+        init: 'success',
+        plan: 'success',
+        testing: 'success',
+        apply: 'failure',
+        postValidation: 'not-run'
+      },
+      'cost-warnings': {
+        validate: 'success',
+        security: 'success',
+        init: 'success',
+        plan: 'success',
+        testing: 'warning',
+        apply: 'success',
+        postValidation: 'success'
+      },
+      'security-warnings': {
+        validate: 'success',
+        security: 'warning',
+        init: 'success',
+        plan: 'success',
+        testing: 'success',
+        apply: 'success',
+        postValidation: 'success'
+      },
+      'validation-warnings': {
+        validate: 'warning',
+        security: 'success',
+        init: 'success',
+        plan: 'success',
+        testing: 'success',
+        apply: 'success',
+        postValidation: 'warning'
+      }
+    };
+
+    const outcomes = stageOutcomes[scenario];
+    
+    // Simulate deployment progress
+    const progressStages = [
+      'validate',
+      'security', 
+      'init',
+      'plan',
+      'testing',
+      'apply',
+      'postValidation'
+    ];
+
+    let stageIndex = 0;
+    
+    const executeNextStage = () => {
+      if (stageIndex >= progressStages.length) return;
+      
+      const stageName = progressStages[stageIndex];
+      const plannedOutcome = outcomes[stageName];
+      
+      // Skip not-run stages
+      if (plannedOutcome === 'not-run') {
+        stageIndex++;
+        executeNextStage();
+        return;
+      }
+      
+      // Set stage to in-progress
+      setStageStatus(prev => ({
+        ...prev,
+        [stageName]: 'in-progress'
+      }));
+      setCurrentStage(stageIndex);
+
+      // Complete stage after delay with predetermined outcome
+      setTimeout(() => {
+        setStageStatus(prev => ({
+          ...prev,
+          [stageName]: plannedOutcome
+        }));
+        
+        stageIndex++;
+        
+        // If this stage failed, stop progression
+        if (plannedOutcome === 'failure') {
+          return; // Stop execution completely
+        }
+        
+        // Continue to next stage after a brief pause
+        setTimeout(() => {
+          executeNextStage();
+        }, 1000); // 1 second pause between stages
+        
+      }, 2000 + Math.random() * 2000); // 2-4 seconds per stage
+    };
+    
+    // Start the first stage after a brief initial delay
+    const initialTimeout = setTimeout(() => {
+      executeNextStage();
+    }, 1000);
+
+    return () => clearTimeout(initialTimeout);
+  }, []);
+
+  const stages = [
+    {
+      id: 'validate',
+      name: 'Validate',
+      title: 'Validation Stage',
+      description: 'Terraform configuration validation',
+      substages: ['Terraform Format Check', 'Terraform Validate']
+    },
+    {
+      id: 'security',
+      name: 'Security Scans',
+      title: 'Security Scans',
+      description: 'TF Sentinel Policy Scans',
+      substages: ['Sentinel Policy Scans']
+    },
+    {
+      id: 'init',
+      name: 'Terraform Init',
+      title: 'Terraform Init',
+      description: 'Initialize Terraform working directory',
+      substages: []
+    },
+    {
+      id: 'plan',
+      name: 'Terraform Plan',
+      title: 'Terraform Plan',
+      description: 'Create execution plan for infrastructure changes',
+      substages: []
+    },
+    {
+      id: 'testing',
+      name: 'Testing & Validation',
+      title: 'Testing & Validation',
+      description: 'Automated testing and cost analysis',
+      substages: ['Unit Tests - Terratest', 'Cost Estimation']
+    },
+    {
+      id: 'apply',
+      name: 'Terraform Apply',
+      title: 'Terraform Apply',
+      description: 'Apply infrastructure changes',
+      substages: []
+    },
+    {
+      id: 'postValidation',
+      name: 'Post Deployment Validation',
+      title: 'Post-Deployment Validation',
+      description: 'Verify deployment success',
+      substages: ['Smoke Tests']
+    }
+  ];
+
+  const getStageStatus = (stageId, index) => {
+    if (stageStatus[stageId]) return stageStatus[stageId];
+    if (index < currentStage) return 'success';
+    if (index === currentStage) return 'in-progress';
+    return 'pending';
+  };
+
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'success': return <CheckCircle className="w-6 h-6 text-green-600" />;
+      case 'in-progress': return <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />;
+      case 'warning': return <AlertTriangle className="w-6 h-6 text-orange-600" />;
+      case 'failure': return <XCircle className="w-6 h-6 text-red-600" />;
+      default: return <div className="w-6 h-6 border-2 border-gray-300 rounded-full" />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'success': return 'bg-green-50 border-green-200';
+      case 'in-progress': return 'bg-blue-50 border-blue-200';
+      case 'warning': return 'bg-orange-50 border-orange-200';
+      case 'failure': return 'bg-red-50 border-red-200';
+      default: return 'bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getDetailedLogs = (stageId, status) => {
+    const baseLogs = {
+      timestamp: new Date().toISOString(),
+      component: deploymentData?.component || 'Unknown',
+      target: deploymentData?.deploymentTarget || 'Unknown'
+    };
+
+    switch(stageId) {
+      case 'validate':
+        return status === 'success' ? {
+          ...baseLogs,
+          logs: [
+            '✓ Starting Terraform validation...',
+            '✓ Checking Terraform format (terraform fmt -check)',
+            '  → All files are properly formatted',
+            '✓ Validating Terraform configuration (terraform validate)',
+            '  → Configuration is valid',
+            '  → All required variables are defined',
+            '  → All resource references are correct',
+            '✓ Validation completed successfully in 2.3 seconds'
+          ]
+        } : {
+          ...baseLogs,
+          logs: [
+            '→ Starting Terraform validation...',
+            '⚠ Checking Terraform format (terraform fmt -check)',
+            '  → Minor formatting inconsistencies found',
+            '✓ Validating Terraform configuration (terraform validate)',
+            '  → Configuration is valid',
+            '⚠ Validation completed with warnings in 2.8 seconds'
+          ]
+        };
+
+      case 'security':
+        if (status === 'failure') {
+          return {
+            ...baseLogs,
+            logs: [
+              '→ Starting Sentinel policy scans...',
+              '✓ Checking resource compliance policies',
+              '  → EC2 instance types comply with approved list',
+              '  → Security groups follow least privilege principle',
+              '✗ Critical security violation detected:',
+              '  → Database encryption at rest is disabled',
+              '  → Administrative privileges exposed to public subnet',
+              '  → Backup encryption not configured',
+              '✗ Security policy violations must be resolved before deployment',
+              '✗ Security scan failed after 3.8 seconds'
+            ]
+          };
+        }
+        return status === 'success' ? {
+          ...baseLogs,
+          logs: [
+            '✓ Starting Sentinel policy scans...',
+            '✓ Checking resource compliance policies',
+            '  → EC2 instance types comply with approved list',
+            '  → Security groups follow least privilege principle',
+            '  → S3 buckets have encryption enabled',
+            '✓ Checking cost governance policies',
+            '  → Estimated monthly cost: $245.67 (within budget)',
+            '✓ All security policies passed in 4.1 seconds'
+          ]
+        } : {
+          ...baseLogs,
+          logs: [
+            '→ Starting Sentinel policy scans...',
+            '✓ Checking resource compliance policies',
+            '  → EC2 instance types comply with approved list',
+            '  → Security groups follow least privilege principle',
+            '  → S3 buckets have encryption enabled',
+            '⚠ Checking cost governance policies',
+            '  → Estimated monthly cost: $387.23 (approaching budget limit)',
+            '  → Some policies require review but are not blocking',
+            '⚠ Security scan completed with warnings in 4.5 seconds'
+          ]
+        };
+
+      case 'init':
+        return {
+          ...baseLogs,
+          logs: [
+            '✓ Initializing Terraform...',
+            '✓ Downloading provider plugins:',
+            '  → aws v5.31.0',
+            '  → random v3.4.3',
+            '  → local v2.4.0',
+            '✓ Configuring backend (S3)',
+            '  → Bucket: terraform-state-' + deploymentData?.deploymentTarget?.split('-')[2],
+            '  → Key: ' + deploymentData?.component?.toLowerCase() + '/terraform.tfstate',
+            '✓ Terraform has been successfully initialized in 5.2 seconds'
+          ]
+        };
+
+      case 'plan':
+        if (status === 'failure') {
+          return {
+            ...baseLogs,
+            logs: [
+              '→ Creating Terraform execution plan...',
+              '✓ Refreshing state...',
+              '→ Planning infrastructure changes:',
+              '✗ Error: Invalid resource configuration',
+              '  → aws_instance.web_server: Invalid AMI ID "ami-invalid123"',
+              '  → Resource dependency cycle detected:',
+              '    - aws_security_group.web_sg depends on aws_instance.web_server',
+              '    - aws_instance.web_server depends on aws_security_group.web_sg',
+              '✗ Planning failed due to configuration errors',
+              '✗ Plan generation failed after 6.2 seconds'
+            ]
+          };
+        }
+        return {
+          ...baseLogs,
+          logs: [
+            '✓ Creating Terraform execution plan...',
+            '✓ Refreshing state...',
+            '→ Planning infrastructure changes:',
+            '  + aws_instance.web_server',
+            '  + aws_security_group.web_sg',
+            '  + aws_key_pair.deployer',
+            '  ~ aws_subnet.private (attributes changed)',
+            '→ Plan: 3 to add, 1 to change, 0 to destroy',
+            '✓ Plan saved to: tfplan.out',
+            '✓ Planning completed successfully in 8.7 seconds'
+          ]
+        };
+
+      case 'testing':
+        if (status === 'failure') {
+          return {
+            ...baseLogs,
+            logs: [
+              '→ Running Terratest unit tests...',
+              '✓ TestVPCCreation: PASS (2.3s)',
+              '✗ TestSecurityGroupRules: FAIL (4.2s)',
+              '  → Expected security group to block port 22 from 0.0.0.0/0',
+              '  → Actual: port 22 is open to public internet',
+              '✗ TestInstanceConfiguration: FAIL (1.8s)',
+              '  → Expected instance type: t3.medium',
+              '  → Actual: t2.micro (insufficient for production workload)',
+              '✗ Unit tests failed: 2 failures, 1 success',
+              '',
+              '✗ Testing failed - deployment cannot proceed',
+              '✗ Testing stage failed after 8.3 seconds'
+            ]
+          };
+        }
+        return status === 'success' ? {
+          ...baseLogs,
+          logs: [
+            '✓ Running Terratest unit tests...',
+            '✓ TestVPCCreation: PASS (2.3s)',
+            '✓ TestSecurityGroupRules: PASS (1.8s)',
+            '✓ TestInstanceConfiguration: PASS (3.1s)',
+            '✓ All unit tests passed (7.2s total)',
+            '',
+            '✓ Calculating cost estimation...',
+            '  → EC2 instances: $156.00/month',
+            '  → Load balancer: $22.50/month',
+            '  → Data transfer: $12.30/month',
+            '  → Total estimated cost: $190.80/month',
+            '✓ Testing completed successfully in 12.4 seconds'
+          ]
+        } : {
+          ...baseLogs,
+          logs: [
+            '✓ Running Terratest unit tests...',
+            '✓ TestVPCCreation: PASS (2.3s)',
+            '✓ TestSecurityGroupRules: PASS (1.8s)',
+            '⚠ TestInstanceConfiguration: PASS with warnings (3.1s)',
+            '✓ All unit tests passed (7.2s total)',
+            '',
+            '⚠ Calculating cost estimation...',
+            '  → EC2 instances: $278.00/month',
+            '  → Load balancer: $22.50/month',
+            '  → Data transfer: $18.90/month',
+            '  → Total estimated cost: $319.40/month',
+            '⚠ Cost exceeds recommended budget threshold',
+            '⚠ Testing completed with warnings in 12.8 seconds'
+          ]
+        };
+
+      case 'apply':
+        if (status === 'failure') {
+          return {
+            ...baseLogs,
+            logs: [
+              '→ Applying Terraform plan...',
+              '→ aws_key_pair.deployer: Creating...',
+              '✓ aws_key_pair.deployer: Creation complete (0.8s)',
+              '→ aws_security_group.web_sg: Creating...',
+              '✓ aws_security_group.web_sg: Creation complete (2.1s)',
+              '→ aws_instance.web_server: Creating...',
+              '→ aws_instance.web_server: Still creating... [10s elapsed]',
+              '→ aws_instance.web_server: Still creating... [20s elapsed]',
+              '✗ aws_instance.web_server: Error creating instance',
+              '  → InsufficientInstanceCapacity: Insufficient capacity for instance type t3.large',
+              '  → Availability zone us-east-1a has no available capacity',
+              '✗ Apply failed: Error creating AWS EC2 instance',
+              '',
+              '⚠ Initiating rollback of created resources...',
+              '✓ aws_security_group.web_sg: Destroy complete',
+              '✓ aws_key_pair.deployer: Destroy complete',
+              '✗ Apply failed after 28.3 seconds'
+            ]
+          };
+        }
+        return {
+          ...baseLogs,
+          logs: [
+            '✓ Applying Terraform plan...',
+            '→ aws_key_pair.deployer: Creating...',
+            '✓ aws_key_pair.deployer: Creation complete (0.8s)',
+            '→ aws_security_group.web_sg: Creating...',
+            '✓ aws_security_group.web_sg: Creation complete (2.1s)',
+            '→ aws_instance.web_server: Creating...',
+            '→ aws_instance.web_server: Still creating... [10s elapsed]',
+            '→ aws_instance.web_server: Still creating... [20s elapsed]',
+            '✓ aws_instance.web_server: Creation complete (23.4s)',
+            '→ aws_subnet.private: Modifying...',
+            '✓ aws_subnet.private: Modifications complete (1.2s)',
+            '',
+            '✓ Apply complete! Resources: 3 added, 1 changed, 0 destroyed.',
+            '✓ Infrastructure deployed successfully in 27.5 seconds'
+          ]
+        };
+
+      case 'postValidation':
+        return {
+          ...baseLogs,
+          logs: [
+            '✓ Running post-deployment smoke tests...',
+            '✓ Testing EC2 instance connectivity...',
+            '  → Instance i-0abc123def456789 is running',
+            '  → Health check endpoint responding (200 OK)',
+            '  → SSH connectivity verified',
+            '✓ Testing security group rules...',
+            '  → Port 80 accessible from load balancer',
+            '  → Port 22 restricted to bastion host only',
+            '✓ Testing application endpoints...',
+            '  → /health: OK (response time: 145ms)',
+            '  → /api/status: OK (response time: 89ms)',
+            '✓ All smoke tests passed in 8.9 seconds',
+            '',
+            '🎉 Deployment completed successfully!'
+          ]
+        };
+
+      default:
+        return {
+          ...baseLogs,
+          logs: ['Stage execution logs will appear here...']
+        };
+    }
+  };
+
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setCurrentPage('deployments')}
+            className="p-2 hover:bg-white rounded-lg transition-colors border border-gray-200"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Deployment Progress</h1>
+            {deploymentData && (
+              <p className="text-gray-600">
+                {deploymentData.component} → {deploymentData.csp} ({deploymentData.deploymentTarget})
+              </p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+            In Progress
+          </div>
+          <div className="text-sm text-gray-600">
+            Stage {currentStage + 1} of {stages.length}
+          </div>
+        </div>
+      </div>
+
+      {/* Deployment Info */}
+      {deploymentData && (
+        <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Deployment Details</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <div className="text-sm text-gray-600">Project</div>
+              <div className="font-medium">{deploymentData.project}</div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-600">Component</div>
+              <div className="font-medium">{deploymentData.component}</div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-600">Environment</div>
+              <div className="font-medium">{deploymentData.environment} ({deploymentData.environmentType})</div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-600">Region</div>
+              <div className="font-medium">{deploymentData.region}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pipeline Stages */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Stages List */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-slate-900">Pipeline Stages</h3>
+          </div>
+          <div className="p-6 space-y-4">
+            {stages.map((stage, index) => {
+              const status = getStageStatus(stage.id, index);
+              return (
+                <div
+                  key={stage.id}
+                  onClick={() => setSelectedStage({ stage, status, logs: getDetailedLogs(stage.id, status) })}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${getStatusColor(status)}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(status)}
+                      <div>
+                        <div className="font-medium text-slate-900">{stage.name}</div>
+                        <div className="text-sm text-gray-600">{stage.description}</div>
+                        {stage.substages.length > 0 && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {stage.substages.join(' • ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Stage Logs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-slate-900">
+              {selectedStage ? `${selectedStage.stage.name} Logs` : 'Execution Logs'}
+            </h3>
+          </div>
+          <div className="p-6">
+            {selectedStage ? (
+              <div className="bg-gray-900 text-gray-300 p-4 rounded-lg font-mono text-sm overflow-auto max-h-96">
+                <div className="text-blue-400 mb-2">
+                  [{selectedStage.logs.timestamp}] Starting {selectedStage.stage.name.toLowerCase()}...
+                </div>
+                {selectedStage.logs.logs.map((log, index) => (
+                  <div key={index} className="mb-1">
+                    {log.startsWith('✓') ? (
+                      <span className="text-green-400">{log}</span>
+                    ) : log.startsWith('→') ? (
+                      <span className="text-yellow-400">{log}</span>
+                    ) : log.startsWith('⚠') ? (
+                      <span className="text-orange-400">{log}</span>
+                    ) : log.startsWith('✗') ? (
+                      <span className="text-red-400">{log}</span>
+                    ) : log.startsWith('🎉') ? (
+                      <span className="text-green-300 font-semibold">{log}</span>
+                    ) : (
+                      <span className="text-gray-400">{log}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500">Click on a stage to view detailed logs</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -9238,6 +9975,8 @@ export default function App() {
         return <InfraBuilder />;
       case 'deployments':
         return <DeploymentManagement setCurrentPage={setCurrentPage} />;
+      case 'deployment-progress':
+        return <DeploymentProgress setCurrentPage={setCurrentPage} />;
       default:
         return <HomePage setCurrentPage={setCurrentPage} />;
     }
