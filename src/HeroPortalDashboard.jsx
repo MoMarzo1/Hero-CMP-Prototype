@@ -550,7 +550,7 @@ const Breadcrumb = ({ currentPage }) => {
 };
 
 // Modern Minimal Home Page
-const HomePage = ({ setCurrentPage }) => {
+const HomePage = ({ setCurrentPage, setOpenDeploymentModal }) => {
   return (
     <div className="p-12 bg-white min-h-screen">
       {/* Simplified Header */}
@@ -603,7 +603,13 @@ const HomePage = ({ setCurrentPage }) => {
       <div className="mb-16">
         <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-6">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group">
+          <div 
+            onClick={() => {
+              setCurrentPage('deployments');
+              setOpenDeploymentModal(true);
+            }}
+            className="bg-gradient-to-br from-[#003E51] to-[#BCDEE6] rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 group"
+          >
             <Zap className="w-6 h-6 text-white mb-3" />
             <h3 className="font-medium text-sm text-white">New Deployment</h3>
           </div>
@@ -5330,7 +5336,7 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
 };
 
 // Deployment Management Component
-const DeploymentManagement = ({ setCurrentPage }) => {
+const DeploymentManagement = ({ setCurrentPage, openModal, setOpenModal }) => {
   const [selectedProject, setSelectedProject] = useState('All Projects');
   const [showNewDeployment, setShowNewDeployment] = useState(false);
   const [selectedDeployment, setSelectedDeployment] = useState(null);
@@ -5338,6 +5344,14 @@ const DeploymentManagement = ({ setCurrentPage }) => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [showDeploymentHistory, setShowDeploymentHistory] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState(null);
+
+  // Handle opening modal from Quick Action button
+  useEffect(() => {
+    if (openModal) {
+      setShowNewDeployment(true);
+      setOpenModal(false); // Reset the flag
+    }
+  }, [openModal, setOpenModal]);
 
   // Sample deployment data aligned with InfraBuilder components
   const deployments = [
@@ -12516,6 +12530,7 @@ const DeploymentProgress = ({ setCurrentPage }) => {
 // Main App Component
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [openDeploymentModal, setOpenDeploymentModal] = useState(false);
   
   const currentUser = {
     name: 'Chad Kellerman',
@@ -12525,7 +12540,7 @@ export default function App() {
   const renderPage = () => {
     switch(currentPage) {
       case 'home':
-        return <HomePage setCurrentPage={setCurrentPage} />;
+        return <HomePage setCurrentPage={setCurrentPage} setOpenDeploymentModal={setOpenDeploymentModal} />;
       case 'dashboard':
         return <DashboardPage />;
       case 'financial':
@@ -12547,11 +12562,11 @@ export default function App() {
       case 'infrabuilder':
         return <InfraBuilder />;
       case 'deployments':
-        return <DeploymentManagement setCurrentPage={setCurrentPage} />;
+        return <DeploymentManagement setCurrentPage={setCurrentPage} openModal={openDeploymentModal} setOpenModal={setOpenDeploymentModal} />;
       case 'deployment-progress':
         return <DeploymentProgress setCurrentPage={setCurrentPage} />;
       default:
-        return <HomePage setCurrentPage={setCurrentPage} />;
+        return <HomePage setCurrentPage={setCurrentPage} setOpenDeploymentModal={setOpenDeploymentModal} />;
     }
   };
 
