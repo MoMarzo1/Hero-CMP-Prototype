@@ -1340,53 +1340,142 @@ const DashboardPage = () => {
   const [selectedEnvironment, setSelectedEnvironment] = useState('All');
   const [selectedProject, setSelectedProject] = useState('All Projects');
 
-  // Enterprise deployment metrics
+  // Enterprise deployment metrics by project and environment
   const deploymentMetrics = {
-    '7d': {
-      totalDeployments: 142,
-      successfulDeployments: 127,
-      failedDeployments: 15,
-      successRate: 89.4,
-      avgDeploymentTime: '8.2',
-      changeFailureRate: 10.6,
-      leadTime: '2.3',
-      mttr: '1.8',
-      deploymentFrequency: 20.3,
-      hotfixCount: 3,
-      rollbackRate: 4.2,
-      totalDowntime: 47
+    'All Projects': {
+      'All Environments': {
+        '7d': {
+          totalDeployments: 142, successfulDeployments: 127, failedDeployments: 15, successRate: 89.4,
+          avgDeploymentTime: '8.2', changeFailureRate: 10.6, leadTime: '2.3', mttr: '1.8',
+          deploymentFrequency: 20.3, hotfixCount: 3, rollbackRate: 4.2, totalDowntime: 47
+        },
+        '30d': {
+          totalDeployments: 582, successfulDeployments: 524, failedDeployments: 58, successRate: 90.0,
+          avgDeploymentTime: '9.1', changeFailureRate: 10.0, leadTime: '2.1', mttr: '2.1',
+          deploymentFrequency: 19.4, hotfixCount: 12, rollbackRate: 3.8, totalDowntime: 186
+        },
+        '90d': {
+          totalDeployments: 1847, successfulDeployments: 1672, failedDeployments: 175, successRate: 90.5,
+          avgDeploymentTime: '8.8', changeFailureRate: 9.5, leadTime: '2.0', mttr: '2.0',
+          deploymentFrequency: 20.5, hotfixCount: 38, rollbackRate: 4.1, totalDowntime: 642
+        }
+      },
+      'Production': {
+        '7d': {
+          totalDeployments: 45, successfulDeployments: 41, failedDeployments: 4, successRate: 91.1,
+          avgDeploymentTime: '11.2', changeFailureRate: 8.9, leadTime: '3.1', mttr: '2.2',
+          deploymentFrequency: 6.4, hotfixCount: 1, rollbackRate: 2.2, totalDowntime: 28
+        },
+        '30d': {
+          totalDeployments: 185, successfulDeployments: 170, failedDeployments: 15, successRate: 91.9,
+          avgDeploymentTime: '12.1', changeFailureRate: 8.1, leadTime: '2.9', mttr: '2.4',
+          deploymentFrequency: 6.2, hotfixCount: 4, rollbackRate: 2.7, totalDowntime: 112
+        },
+        '90d': {
+          totalDeployments: 547, successfulDeployments: 501, failedDeployments: 46, successRate: 91.6,
+          avgDeploymentTime: '11.8', changeFailureRate: 8.4, leadTime: '2.8', mttr: '2.3',
+          deploymentFrequency: 6.1, hotfixCount: 14, rollbackRate: 2.9, totalDowntime: 334
+        }
+      },
+      'Staging': {
+        '7d': {
+          totalDeployments: 52, successfulDeployments: 48, failedDeployments: 4, successRate: 92.3,
+          avgDeploymentTime: '8.7', changeFailureRate: 7.7, leadTime: '1.9', mttr: '1.4',
+          deploymentFrequency: 7.4, hotfixCount: 1, rollbackRate: 3.8, totalDowntime: 12
+        },
+        '30d': {
+          totalDeployments: 208, successfulDeployments: 194, failedDeployments: 14, successRate: 93.3,
+          avgDeploymentTime: '8.9', changeFailureRate: 6.7, leadTime: '1.8', mttr: '1.6',
+          deploymentFrequency: 6.9, hotfixCount: 3, rollbackRate: 4.3, totalDowntime: 48
+        },
+        '90d': {
+          totalDeployments: 634, successfulDeployments: 591, failedDeployments: 43, successRate: 93.2,
+          avgDeploymentTime: '8.6', changeFailureRate: 6.8, leadTime: '1.7', mttr: '1.5',
+          deploymentFrequency: 7.0, hotfixCount: 10, rollbackRate: 4.1, totalDowntime: 156
+        }
+      },
+      'Development': {
+        '7d': {
+          totalDeployments: 45, successfulDeployments: 38, failedDeployments: 7, successRate: 84.4,
+          avgDeploymentTime: '6.1', changeFailureRate: 15.6, leadTime: '1.2', mttr: '1.1',
+          deploymentFrequency: 6.4, hotfixCount: 1, rollbackRate: 6.7, totalDowntime: 7
+        },
+        '30d': {
+          totalDeployments: 189, successfulDeployments: 160, failedDeployments: 29, successRate: 84.7,
+          avgDeploymentTime: '6.4', changeFailureRate: 15.3, leadTime: '1.1', mttr: '1.3',
+          deploymentFrequency: 6.3, hotfixCount: 5, rollbackRate: 7.4, totalDowntime: 26
+        },
+        '90d': {
+          totalDeployments: 666, successfulDeployments: 580, failedDeployments: 86, successRate: 87.1,
+          avgDeploymentTime: '6.2', changeFailureRate: 12.9, leadTime: '1.0', mttr: '1.2',
+          deploymentFrequency: 7.4, hotfixCount: 14, rollbackRate: 6.9, totalDowntime: 152
+        }
+      }
     },
-    '30d': {
-      totalDeployments: 582,
-      successfulDeployments: 524,
-      failedDeployments: 58,
-      successRate: 90.0,
-      avgDeploymentTime: '9.1',
-      changeFailureRate: 10.0,
-      leadTime: '2.1',
-      mttr: '2.1',
-      deploymentFrequency: 19.4,
-      hotfixCount: 12,
-      rollbackRate: 3.8,
-      totalDowntime: 186
+    'Project Alpha': {
+      'All Environments': {
+        '7d': {
+          totalDeployments: 52, successfulDeployments: 46, failedDeployments: 6, successRate: 88.5,
+          avgDeploymentTime: '9.1', changeFailureRate: 11.5, leadTime: '2.4', mttr: '1.9',
+          deploymentFrequency: 7.4, hotfixCount: 2, rollbackRate: 5.8, totalDowntime: 22
+        },
+        '30d': {
+          totalDeployments: 198, successfulDeployments: 178, failedDeployments: 20, successRate: 89.9,
+          avgDeploymentTime: '9.8', changeFailureRate: 10.1, leadTime: '2.2', mttr: '2.1',
+          deploymentFrequency: 6.6, hotfixCount: 6, rollbackRate: 4.5, totalDowntime: 89
+        },
+        '90d': {
+          totalDeployments: 612, successfulDeployments: 556, failedDeployments: 56, successRate: 90.8,
+          avgDeploymentTime: '9.2', changeFailureRate: 9.2, leadTime: '2.1', mttr: '2.0',
+          deploymentFrequency: 6.8, hotfixCount: 18, rollbackRate: 4.7, totalDowntime: 267
+        }
+      },
+      'Production': {
+        '7d': {
+          totalDeployments: 16, successfulDeployments: 14, failedDeployments: 2, successRate: 87.5,
+          avgDeploymentTime: '12.8', changeFailureRate: 12.5, leadTime: '3.8', mttr: '2.6',
+          deploymentFrequency: 2.3, hotfixCount: 1, rollbackRate: 6.3, totalDowntime: 15
+        }
+      }
     },
-    '90d': {
-      totalDeployments: 1847,
-      successfulDeployments: 1672,
-      failedDeployments: 175,
-      successRate: 90.5,
-      avgDeploymentTime: '8.8',
-      changeFailureRate: 9.5,
-      leadTime: '2.0',
-      mttr: '2.0',
-      deploymentFrequency: 20.5,
-      hotfixCount: 38,
-      rollbackRate: 4.1,
-      totalDowntime: 642
+    'Project Beta': {
+      'All Environments': {
+        '7d': {
+          totalDeployments: 48, successfulDeployments: 44, failedDeployments: 4, successRate: 91.7,
+          avgDeploymentTime: '7.8', changeFailureRate: 8.3, leadTime: '2.1', mttr: '1.6',
+          deploymentFrequency: 6.9, hotfixCount: 1, rollbackRate: 2.1, totalDowntime: 15
+        },
+        '30d': {
+          totalDeployments: 201, successfulDeployments: 186, failedDeployments: 15, successRate: 92.5,
+          avgDeploymentTime: '8.2', changeFailureRate: 7.5, leadTime: '1.9', mttr: '1.8',
+          deploymentFrequency: 6.7, hotfixCount: 3, rollbackRate: 2.5, totalDowntime: 58
+        }
+      }
+    },
+    'Project Gamma': {
+      'All Environments': {
+        '7d': {
+          totalDeployments: 42, successfulDeployments: 37, failedDeployments: 5, successRate: 88.1,
+          avgDeploymentTime: '8.9', changeFailureRate: 11.9, leadTime: '2.5', mttr: '2.1',
+          deploymentFrequency: 6.0, hotfixCount: 0, rollbackRate: 4.8, totalDowntime: 10
+        },
+        '30d': {
+          totalDeployments: 183, successfulDeployments: 160, failedDeployments: 23, successRate: 87.4,
+          avgDeploymentTime: '9.4', changeFailureRate: 12.6, leadTime: '2.4', mttr: '2.3',
+          deploymentFrequency: 6.1, hotfixCount: 3, rollbackRate: 5.5, totalDowntime: 39
+        }
+      }
     }
   };
 
-  const currentMetrics = deploymentMetrics[selectedTimeRange];
+  // Get current metrics based on selections
+  const getCurrentMetrics = () => {
+    const projectData = deploymentMetrics[selectedProject] || deploymentMetrics['All Projects'];
+    const envData = projectData[selectedEnvironment] || projectData['All Environments'];
+    return envData[selectedTimeRange] || projectData['All Environments'][selectedTimeRange] || deploymentMetrics['All Projects']['All Environments'][selectedTimeRange];
+  };
+
+  const currentMetrics = getCurrentMetrics();
 
   // DORA metrics trend data
   const deploymentTrends = {
@@ -1398,58 +1487,220 @@ const DashboardPage = () => {
     }
   };
 
-  // Component deployment breakdown
-  const componentBreakdown = [
-    { name: 'API Gateway', deployments: 28, successRate: 96.4, avgTime: '6.2m' },
-    { name: 'Web Application', deployments: 24, successRate: 91.7, avgTime: '12.1m' },
-    { name: 'Database', deployments: 16, successRate: 81.3, avgTime: '15.8m' },
-    { name: 'Load Balancer', deployments: 22, successRate: 95.5, avgTime: '4.3m' },
-    { name: 'Container Registry', deployments: 18, successRate: 88.9, avgTime: '8.7m' },
-    { name: 'Storage', deployments: 14, successRate: 92.9, avgTime: '5.1m' },
-    { name: 'Monitoring', deployments: 12, successRate: 100.0, avgTime: '3.9m' },
-    { name: 'VPC', deployments: 8, successRate: 100.0, avgTime: '7.2m' }
-  ];
+  // Component deployment breakdown by project and environment
+  const getComponentBreakdown = () => {
+    const componentData = {
+      'All Projects': {
+        'All Environments': [
+          { name: 'API Gateway', deployments: 28, successRate: 96.4, avgTime: '6.2m' },
+          { name: 'Web Application', deployments: 24, successRate: 91.7, avgTime: '12.1m' },
+          { name: 'Database', deployments: 16, successRate: 81.3, avgTime: '15.8m' },
+          { name: 'Load Balancer', deployments: 22, successRate: 95.5, avgTime: '4.3m' },
+          { name: 'Container Registry', deployments: 18, successRate: 88.9, avgTime: '8.7m' },
+          { name: 'Storage', deployments: 14, successRate: 92.9, avgTime: '5.1m' },
+          { name: 'Monitoring', deployments: 12, successRate: 100.0, avgTime: '3.9m' },
+          { name: 'VPC', deployments: 8, successRate: 100.0, avgTime: '7.2m' }
+        ],
+        'Production': [
+          { name: 'API Gateway', deployments: 8, successRate: 100.0, avgTime: '8.1m' },
+          { name: 'Web Application', deployments: 6, successRate: 83.3, avgTime: '18.2m' },
+          { name: 'Database', deployments: 5, successRate: 60.0, avgTime: '22.4m' },
+          { name: 'Load Balancer', deployments: 7, successRate: 100.0, avgTime: '6.8m' },
+          { name: 'Container Registry', deployments: 4, successRate: 75.0, avgTime: '12.1m' },
+          { name: 'Storage', deployments: 6, successRate: 100.0, avgTime: '7.3m' },
+          { name: 'Monitoring', deployments: 5, successRate: 100.0, avgTime: '4.8m' },
+          { name: 'VPC', deployments: 4, successRate: 100.0, avgTime: '9.2m' }
+        ],
+        'Staging': [
+          { name: 'API Gateway', deployments: 10, successRate: 100.0, avgTime: '5.8m' },
+          { name: 'Web Application', deployments: 9, successRate: 100.0, avgTime: '10.1m' },
+          { name: 'Database', deployments: 6, successRate: 83.3, avgTime: '12.8m' },
+          { name: 'Load Balancer', deployments: 8, successRate: 100.0, avgTime: '3.9m' },
+          { name: 'Container Registry', deployments: 7, successRate: 85.7, avgTime: '7.2m' },
+          { name: 'Storage', deployments: 5, successRate: 100.0, avgTime: '4.1m' },
+          { name: 'Monitoring', deployments: 4, successRate: 100.0, avgTime: '3.2m' },
+          { name: 'VPC', deployments: 3, successRate: 100.0, avgTime: '6.8m' }
+        ],
+        'Development': [
+          { name: 'API Gateway', deployments: 10, successRate: 90.0, avgTime: '4.2m' },
+          { name: 'Web Application', deployments: 9, successRate: 88.9, avgTime: '8.7m' },
+          { name: 'Database', deployments: 5, successRate: 80.0, avgTime: '11.2m' },
+          { name: 'Load Balancer', deployments: 7, successRate: 85.7, avgTime: '3.1m' },
+          { name: 'Container Registry', deployments: 7, successRate: 85.7, avgTime: '6.4m' },
+          { name: 'Storage', deployments: 3, successRate: 66.7, avgTime: '3.8m' },
+          { name: 'Monitoring', deployments: 3, successRate: 100.0, avgTime: '2.9m' },
+          { name: 'VPC', deployments: 1, successRate: 100.0, avgTime: '5.2m' }
+        ]
+      },
+      'Project Alpha': {
+        'All Environments': [
+          { name: 'API Gateway', deployments: 12, successRate: 91.7, avgTime: '7.1m' },
+          { name: 'Web Application', deployments: 8, successRate: 87.5, avgTime: '13.8m' },
+          { name: 'Database', deployments: 6, successRate: 66.7, avgTime: '18.2m' },
+          { name: 'Load Balancer', deployments: 9, successRate: 100.0, avgTime: '5.1m' },
+          { name: 'VPC', deployments: 8, successRate: 100.0, avgTime: '8.2m' },
+          { name: 'CDN', deployments: 5, successRate: 100.0, avgTime: '4.8m' },
+          { name: 'Storage', deployments: 4, successRate: 75.0, avgTime: '6.2m' }
+        ],
+        'Production': [
+          { name: 'API Gateway', deployments: 3, successRate: 100.0, avgTime: '9.8m' },
+          { name: 'Database', deployments: 2, successRate: 50.0, avgTime: '24.1m' },
+          { name: 'Load Balancer', deployments: 3, successRate: 100.0, avgTime: '7.8m' },
+          { name: 'VPC', deployments: 4, successRate: 100.0, avgTime: '10.2m' },
+          { name: 'CDN', deployments: 2, successRate: 100.0, avgTime: '6.1m' },
+          { name: 'Web Application', deployments: 2, successRate: 50.0, avgTime: '19.4m' }
+        ]
+      },
+      'Project Beta': {
+        'All Environments': [
+          { name: 'Web Application', deployments: 8, successRate: 100.0, avgTime: '9.2m' },
+          { name: 'Kubernetes Cluster', deployments: 12, successRate: 100.0, avgTime: '8.1m' },
+          { name: 'Container Registry', deployments: 10, successRate: 90.0, avgTime: '7.8m' },
+          { name: 'Storage', deployments: 6, successRate: 100.0, avgTime: '4.2m' },
+          { name: 'API Gateway', deployments: 8, successRate: 100.0, avgTime: '5.8m' },
+          { name: 'Load Balancer', deployments: 4, successRate: 75.0, avgTime: '3.9m' }
+        ]
+      },
+      'Project Gamma': {
+        'All Environments': [
+          { name: 'Container Registry', deployments: 8, successRate: 87.5, avgTime: '9.1m' },
+          { name: 'Database', deployments: 6, successRate: 83.3, avgTime: '14.2m' },
+          { name: 'Monitoring', deployments: 12, successRate: 100.0, avgTime: '3.8m' },
+          { name: 'API Gateway', deployments: 8, successRate: 100.0, avgTime: '6.1m' },
+          { name: 'Storage', deployments: 4, successRate: 100.0, avgTime: '4.8m' },
+          { name: 'Load Balancer', deployments: 4, successRate: 75.0, avgTime: '4.2m' }
+        ]
+      }
+    };
+    
+    const projectData = componentData[selectedProject] || componentData['All Projects'];
+    return projectData[selectedEnvironment] || projectData['All Environments'];
+  };
 
-  // Environment deployment data
-  const environmentData = [
-    { env: 'Production', deployments: 45, success: 41, failed: 4, avgTime: '11.2m', downtime: '28m' },
-    { env: 'Staging', deployments: 52, success: 48, failed: 4, avgTime: '8.7m', downtime: '12m' },
-    { env: 'Development', deployments: 45, success: 38, failed: 7, avgTime: '6.1m', downtime: '7m' }
-  ];
+  // Environment deployment data by project
+  const getEnvironmentData = () => {
+    const envData = {
+      'All Projects': [
+        { env: 'Production', deployments: 45, success: 41, failed: 4, avgTime: '11.2m', downtime: '28m' },
+        { env: 'Staging', deployments: 52, success: 48, failed: 4, avgTime: '8.7m', downtime: '12m' },
+        { env: 'Development', deployments: 45, success: 38, failed: 7, avgTime: '6.1m', downtime: '7m' }
+      ],
+      'Project Alpha': [
+        { env: 'Production', deployments: 16, success: 14, failed: 2, avgTime: '12.8m', downtime: '15m' },
+        { env: 'Staging', deployments: 18, success: 17, failed: 1, avgTime: '9.1m', downtime: '4m' },
+        { env: 'Development', deployments: 18, success: 15, failed: 3, avgTime: '7.2m', downtime: '3m' }
+      ],
+      'Project Beta': [
+        { env: 'Production', deployments: 14, success: 13, failed: 1, avgTime: '9.8m', downtime: '8m' },
+        { env: 'Staging', deployments: 16, success: 16, failed: 0, avgTime: '7.9m', downtime: '0m' },
+        { env: 'Development', deployments: 18, success: 15, failed: 3, avgTime: '5.8m', downtime: '2m' }
+      ],
+      'Project Gamma': [
+        { env: 'Production', deployments: 15, success: 14, failed: 1, avgTime: '10.1m', downtime: '5m' },
+        { env: 'Staging', deployments: 18, success: 15, failed: 3, avgTime: '8.4m', downtime: '8m' },
+        { env: 'Development', deployments: 9, success: 8, failed: 1, avgTime: '5.2m', downtime: '2m' }
+      ]
+    };
+    
+    return envData[selectedProject] || envData['All Projects'];
+  };
 
-  // Recent critical events
-  const criticalEvents = [
-    {
-      id: 1,
-      type: 'deployment_failure',
-      component: 'Database',
-      project: 'Project Alpha',
-      environment: 'Production',
-      timestamp: '2 hours ago',
-      impact: 'high',
-      status: 'investigating'
-    },
-    {
-      id: 2,
-      type: 'rollback',
-      component: 'API Gateway',
-      project: 'Project Beta',
-      environment: 'Production',
-      timestamp: '6 hours ago',
-      impact: 'medium',
-      status: 'resolved'
-    },
-    {
-      id: 3,
-      type: 'performance_degradation',
-      component: 'Load Balancer',
-      project: 'Project Gamma',
-      environment: 'Production',
-      timestamp: '1 day ago',
-      impact: 'low',
-      status: 'resolved'
-    }
-  ];
+  const componentBreakdown = getComponentBreakdown();
+  const environmentData = getEnvironmentData();
+
+  // Recent critical events filtered by selection
+  const getCriticalEvents = () => {
+    const allEvents = [
+      {
+        id: 1,
+        type: 'deployment_failure',
+        component: 'Database',
+        project: 'Project Alpha',
+        environment: 'Production',
+        timestamp: '2 hours ago',
+        impact: 'high',
+        status: 'investigating'
+      },
+      {
+        id: 2,
+        type: 'rollback',
+        component: 'API Gateway',
+        project: 'Project Beta',
+        environment: 'Production',
+        timestamp: '6 hours ago',
+        impact: 'medium',
+        status: 'resolved'
+      },
+      {
+        id: 3,
+        type: 'performance_degradation',
+        component: 'Load Balancer',
+        project: 'Project Gamma',
+        environment: 'Production',
+        timestamp: '1 day ago',
+        impact: 'low',
+        status: 'resolved'
+      },
+      {
+        id: 4,
+        type: 'deployment_failure',
+        component: 'Web Application',
+        project: 'Project Alpha',
+        environment: 'Staging',
+        timestamp: '8 hours ago',
+        impact: 'medium',
+        status: 'resolved'
+      },
+      {
+        id: 5,
+        type: 'rollback',
+        component: 'Container Registry',
+        project: 'Project Beta',
+        environment: 'Staging',
+        timestamp: '12 hours ago',
+        impact: 'low',
+        status: 'resolved'
+      },
+      {
+        id: 6,
+        type: 'deployment_failure',
+        component: 'Storage',
+        project: 'Project Alpha',
+        environment: 'Development',
+        timestamp: '4 hours ago',
+        impact: 'low',
+        status: 'investigating'
+      },
+      {
+        id: 7,
+        type: 'performance_degradation',
+        component: 'Monitoring',
+        project: 'Project Gamma',
+        environment: 'Staging',
+        timestamp: '18 hours ago',
+        impact: 'medium',
+        status: 'resolved'
+      },
+      {
+        id: 8,
+        type: 'deployment_failure',
+        component: 'VPC',
+        project: 'Project Alpha',
+        environment: 'Development',
+        timestamp: '1 day ago',
+        impact: 'low',
+        status: 'resolved'
+      }
+    ];
+
+    return allEvents.filter(event => {
+      const projectMatch = selectedProject === 'All Projects' || event.project === selectedProject;
+      const envMatch = selectedEnvironment === 'All Environments' || event.environment === selectedEnvironment;
+      return projectMatch && envMatch;
+    });
+  };
+
+  const criticalEvents = getCriticalEvents();
 
   const getMetricTrend = (current, previous) => {
     const change = ((current - previous) / previous) * 100;
