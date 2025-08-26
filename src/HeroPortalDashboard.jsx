@@ -6591,163 +6591,180 @@ const FinancialDashboard = () => {
   const currentMetrics = getCurrentMetrics();
   const chartData = generateChartData();
 
-  // Interactive Chart Component
-  const InteractiveCostChart = ({ data, width = 600, height = 240 }) => {
-    const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+  // Simple Stable Bar Chart Component
+  const InteractiveCostChart = ({ data }) => {
+    const [tooltip, setTooltip] = useState(null);
+    
+    // Chart dimensions - responsive width
+    const height = 300;
+    const margin = { top: 20, right: 40, bottom: 60, left: 70 };
+    const containerWidth = "100%";
+    
+    // Use a ref to get actual container width
+    const [containerRef, setContainerRef] = useState(null);
+    const [actualWidth, setActualWidth] = useState(800);
+    
+    // Update width when container ref changes
+    useEffect(() => {
+      if (containerRef) {
+        const updateWidth = () => {
+          const rect = containerRef.getBoundingClientRect();
+          setActualWidth(rect.width);
+        };
+        
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+      }
+    }, [containerRef]);
+    
+    const width = actualWidth;
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
     
     // Calculate scales
-    const allValues = [...data.historical, ...data.forecast, ...data.budget].filter(v => v !== null);
-    const maxValue = Math.max(...allValues);
-    const minValue = Math.min(...allValues);
-    const valueRange = maxValue - minValue;
-    const yMax = maxValue + (valueRange * 0.1);
-    const yMin = Math.max(0, minValue - (valueRange * 0.1));
+    const allValues = [...data.historical, ...data.forecast].filter(v => v !== null);
+    const maxValue = Math.max(...allValues, data.budget[0]);
+    const yScale = (value) => (1 - value / maxValue) * chartHeight;
     
-    const xScale = (index) => (index / (data.labels.length - 1)) * chartWidth;
-    const yScale = (value) => chartHeight - ((value - yMin) / (yMax - yMin)) * chartHeight;
+    // Bar calculations
+    const totalBars = data.labels.length;
+    const barWidth = chartWidth / totalBars * 0.8; // 80% width for bars, 20% for spacing
+    const barSpacing = chartWidth / totalBars * 0.2;
     
-    // Generate path strings
-    const generatePath = (values, startIndex = 0) => {
-      const validPoints = values
-        .map((value, index) => ({ value, index: index + startIndex }))
-        .filter(({ value }) => value !== null);
-      
-      if (validPoints.length === 0) return '';
-      
-      return validPoints
-        .map(({ value, index }, i) => 
-          `${i === 0 ? 'M' : 'L'} ${xScale(index)} ${yScale(value)}`
-        ).join(' ');
+    const getBarX = (index) => margin.left + (index * chartWidth / totalBars) + (barSpacing / 2);
+    
+    // Handle mouse events
+    const handleMouseEnter = (event, type, index, value, label) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setTooltip({
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+        type,
+        value,
+        label,
+        isOverBudget: value > data.budget[0]
+      });
+    };
+    
+    const handleMouseLeave = () => {
+      setTooltip(null);
     };
 
-    const historicalPath = generatePath(data.historical);
-    const forecastPath = generatePath(data.forecast, data.historical.length);
-    const budgetPath = generatePath(data.budget);
-
     return (
-      <div className="relative">
-        <svg width={width} height={height} className="overflow-visible">
-          <defs>
-            <linearGradient id="historicalGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-            </linearGradient>
-            <linearGradient id="forecastGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-          
-          <g transform={`translate(${margin.left}, ${margin.top})`}>
+      <div 
+        className="w-full"
+        ref={setContainerRef}
+      >
+        <div className="relative w-full">
+          {/* Main Chart */}
+          <svg width={width} height={height} className="bg-white rounded-lg border w-full">
             {/* Grid lines */}
-            {[0, 0.25, 0.5, 0.75, 1].map(ratio => (
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
               <line
                 key={ratio}
-                x1="0"
-                y1={chartHeight * ratio}
-                x2={chartWidth}
-                y2={chartHeight * ratio}
-                stroke="#E5E7EB"
+                x1={margin.left}
+                y1={margin.top + chartHeight * ratio}
+                x2={margin.left + chartWidth}
+                y2={margin.top + chartHeight * ratio}
+                stroke="#f1f5f9"
                 strokeWidth="1"
-                strokeDasharray={ratio === 0 || ratio === 1 ? "0" : "3,3"}
-              />
-            ))}
-            
-            {/* Vertical divider between historical and forecast */}
-            <line
-              x1={xScale(data.historical.length - 1)}
-              y1="0"
-              x2={xScale(data.historical.length - 1)}
-              y2={chartHeight}
-              stroke="#D1D5DB"
-              strokeWidth="2"
-              strokeDasharray="5,5"
-            />
-            
-            {/* Budget line */}
-            <path
-              d={budgetPath}
-              fill="none"
-              stroke="#EF4444"
-              strokeWidth="2"
-              strokeDasharray="8,4"
-              opacity="0.7"
-            />
-            
-            {/* Historical area */}
-            <path
-              d={`${historicalPath} L ${xScale(data.historical.length - 1)} ${chartHeight} L ${xScale(0)} ${chartHeight} Z`}
-              fill="url(#historicalGradient)"
-            />
-            
-            {/* Historical line */}
-            <path
-              d={historicalPath}
-              fill="none"
-              stroke="#3B82F6"
-              strokeWidth="3"
-            />
-            
-            {/* Forecast area */}
-            <path
-              d={`${forecastPath} L ${xScale(data.labels.length - 1)} ${chartHeight} L ${xScale(data.historical.length)} ${chartHeight} Z`}
-              fill="url(#forecastGradient)"
-            />
-            
-            {/* Forecast line */}
-            <path
-              d={forecastPath}
-              fill="none"
-              stroke="#8B5CF6"
-              strokeWidth="3"
-              strokeDasharray="6,3"
-            />
-            
-            {/* Data points */}
-            {data.historical.map((value, index) => (
-              <circle
-                key={`hist-${index}`}
-                cx={xScale(index)}
-                cy={yScale(value)}
-                r="4"
-                fill="#3B82F6"
-                stroke="white"
-                strokeWidth="2"
-                className="cursor-pointer hover:r-6 transition-all"
-                onMouseEnter={() => setHoveredPoint({ type: 'historical', index, value, label: data.labels[index] })}
-                onMouseLeave={() => setHoveredPoint(null)}
-              />
-            ))}
-            
-            {data.forecast.map((value, index) => (
-              <circle
-                key={`forecast-${index}`}
-                cx={xScale(index + data.historical.length)}
-                cy={yScale(value)}
-                r="3"
-                fill="#8B5CF6"
-                stroke="white"
-                strokeWidth="2"
-                className="cursor-pointer hover:r-5 transition-all"
-                onMouseEnter={() => setHoveredPoint({ type: 'forecast', index, value, label: data.labels[index + data.historical.length] })}
-                onMouseLeave={() => setHoveredPoint(null)}
+                strokeDasharray={ratio === 1 ? "0" : "3,3"}
               />
             ))}
             
             {/* Y-axis labels */}
-            {[0, 0.25, 0.5, 0.75, 1].map(ratio => (
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
               <text
                 key={ratio}
-                x="-10"
-                y={chartHeight * ratio + 5}
+                x={margin.left - 10}
+                y={margin.top + chartHeight * ratio + 4}
                 textAnchor="end"
                 className="text-xs fill-gray-600"
               >
-                ${Math.round((yMin + (yMax - yMin) * (1 - ratio)) / 1000)}k
+                ${Math.round((1 - ratio) * maxValue / 1000)}k
               </text>
             ))}
+            
+            {/* Budget line */}
+            <line
+              x1={margin.left}
+              y1={margin.top + yScale(data.budget[0])}
+              x2={margin.left + chartWidth}
+              y2={margin.top + yScale(data.budget[0])}
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="5,5"
+              opacity="0.7"
+            />
+            
+            {/* Budget label */}
+            <text
+              x={margin.left + chartWidth - 5}
+              y={margin.top + yScale(data.budget[0]) - 5}
+              textAnchor="end"
+              className="text-xs fill-red-600 font-medium"
+            >
+              Budget
+            </text>
+            
+            {/* Historical bars */}
+            {data.historical.map((value, index) => (
+              <rect
+                key={`hist-${index}`}
+                x={getBarX(index)}
+                y={margin.top + yScale(value)}
+                width={barWidth}
+                height={chartHeight - yScale(value)}
+                fill={value > data.budget[0] ? "#ef4444" : "#3b82f6"}
+                className="cursor-pointer transition-opacity duration-200 hover:opacity-80"
+                onMouseEnter={(e) => handleMouseEnter(e, 'historical', index, value, data.labels[index])}
+                onMouseLeave={handleMouseLeave}
+              />
+            ))}
+            
+            {/* Forecast bars */}
+            {data.forecast.map((value, index) => {
+              const actualIndex = index + data.historical.length;
+              return (
+                <g key={`forecast-${index}`}>
+                  <rect
+                    x={getBarX(actualIndex)}
+                    y={margin.top + yScale(value)}
+                    width={barWidth}
+                    height={chartHeight - yScale(value)}
+                    fill={value > data.budget[0] ? "#f87171" : "#8b5cf6"}
+                    opacity="0.7"
+                    className="cursor-pointer transition-opacity duration-200 hover:opacity-90"
+                    onMouseEnter={(e) => handleMouseEnter(e, 'forecast', index, value, data.labels[actualIndex])}
+                    onMouseLeave={handleMouseLeave}
+                  />
+                  <rect
+                    x={getBarX(actualIndex)}
+                    y={margin.top + yScale(value)}
+                    width={barWidth}
+                    height={chartHeight - yScale(value)}
+                    fill="none"
+                    stroke="#8b5cf6"
+                    strokeWidth="1"
+                    strokeDasharray="3,2"
+                    opacity="0.8"
+                  />
+                </g>
+              );
+            })}
+            
+            {/* Divider line */}
+            <line
+              x1={getBarX(data.historical.length) - barSpacing / 2}
+              y1={margin.top}
+              x2={getBarX(data.historical.length) - barSpacing / 2}
+              y2={margin.top + chartHeight}
+              stroke="#d1d5db"
+              strokeWidth="2"
+              strokeDasharray="4,4"
+              opacity="0.6"
+            />
             
             {/* X-axis labels */}
             {data.labels.map((label, index) => {
@@ -6756,8 +6773,8 @@ const FinancialDashboard = () => {
               return showLabel ? (
                 <text
                   key={index}
-                  x={xScale(index)}
-                  y={chartHeight + 15}
+                  x={getBarX(index) + barWidth / 2}
+                  y={height - 10}
                   textAnchor="middle"
                   className="text-xs fill-gray-600"
                 >
@@ -6766,34 +6783,47 @@ const FinancialDashboard = () => {
               ) : null;
             })}
             
-            {/* Chart labels */}
-            <text x={chartWidth / 4} y="-5" textAnchor="middle" className="text-xs fill-gray-700 font-medium">
-              Historical Data
+            {/* Section labels */}
+            <text
+              x={margin.left + chartWidth * 0.25}
+              y={margin.top - 5}
+              textAnchor="middle"
+              className="text-sm fill-gray-700 font-medium"
+            >
+              Historical
             </text>
-            <text x={chartWidth * 3/4} y="-5" textAnchor="middle" className="text-xs fill-gray-700 font-medium">
+            <text
+              x={margin.left + chartWidth * 0.75}
+              y={margin.top - 5}
+              textAnchor="middle"
+              className="text-sm fill-gray-700 font-medium"
+            >
               Forecast
             </text>
-          </g>
-        </svg>
-        
-        {/* Tooltip */}
-        {hoveredPoint && (
-          <div 
-            className="absolute bg-slate-900 text-white px-3 py-2 rounded-lg text-sm shadow-lg pointer-events-none z-10"
-            style={{
-              left: margin.left + xScale(hoveredPoint.type === 'historical' ? hoveredPoint.index : hoveredPoint.index + data.historical.length) - 50,
-              top: margin.top + yScale(hoveredPoint.value) - 40
-            }}
-          >
-            <div className="font-medium">{hoveredPoint.label}</div>
-            <div className="text-blue-300">
-              ${Math.round(hoveredPoint.value).toLocaleString()}
+          </svg>
+          
+          {/* Tooltip */}
+          {tooltip && (
+            <div
+              className="fixed bg-gray-900 text-white px-3 py-2 rounded-lg text-sm shadow-lg z-50 pointer-events-none"
+              style={{
+                left: tooltip.x - 60,
+                top: tooltip.y - 80
+              }}
+            >
+              <div className="font-medium">{tooltip.label}</div>
+              <div className="text-blue-300">
+                ${Math.round(tooltip.value).toLocaleString()}
+              </div>
+              <div className="text-xs text-gray-300">
+                {tooltip.type === 'historical' ? 'Actual' : 'Forecast'}
+              </div>
+              {tooltip.isOverBudget && (
+                <div className="text-xs text-red-300">Over Budget</div>
+              )}
             </div>
-            <div className="text-xs text-gray-300">
-              {hoveredPoint.type === 'historical' ? 'Actual' : 'Predicted'}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   };
@@ -7237,23 +7267,29 @@ const FinancialDashboard = () => {
           </div>
           
           {/* Interactive Chart */}
-          <div className="bg-white rounded-lg p-4">
-            <InteractiveCostChart data={chartData} width={650} height={280} />
+          <div className="bg-gray-50 rounded-lg p-4">
+            <InteractiveCostChart data={chartData} />
           </div>
 
           {/* Chart Legend */}
           <div className="flex justify-center gap-6 mt-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-3 bg-blue-500 rounded"></div>
-              <span className="text-gray-700">Historical Data</span>
+              <div className="w-4 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded"></div>
+              <span className="text-gray-700">Historical Spend</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-3 bg-purple-500 rounded" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 4px)' }}></div>
-              <span className="text-gray-700">Forecast</span>
+              <div className="w-4 h-6 bg-gradient-to-b from-purple-500 to-purple-700 rounded relative overflow-hidden">
+                <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 1px, white 1px, white 2px)' }}></div>
+              </div>
+              <span className="text-gray-700">Forecast Spend</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-red-500 opacity-70" style={{ backgroundImage: 'repeating-linear-gradient(90deg, red 0px, red 6px, transparent 6px, transparent 10px)' }}></div>
+              <div className="w-6 h-1 bg-red-500 opacity-70" style={{ backgroundImage: 'repeating-linear-gradient(90deg, red 0px, red 4px, transparent 4px, transparent 8px)' }}></div>
               <span className="text-gray-700">Budget Limit</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-6 bg-red-500 rounded opacity-80"></div>
+              <span className="text-gray-700">Over Budget</span>
             </div>
           </div>
         </div>
