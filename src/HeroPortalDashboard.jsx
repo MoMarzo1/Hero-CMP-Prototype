@@ -3,7 +3,7 @@ import {
   Home, Settings, Cloud, Shield, Code, DollarSign, 
   AlertCircle, Cpu, Database, Globe, Activity, 
   ChevronRight, ChevronLeft, Calendar, CheckCircle, XCircle, 
-  Clock, TrendingUp, AlertTriangle, Loader, Bell,
+  Clock, TrendingUp, TrendingDown, AlertTriangle, Loader, Bell,
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
@@ -1334,81 +1334,416 @@ const VulnerabilitiesDashboard = () => {
   );
 };
 
-// Modern Dashboard Page
+// Enterprise Deployment Dashboard
 const DashboardPage = () => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const deployments = [15, 22, 18, 28, 20, 35, 32, 16, 12, 15, 18, 21];
-  const currentMonth = 6; // July
+  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [selectedEnvironment, setSelectedEnvironment] = useState('All');
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+
+  // Enterprise deployment metrics
+  const deploymentMetrics = {
+    '7d': {
+      totalDeployments: 142,
+      successfulDeployments: 127,
+      failedDeployments: 15,
+      successRate: 89.4,
+      avgDeploymentTime: '8.2',
+      changeFailureRate: 10.6,
+      leadTime: '2.3',
+      mttr: '1.8',
+      deploymentFrequency: 20.3,
+      hotfixCount: 3,
+      rollbackRate: 4.2,
+      totalDowntime: 47
+    },
+    '30d': {
+      totalDeployments: 582,
+      successfulDeployments: 524,
+      failedDeployments: 58,
+      successRate: 90.0,
+      avgDeploymentTime: '9.1',
+      changeFailureRate: 10.0,
+      leadTime: '2.1',
+      mttr: '2.1',
+      deploymentFrequency: 19.4,
+      hotfixCount: 12,
+      rollbackRate: 3.8,
+      totalDowntime: 186
+    },
+    '90d': {
+      totalDeployments: 1847,
+      successfulDeployments: 1672,
+      failedDeployments: 175,
+      successRate: 90.5,
+      avgDeploymentTime: '8.8',
+      changeFailureRate: 9.5,
+      leadTime: '2.0',
+      mttr: '2.0',
+      deploymentFrequency: 20.5,
+      hotfixCount: 38,
+      rollbackRate: 4.1,
+      totalDowntime: 642
+    }
+  };
+
+  const currentMetrics = deploymentMetrics[selectedTimeRange];
+
+  // DORA metrics trend data
+  const deploymentTrends = {
+    '7d': {
+      dates: ['Aug 19', 'Aug 20', 'Aug 21', 'Aug 22', 'Aug 23', 'Aug 24', 'Aug 25'],
+      deployments: [18, 22, 16, 25, 21, 19, 21],
+      successRate: [92, 88, 94, 87, 91, 89, 90],
+      leadTime: [2.1, 2.5, 1.8, 2.7, 2.2, 2.3, 2.1]
+    }
+  };
+
+  // Component deployment breakdown
+  const componentBreakdown = [
+    { name: 'API Gateway', deployments: 28, successRate: 96.4, avgTime: '6.2m' },
+    { name: 'Web Application', deployments: 24, successRate: 91.7, avgTime: '12.1m' },
+    { name: 'Database', deployments: 16, successRate: 81.3, avgTime: '15.8m' },
+    { name: 'Load Balancer', deployments: 22, successRate: 95.5, avgTime: '4.3m' },
+    { name: 'Container Registry', deployments: 18, successRate: 88.9, avgTime: '8.7m' },
+    { name: 'Storage', deployments: 14, successRate: 92.9, avgTime: '5.1m' },
+    { name: 'Monitoring', deployments: 12, successRate: 100.0, avgTime: '3.9m' },
+    { name: 'VPC', deployments: 8, successRate: 100.0, avgTime: '7.2m' }
+  ];
+
+  // Environment deployment data
+  const environmentData = [
+    { env: 'Production', deployments: 45, success: 41, failed: 4, avgTime: '11.2m', downtime: '28m' },
+    { env: 'Staging', deployments: 52, success: 48, failed: 4, avgTime: '8.7m', downtime: '12m' },
+    { env: 'Development', deployments: 45, success: 38, failed: 7, avgTime: '6.1m', downtime: '7m' }
+  ];
+
+  // Recent critical events
+  const criticalEvents = [
+    {
+      id: 1,
+      type: 'deployment_failure',
+      component: 'Database',
+      project: 'Project Alpha',
+      environment: 'Production',
+      timestamp: '2 hours ago',
+      impact: 'high',
+      status: 'investigating'
+    },
+    {
+      id: 2,
+      type: 'rollback',
+      component: 'API Gateway',
+      project: 'Project Beta',
+      environment: 'Production',
+      timestamp: '6 hours ago',
+      impact: 'medium',
+      status: 'resolved'
+    },
+    {
+      id: 3,
+      type: 'performance_degradation',
+      component: 'Load Balancer',
+      project: 'Project Gamma',
+      environment: 'Production',
+      timestamp: '1 day ago',
+      impact: 'low',
+      status: 'resolved'
+    }
+  ];
+
+  const getMetricTrend = (current, previous) => {
+    const change = ((current - previous) / previous) * 100;
+    return {
+      value: Math.abs(change).toFixed(1),
+      direction: change > 0 ? 'up' : 'down',
+      isGood: (current > previous && ['successRate', 'deploymentFrequency'].includes('current')) || 
+             (current < previous && ['changeFailureRate', 'mttr', 'leadTime'].includes('current'))
+    };
+  };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold text-slate-900">Deployment Dashboard</h2>
-        <div className="flex gap-4">
-          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow">
-            <option>Azara</option>
-            <option>Corrigo</option>
-            <option>TelmaAI</option>
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900">Deployment Dashboard</h2>
+          <p className="text-gray-600 mt-1">Enterprise deployment metrics and DORA indicators</p>
+        </div>
+        <div className="flex gap-3">
+          <select 
+            value={selectedTimeRange}
+            onChange={(e) => setSelectedTimeRange(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow"
+          >
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
           </select>
-          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow">
-            <option>Prod</option>
-            <option>Stage</option>
-            <option>Dev</option>
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow"
+          >
+            <option>All Projects</option>
+            <option>Project Alpha</option>
+            <option>Project Beta</option>
+            <option>Project Gamma</option>
+          </select>
+          <select 
+            value={selectedEnvironment}
+            onChange={(e) => setSelectedEnvironment(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-slate-900 font-medium shadow-sm hover:shadow-md transition-shadow"
+          >
+            <option>All Environments</option>
+            <option>Production</option>
+            <option>Staging</option>
+            <option>Development</option>
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8 mb-12">
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-red-600">3</div>
-          <div className="text-gray-600 font-medium">Total Deployments This Month</div>
-        </div>
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-green-500">17</div>
-          <div className="text-gray-600 font-medium">Total Successful Deployments / Month</div>
-        </div>
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-red-600">5</div>
-          <div className="text-gray-600 font-medium">Total Failed Deployments / Month</div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-        <h3 className="text-center font-bold text-slate-900 mb-8 text-xl">Monthly Deployment Trends 2025</h3>
-        <div className="flex items-end justify-around h-72 px-8">
-          {months.map((month, idx) => (
-            <div key={month} className="flex flex-col items-center">
-              <div className="relative">
-                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-slate-900">
-                  {deployments[idx]}
-                </div>
-                <div 
-                  className={`w-8 rounded-t-lg transition-all duration-500 hover:scale-105 ${
-                    idx < currentMonth ? 'bg-gradient-to-t from-green-500 to-emerald-400 shadow-lg' : 
-                    idx === currentMonth ? 'bg-gradient-to-t from-red-600 to-red-500 shadow-lg' : 
-                    'bg-gradient-to-t from-gray-300 to-gray-200'
-                  }`}
-                  style={{ height: `${(deployments[idx] / 35) * 200}px` }}
-                ></div>
-              </div>
-              <div className={`text-sm mt-3 ${idx === currentMonth ? 'font-bold text-red-600' : 'text-gray-600'}`}>
-                {month}
-              </div>
+      {/* DORA Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-slate-900">Deployment Frequency</h3>
             </div>
-          ))}
+            <div className="flex items-center gap-1 text-green-600">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-medium">+12.3%</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">{currentMetrics.deploymentFrequency}/day</div>
+          <p className="text-sm text-gray-600">Average deployments per day</p>
         </div>
-        <div className="flex justify-center gap-8 mt-8 text-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-400 rounded"></div>
-            <span className="text-gray-600 font-medium">Completed</span>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-600" />
+              <h3 className="font-semibold text-slate-900">Lead Time</h3>
+            </div>
+            <div className="flex items-center gap-1 text-green-600">
+              <TrendingDown className="w-4 h-4" />
+              <span className="text-sm font-medium">-8.1%</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-gradient-to-r from-red-600 to-red-500 rounded"></div>
-            <span className="text-gray-600 font-medium">Current Month</span>
+          <div className="text-2xl font-bold text-slate-900 mb-1">{currentMetrics.leadTime}h</div>
+          <p className="text-sm text-gray-600">Commit to production</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <h3 className="font-semibold text-slate-900">Change Failure Rate</h3>
+            </div>
+            <div className="flex items-center gap-1 text-green-600">
+              <TrendingDown className="w-4 h-4" />
+              <span className="text-sm font-medium">-2.4%</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-gradient-to-r from-gray-300 to-gray-200 rounded"></div>
-            <span className="text-gray-600 font-medium">Future</span>
+          <div className="text-2xl font-bold text-slate-900 mb-1">{currentMetrics.changeFailureRate}%</div>
+          <p className="text-sm text-gray-600">Deployments causing failures</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-slate-900">MTTR</h3>
+            </div>
+            <div className="flex items-center gap-1 text-red-600">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-medium">+5.2%</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">{currentMetrics.mttr}h</div>
+          <p className="text-sm text-gray-600">Mean time to recovery</p>
+        </div>
+      </div>
+
+      {/* Key Performance Indicators */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-900">Deployment Success Rate</h3>
+            <CheckCircle className="w-5 h-5 text-green-600" />
+          </div>
+          <div className="text-3xl font-bold text-green-600 mb-2">{currentMetrics.successRate}%</div>
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Successful: {currentMetrics.successfulDeployments}</span>
+            <span>Failed: {currentMetrics.failedDeployments}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+            <div 
+              className="bg-green-600 h-2 rounded-full transition-all duration-1000"
+              style={{ width: `${currentMetrics.successRate}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-900">Average Deployment Time</h3>
+            <Clock className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="text-3xl font-bold text-blue-600 mb-2">{currentMetrics.avgDeploymentTime}m</div>
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Fastest: 2.1m</span>
+            <span>Slowest: 28.4m</span>
+          </div>
+          <div className="flex items-center gap-1 mt-3">
+            <TrendingDown className="w-4 h-4 text-green-600" />
+            <span className="text-sm text-green-600 font-medium">15% faster than last period</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-900">System Reliability</h3>
+            <Shield className="w-5 h-5 text-purple-600" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xl font-bold text-purple-600">{currentMetrics.rollbackRate}%</div>
+              <div className="text-xs text-gray-600">Rollback Rate</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-orange-600">{currentMetrics.totalDowntime}m</div>
+              <div className="text-xs text-gray-600">Total Downtime</div>
+            </div>
+          </div>
+          <div className="mt-3 text-sm text-gray-600">
+            Hotfixes deployed: <span className="font-semibold text-slate-900">{currentMetrics.hotfixCount}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Component Performance & Environment Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Component Deployment Breakdown */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="font-semibold text-slate-900">Component Performance</h3>
+            <p className="text-sm text-gray-600">Deployment metrics by component type</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {componentBreakdown.map((component, index) => (
+                <div key={component.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                    <div>
+                      <div className="font-medium text-slate-900">{component.name}</div>
+                      <div className="text-sm text-gray-600">{component.deployments} deployments</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-semibold ${component.successRate >= 95 ? 'text-green-600' : component.successRate >= 90 ? 'text-orange-600' : 'text-red-600'}`}>
+                      {component.successRate}%
+                    </div>
+                    <div className="text-sm text-gray-600">{component.avgTime} avg</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Environment Deployment Stats */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="font-semibold text-slate-900">Environment Breakdown</h3>
+            <p className="text-sm text-gray-600">Deployment performance by environment</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-6">
+              {environmentData.map((env, index) => (
+                <div key={env.env}>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium text-slate-900">{env.env}</div>
+                    <div className="text-sm text-gray-600">{env.deployments} total</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-green-600 font-semibold">{env.success} Success</div>
+                      <div className="text-xs text-gray-600">{((env.success/env.deployments)*100).toFixed(1)}%</div>
+                    </div>
+                    <div>
+                      <div className="text-red-600 font-semibold">{env.failed} Failed</div>
+                      <div className="text-xs text-gray-600">Avg: {env.avgTime}</div>
+                    </div>
+                    <div>
+                      <div className="text-orange-600 font-semibold">{env.downtime}</div>
+                      <div className="text-xs text-gray-600">Downtime</div>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                    <div 
+                      className="bg-green-600 h-1.5 rounded-full"
+                      style={{ width: `${(env.success/env.deployments)*100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Critical Events & Alerts */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-900">Recent Critical Events</h3>
+              <p className="text-sm text-gray-600">High-impact deployment events requiring attention</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-600">{criticalEvents.filter(e => e.status === 'investigating').length} active alerts</span>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            {criticalEvents.map((event) => (
+              <div key={event.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`p-2 rounded-lg ${
+                    event.impact === 'high' ? 'bg-red-100 text-red-600' :
+                    event.impact === 'medium' ? 'bg-orange-100 text-orange-600' :
+                    'bg-yellow-100 text-yellow-600'
+                  }`}>
+                    {event.type === 'deployment_failure' ? <XCircle className="w-4 h-4" /> :
+                     event.type === 'rollback' ? <AlertTriangle className="w-4 h-4" /> :
+                     <Activity className="w-4 h-4" />}
+                  </div>
+                  <div>
+                    <div className="font-medium text-slate-900">
+                      {event.type === 'deployment_failure' ? 'Deployment Failure' :
+                       event.type === 'rollback' ? 'Rollback Executed' :
+                       'Performance Degradation'}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {event.component} in {event.project} ({event.environment})
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    event.status === 'investigating' ? 'bg-red-100 text-red-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    {event.status === 'investigating' ? 'Investigating' : 'Resolved'}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">{event.timestamp}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
