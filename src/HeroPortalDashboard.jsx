@@ -3,7 +3,7 @@ import {
   Home, Settings, Cloud, Shield, Code, DollarSign, 
   AlertCircle, Cpu, Database, Globe, Activity, 
   ChevronRight, ChevronLeft, Calendar, CheckCircle, XCircle, 
-  Clock, TrendingUp, TrendingDown, AlertTriangle, Loader, Bell,
+  Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, Loader, Bell,
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
@@ -101,17 +101,6 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">3</span>
                 </div>
                 <div 
-                  onClick={() => setCurrentPage('applications')}
-                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
-                    isActive('applications') 
-                      ? 'bg-gray-800 text-white border-l-4 border-red-600' 
-                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                  }`}
-                >
-                  <Package className="w-4 h-4 inline mr-2" />
-                  Applications
-                </div>
-                <div 
                   onClick={() => setCurrentPage('vulnerabilities')}
                   className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
                     isActive('vulnerabilities') 
@@ -122,7 +111,14 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   <Shield className="w-4 h-4 inline mr-2" />
                   Vulnerabilities
                 </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <div 
+                  onClick={() => setCurrentPage('code-commits')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('code-commits') 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
                   <GitBranch className="w-4 h-4 inline mr-2" />
                   Code Commits
                 </div>
@@ -521,13 +517,13 @@ const Breadcrumb = ({ currentPage }) => {
       'home': ['Home'],
       'dashboard': ['Home', 'Dashboards', 'Deployments'],
       'financial': ['Home', 'Dashboards', 'Financials'],
-      'applications': ['Home', 'Dashboards', 'Applications'],
       'projects': ['Home', 'Onboarding', 'Projects'],
       'cloud-onboarding': ['Home', 'Onboarding', 'Cloud Service Provider'],
       'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status'],
       'kubernetes-onboarding': ['Home', 'Onboarding', 'Kubernetes'],
       'kubernetes-onboarding-status': ['Home', 'Onboarding', 'Kubernetes', 'Status'],
       'vulnerabilities': ['Home', 'Dashboards', 'Vulnerabilities'],
+      'code-commits': ['Home', 'Dashboards', 'Code Commits'],
       'infrabuilder': ['Home', 'Build', 'InfraBuilder'],
       'deployments': ['Home', 'Build', 'Deployments']
     };
@@ -1327,6 +1323,838 @@ const VulnerabilitiesDashboard = () => {
                   Suppress for 30 Days
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Enterprise Code Commits Dashboard  
+const CodeCommitsDashboard = () => {
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+  const [selectedComponent, setSelectedComponent] = useState('All Components');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
+  const [selectedView, setSelectedView] = useState('overview');
+  const [expandedMetrics, setExpandedMetrics] = useState(new Set());
+
+  // Comprehensive code metrics data structure
+  const codeMetricsData = {
+    projects: ['All Projects', 'EDP Core', 'TelmaAI', 'Corrigo Core', 'ScheduleAI', 'PropertyOS'],
+    components: ['All Components', 'Frontend', 'Backend API', 'Database', 'Microservices', 'Infrastructure'],
+    
+    // DORA Metrics with trend analysis
+    doraMetrics: {
+      deploymentFrequency: {
+        current: 2.3,
+        previous: 1.8,
+        trend: '+27.8%',
+        status: 'excellent',
+        target: 2.0,
+        description: 'Deployments per day',
+        details: {
+          weekly: [1.2, 1.5, 1.8, 2.1, 2.3],
+          byProject: {
+            'EDP Core': 3.1,
+            'TelmaAI': 2.8,
+            'Corrigo Core': 1.9,
+            'ScheduleAI': 2.0
+          }
+        }
+      },
+      leadTime: {
+        current: 2.1,
+        previous: 3.2,
+        trend: '-34.4%',
+        status: 'excellent',
+        target: 2.5,
+        description: 'Days from commit to production',
+        details: {
+          weekly: [3.8, 3.2, 2.8, 2.4, 2.1],
+          byProject: {
+            'EDP Core': 1.8,
+            'TelmaAI': 2.2,
+            'Corrigo Core': 2.5,
+            'ScheduleAI': 1.9
+          }
+        }
+      },
+      changeFailureRate: {
+        current: 8.2,
+        previous: 12.1,
+        trend: '-32.2%',
+        status: 'good',
+        target: 10.0,
+        description: '% of deployments causing failures',
+        details: {
+          weekly: [15.2, 12.1, 10.8, 9.3, 8.2],
+          byProject: {
+            'EDP Core': 6.1,
+            'TelmaAI': 7.8,
+            'Corrigo Core': 10.5,
+            'ScheduleAI': 8.9
+          }
+        }
+      },
+      mttr: {
+        current: 1.3,
+        previous: 2.1,
+        trend: '-38.1%',
+        status: 'excellent',
+        target: 2.0,
+        description: 'Hours to restore service',
+        details: {
+          weekly: [2.8, 2.1, 1.8, 1.5, 1.3],
+          byProject: {
+            'EDP Core': 1.1,
+            'TelmaAI': 1.2,
+            'Corrigo Core': 1.6,
+            'ScheduleAI': 1.4
+          }
+        }
+      }
+    },
+
+    // Pull Request Analytics
+    pullRequestMetrics: {
+      totalPRs: 847,
+      openPRs: 23,
+      mergedPRs: 789,
+      closedPRs: 35,
+      avgReviewTime: 4.2,
+      avgMergeTime: 6.1,
+      reviewParticipation: 89.3,
+      codeReviewCoverage: 94.7,
+      prSizeDistribution: {
+        'XS (1-10 lines)': 156,
+        'S (11-50 lines)': 342,
+        'M (51-250 lines)': 267,
+        'L (251-500 lines)': 61,
+        'XL (500+ lines)': 21
+      },
+      reviewerLoad: [
+        { name: 'Sarah Chen', reviews: 89, avgTime: 3.2, projects: ['EDP Core', 'TelmaAI'] },
+        { name: 'Mike Rodriguez', reviews: 67, avgTime: 4.1, projects: ['Corrigo Core', 'ScheduleAI'] },
+        { name: 'Lisa Johnson', reviews: 54, avgTime: 2.8, projects: ['PropertyOS', 'EDP Core'] },
+        { name: 'David Kim', reviews: 48, avgTime: 5.2, projects: ['TelmaAI', 'Microservices'] }
+      ]
+    },
+
+    // Developer Productivity Insights
+    developerMetrics: {
+      commits: {
+        total: 2847,
+        weekly: [187, 203, 234, 198, 221, 189, 215],
+        byAuthor: [
+          { name: 'Alex Thompson', commits: 298, linesAdded: 18420, linesDeleted: 8930, files: 156, projects: 3 },
+          { name: 'Emma Davis', commits: 276, linesAdded: 16780, linesDeleted: 9200, files: 143, projects: 2 },
+          { name: 'Josh Wilson', commits: 254, linesAdded: 15330, linesDeleted: 7890, files: 134, projects: 4 },
+          { name: 'Maria Garcia', commits: 231, linesAdded: 14220, linesDeleted: 6780, files: 127, projects: 2 }
+        ],
+        languages: {
+          'JavaScript/TypeScript': 42.3,
+          'Python': 28.1,
+          'Java': 15.7,
+          'C#': 8.9,
+          'Go': 5.0
+        }
+      },
+      codeQuality: {
+        testCoverage: 87.3,
+        codeComplexity: 'Medium',
+        technicalDebt: 2.1, // hours
+        duplication: 3.4, // %
+        maintainabilityIndex: 8.2,
+        securityHotspots: 12,
+        bugDensity: 0.8, // per 1000 lines
+        vulnerabilities: 3
+      },
+      velocity: {
+        storyPoints: 127,
+        burndown: 85.2,
+        cycleTime: 5.8,
+        throughput: 23.4,
+        predictability: 91.7
+      }
+    },
+
+    // Code Quality Trends
+    qualityTrends: {
+      coverage: [82.1, 84.3, 85.7, 86.9, 87.3],
+      complexity: [6.2, 5.8, 5.6, 5.4, 5.2],
+      duplication: [4.1, 3.9, 3.7, 3.5, 3.4],
+      maintainability: [7.8, 8.0, 8.1, 8.1, 8.2]
+    },
+
+    // Repository Health
+    repoHealth: [
+      { name: 'EDP Core', health: 92, commits: 567, contributors: 8, lastActivity: '2 hours ago', issues: 3, prs: 7 },
+      { name: 'TelmaAI', health: 89, commits: 423, contributors: 6, lastActivity: '1 hour ago', issues: 5, prs: 4 },
+      { name: 'Corrigo Core', health: 85, commits: 398, contributors: 9, lastActivity: '4 hours ago', issues: 8, prs: 6 },
+      { name: 'ScheduleAI', health: 88, commits: 334, contributors: 5, lastActivity: '3 hours ago', issues: 2, prs: 3 },
+      { name: 'PropertyOS', health: 91, commits: 298, contributors: 7, lastActivity: '1 hour ago', issues: 1, prs: 2 }
+    ]
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      excellent: 'text-green-600 bg-green-50 border-green-200',
+      good: 'text-blue-600 bg-blue-50 border-blue-200',
+      warning: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+      critical: 'text-red-600 bg-red-50 border-red-200'
+    };
+    return colors[status] || colors.good;
+  };
+
+  const getTrendIcon = (trend) => {
+    if (trend.startsWith('+')) return <TrendingUp className="w-4 h-4 text-green-600" />;
+    if (trend.startsWith('-')) return <TrendingDown className="w-4 h-4 text-green-600" />;
+    return <Minus className="w-4 h-4 text-gray-600" />;
+  };
+
+  const getHealthColor = (health) => {
+    if (health >= 90) return 'text-green-600';
+    if (health >= 80) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const toggleMetricExpansion = (metricKey) => {
+    const newExpanded = new Set(expandedMetrics);
+    if (newExpanded.has(metricKey)) {
+      newExpanded.delete(metricKey);
+    } else {
+      newExpanded.add(metricKey);
+    }
+    setExpandedMetrics(newExpanded);
+  };
+
+  // Enhanced filtering logic that dynamically calculates metrics
+  const getFilteredData = () => {
+    const baseData = codeMetricsData;
+    
+    // Project-specific metrics variations
+    const projectMultipliers = {
+      'EDP Core': { 
+        deployment: 1.35, leadTime: 0.85, failure: 0.74, mttr: 0.85,
+        commits: 1.2, coverage: 1.05, complexity: 0.9, reviewTime: 0.85
+      },
+      'TelmaAI': { 
+        deployment: 1.22, leadTime: 1.05, failure: 0.95, mttr: 0.92,
+        commits: 1.15, coverage: 0.98, complexity: 1.1, reviewTime: 1.1
+      },
+      'Corrigo Core': { 
+        deployment: 0.83, leadTime: 1.19, failure: 1.28, mttr: 1.23,
+        commits: 0.9, coverage: 0.92, complexity: 1.2, reviewTime: 1.3
+      },
+      'ScheduleAI': { 
+        deployment: 0.87, leadTime: 0.90, failure: 1.09, mttr: 1.08,
+        commits: 1.05, coverage: 0.95, complexity: 1.05, reviewTime: 0.95
+      },
+      'PropertyOS': { 
+        deployment: 1.1, leadTime: 0.95, failure: 0.85, mttr: 0.90,
+        commits: 1.1, coverage: 1.02, complexity: 0.95, reviewTime: 0.90
+      }
+    };
+
+    // Component-specific adjustments
+    const componentMultipliers = {
+      'Frontend': { commits: 1.3, complexity: 0.8, coverage: 0.9, reviewTime: 0.85 },
+      'Backend API': { commits: 1.1, complexity: 1.2, coverage: 1.1, reviewTime: 1.1 },
+      'Database': { commits: 0.6, complexity: 1.4, coverage: 1.2, reviewTime: 1.3 },
+      'Microservices': { commits: 0.9, complexity: 1.1, coverage: 1.05, reviewTime: 1.05 },
+      'Infrastructure': { commits: 0.4, complexity: 1.3, coverage: 0.8, reviewTime: 1.2 }
+    };
+
+    // Time-based adjustments
+    const timeMultipliers = {
+      '7d': { scale: 0.25, commits: 0.3, prs: 0.2 },
+      '30d': { scale: 1.0, commits: 1.0, prs: 1.0 },
+      '90d': { scale: 3.2, commits: 3.1, prs: 2.8 },
+      '1y': { scale: 12.5, commits: 12.2, prs: 11.8 }
+    };
+
+    let projectMult = selectedProject === 'All Projects' ? 
+      { deployment: 1, leadTime: 1, failure: 1, mttr: 1, commits: 1, coverage: 1, complexity: 1, reviewTime: 1 } : 
+      projectMultipliers[selectedProject];
+    
+    let componentMult = selectedComponent === 'All Components' ? 
+      { commits: 1, complexity: 1, coverage: 1, reviewTime: 1 } : 
+      componentMultipliers[selectedComponent];
+    
+    let timeMult = timeMultipliers[selectedTimeRange];
+
+    // Calculate filtered DORA metrics
+    const filteredDORA = {
+      deploymentFrequency: {
+        current: Math.round((baseData.doraMetrics.deploymentFrequency.current * projectMult.deployment) * 10) / 10,
+        previous: Math.round((baseData.doraMetrics.deploymentFrequency.previous * projectMult.deployment * 0.9) * 10) / 10,
+        trend: `+${Math.round(((baseData.doraMetrics.deploymentFrequency.current * projectMult.deployment) / (baseData.doraMetrics.deploymentFrequency.previous * projectMult.deployment * 0.9) - 1) * 100 * 10) / 10}%`,
+        status: baseData.doraMetrics.deploymentFrequency.status,
+        target: baseData.doraMetrics.deploymentFrequency.target,
+        description: baseData.doraMetrics.deploymentFrequency.description,
+        details: baseData.doraMetrics.deploymentFrequency.details
+      },
+      leadTime: {
+        current: Math.round((baseData.doraMetrics.leadTime.current * projectMult.leadTime) * 10) / 10,
+        previous: Math.round((baseData.doraMetrics.leadTime.previous * projectMult.leadTime * 1.1) * 10) / 10,
+        trend: `-${Math.round((1 - (baseData.doraMetrics.leadTime.current * projectMult.leadTime) / (baseData.doraMetrics.leadTime.previous * projectMult.leadTime * 1.1)) * 100 * 10) / 10}%`,
+        status: baseData.doraMetrics.leadTime.status,
+        target: baseData.doraMetrics.leadTime.target,
+        description: baseData.doraMetrics.leadTime.description,
+        details: baseData.doraMetrics.leadTime.details
+      },
+      changeFailureRate: {
+        current: Math.round((baseData.doraMetrics.changeFailureRate.current * projectMult.failure) * 10) / 10,
+        previous: Math.round((baseData.doraMetrics.changeFailureRate.previous * projectMult.failure * 1.2) * 10) / 10,
+        trend: `-${Math.round((1 - (baseData.doraMetrics.changeFailureRate.current * projectMult.failure) / (baseData.doraMetrics.changeFailureRate.previous * projectMult.failure * 1.2)) * 100 * 10) / 10}%`,
+        status: baseData.doraMetrics.changeFailureRate.status,
+        target: baseData.doraMetrics.changeFailureRate.target,
+        description: baseData.doraMetrics.changeFailureRate.description,
+        details: baseData.doraMetrics.changeFailureRate.details
+      },
+      mttr: {
+        current: Math.round((baseData.doraMetrics.mttr.current * projectMult.mttr) * 10) / 10,
+        previous: Math.round((baseData.doraMetrics.mttr.previous * projectMult.mttr * 1.15) * 10) / 10,
+        trend: `-${Math.round((1 - (baseData.doraMetrics.mttr.current * projectMult.mttr) / (baseData.doraMetrics.mttr.previous * projectMult.mttr * 1.15)) * 100 * 10) / 10}%`,
+        status: baseData.doraMetrics.mttr.status,
+        target: baseData.doraMetrics.mttr.target,
+        description: baseData.doraMetrics.mttr.description,
+        details: baseData.doraMetrics.mttr.details
+      }
+    };
+
+    // Calculate filtered PR metrics
+    const filteredPRs = {
+      totalPRs: Math.round(baseData.pullRequestMetrics.totalPRs * timeMult.prs * projectMult.commits),
+      openPRs: Math.round(baseData.pullRequestMetrics.openPRs * timeMult.prs * projectMult.commits * 0.8),
+      mergedPRs: Math.round(baseData.pullRequestMetrics.mergedPRs * timeMult.prs * projectMult.commits),
+      closedPRs: Math.round(baseData.pullRequestMetrics.closedPRs * timeMult.prs * projectMult.commits * 0.3),
+      avgReviewTime: Math.round((baseData.pullRequestMetrics.avgReviewTime * projectMult.reviewTime * componentMult.reviewTime) * 10) / 10,
+      avgMergeTime: Math.round((baseData.pullRequestMetrics.avgMergeTime * projectMult.reviewTime * componentMult.reviewTime * 1.2) * 10) / 10,
+      reviewParticipation: Math.round((baseData.pullRequestMetrics.reviewParticipation * (projectMult.coverage || 1)) * 10) / 10,
+      codeReviewCoverage: Math.round((baseData.pullRequestMetrics.codeReviewCoverage * (projectMult.coverage || 1)) * 10) / 10,
+      prSizeDistribution: baseData.pullRequestMetrics.prSizeDistribution,
+      reviewerLoad: baseData.pullRequestMetrics.reviewerLoad
+    };
+
+    // Calculate filtered developer metrics
+    const filteredDevMetrics = {
+      commits: {
+        total: Math.round(baseData.developerMetrics.commits.total * timeMult.commits * projectMult.commits * componentMult.commits),
+        weekly: baseData.developerMetrics.commits.weekly.map(w => Math.round(w * projectMult.commits * componentMult.commits)),
+        byAuthor: baseData.developerMetrics.commits.byAuthor.map(author => ({
+          ...author,
+          commits: Math.round(author.commits * projectMult.commits * componentMult.commits * timeMult.commits),
+          linesAdded: Math.round(author.linesAdded * projectMult.commits * componentMult.commits * timeMult.commits),
+          linesDeleted: Math.round(author.linesDeleted * projectMult.commits * componentMult.commits * timeMult.commits * 0.8),
+          files: Math.round(author.files * projectMult.commits * componentMult.commits * timeMult.commits * 0.9)
+        })),
+        languages: baseData.developerMetrics.commits.languages
+      },
+      codeQuality: {
+        testCoverage: Math.round((baseData.developerMetrics.codeQuality.testCoverage * projectMult.coverage * componentMult.coverage) * 10) / 10,
+        codeComplexity: baseData.developerMetrics.codeQuality.codeComplexity,
+        technicalDebt: Math.round((baseData.developerMetrics.codeQuality.technicalDebt * projectMult.complexity * componentMult.complexity) * 10) / 10,
+        duplication: Math.round((baseData.developerMetrics.codeQuality.duplication * projectMult.complexity * componentMult.complexity * 0.9) * 10) / 10,
+        maintainabilityIndex: Math.round((baseData.developerMetrics.codeQuality.maintainabilityIndex * (2 - projectMult.complexity * componentMult.complexity * 0.5)) * 10) / 10,
+        securityHotspots: Math.round(baseData.developerMetrics.codeQuality.securityHotspots * projectMult.complexity * componentMult.complexity),
+        bugDensity: Math.round((baseData.developerMetrics.codeQuality.bugDensity * projectMult.complexity * componentMult.complexity * 0.8) * 10) / 10,
+        vulnerabilities: Math.round(baseData.developerMetrics.codeQuality.vulnerabilities * projectMult.complexity * componentMult.complexity * 0.7)
+      },
+      velocity: baseData.developerMetrics.velocity
+    };
+
+    // Filter repositories based on selected project
+    let filteredRepos = baseData.repoHealth;
+    if (selectedProject !== 'All Projects') {
+      filteredRepos = baseData.repoHealth.filter(repo => repo.name.includes(selectedProject.split(' ')[0]));
+      if (filteredRepos.length === 0) {
+        // If no exact match, show the selected project as primary repo
+        filteredRepos = [{
+          name: selectedProject,
+          health: Math.round(92 * (projectMult.coverage || 1)),
+          commits: Math.round(567 * projectMult.commits * timeMult.commits),
+          contributors: Math.round(8 * (projectMult.commits > 1 ? 1.2 : 0.8)),
+          lastActivity: '2 hours ago',
+          issues: Math.round(3 * (projectMult.failure || 1)),
+          prs: Math.round(7 * projectMult.commits)
+        }];
+      }
+    }
+
+    return {
+      ...baseData,
+      doraMetrics: filteredDORA,
+      pullRequestMetrics: filteredPRs,
+      developerMetrics: filteredDevMetrics,
+      repoHealth: filteredRepos,
+      // Add filter context for display
+      filterContext: {
+        project: selectedProject,
+        component: selectedComponent,
+        timeRange: selectedTimeRange,
+        showing: selectedProject === 'All Projects' ? 'all projects' : selectedProject,
+        componentScope: selectedComponent === 'All Components' ? 'all components' : selectedComponent.toLowerCase()
+      }
+    };
+  };
+
+  const filteredData = getFilteredData();
+
+  // Get contextual insights based on current filters
+  const getFilterInsights = () => {
+    const insights = [];
+    
+    if (selectedProject !== 'All Projects') {
+      const projectInsights = {
+        'EDP Core': 'Highest performing project with excellent deployment frequency and lowest failure rates',
+        'TelmaAI': 'Strong AI/ML project with good metrics but slightly higher complexity',
+        'Corrigo Core': 'Legacy system with opportunities for improvement in deployment velocity',
+        'ScheduleAI': 'Well-balanced project with consistent performance across all metrics', 
+        'PropertyOS': 'Modern architecture showing strong performance and code quality'
+      };
+      insights.push(projectInsights[selectedProject] || '');
+    }
+    
+    if (selectedComponent !== 'All Components') {
+      const componentInsights = {
+        'Frontend': 'High commit volume with lower complexity - React/Angular components',
+        'Backend API': 'Medium complexity with thorough testing - REST/GraphQL services',
+        'Database': 'Lower commit frequency but higher complexity - schema changes and migrations',
+        'Microservices': 'Distributed architecture with moderate complexity and review overhead',
+        'Infrastructure': 'Low commit volume, high complexity - DevOps and configuration changes'
+      };
+      insights.push(componentInsights[selectedComponent] || '');
+    }
+    
+    if (selectedTimeRange !== '30d') {
+      const timeInsights = {
+        '7d': 'Recent activity snapshot - limited data for trend analysis',
+        '90d': 'Quarterly view showing longer-term trends and seasonal patterns',
+        '1y': 'Annual overview revealing major shifts and organizational changes'
+      };
+      insights.push(timeInsights[selectedTimeRange] || '');
+    }
+    
+    return insights.filter(insight => insight.length > 0);
+  };
+
+  const filterInsights = getFilterInsights();
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h2 className="text-4xl font-bold text-slate-900 mb-3">Code Commits Dashboard</h2>
+          <div className="flex items-center gap-4">
+            <p className="text-gray-600 text-lg">Enterprise-grade development metrics and insights</p>
+            {(selectedProject !== 'All Projects' || selectedComponent !== 'All Components' || selectedTimeRange !== '30d') && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl">
+                <Filter className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">
+                  Showing {filteredData.filterContext.showing}
+                  {selectedComponent !== 'All Components' && ` • ${filteredData.filterContext.componentScope}`}
+                  {selectedTimeRange !== '30d' && ` • ${selectedTimeRange === '7d' ? 'last 7 days' : selectedTimeRange === '90d' ? 'last 3 months' : 'last year'}`}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm"
+          >
+            {codeMetricsData.projects.map(project => (
+              <option key={project} value={project}>{project}</option>
+            ))}
+          </select>
+          <select 
+            value={selectedComponent}
+            onChange={(e) => setSelectedComponent(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm"
+          >
+            {codeMetricsData.components.map(component => (
+              <option key={component} value={component}>{component}</option>
+            ))}
+          </select>
+          <select 
+            value={selectedTimeRange}
+            onChange={(e) => setSelectedTimeRange(e.target.value)}
+            className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium shadow-sm"
+          >
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 3 Months</option>
+            <option value="1y">Last Year</option>
+          </select>
+        </div>
+      </div>
+
+      {/* View Toggle */}
+      <div className="flex bg-white rounded-2xl p-2 mb-8 shadow-sm border border-gray-100 w-fit">
+        {['overview', 'dora', 'quality', 'teams'].map((view) => (
+          <button
+            key={view}
+            onClick={() => setSelectedView(view)}
+            className={`px-6 py-3 rounded-xl font-medium transition-all capitalize ${
+              selectedView === view
+                ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {view === 'dora' ? 'DORA Metrics' : view}
+          </button>
+        ))}
+      </div>
+
+      {/* Filter Insights Panel */}
+      {filterInsights.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 mb-8">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-bold text-blue-900 mb-2">Filter Context & Insights</h4>
+              <div className="space-y-2">
+                {filterInsights.map((insight, index) => (
+                  <p key={index} className="text-blue-800 text-sm leading-relaxed">• {insight}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedView === 'overview' && (
+        <div className="space-y-8">
+          {/* DORA Metrics Summary */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.entries(filteredData.doraMetrics).map(([key, metric]) => (
+              <div key={key} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
+                   onClick={() => toggleMetricExpansion(key)}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(metric.status)}`}>
+                    {metric.status.toUpperCase()}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {getTrendIcon(metric.trend)}
+                    <span className="text-sm font-bold text-green-600">{metric.trend}</span>
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <div className="text-3xl font-bold text-slate-900 mb-1">{metric.current}</div>
+                  <div className="text-sm font-medium text-gray-600">{metric.description}</div>
+                </div>
+                <div className="text-xs text-gray-500">Target: {metric.target}</div>
+                
+                {expandedMetrics.has(key) && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-gray-700">By Project:</div>
+                      {Object.entries(metric.details.byProject).map(([project, value]) => (
+                        <div key={project} className="flex justify-between text-sm">
+                          <span className="text-gray-600">{project}</span>
+                          <span className="font-medium">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pull Request Analytics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Pull Request Analytics</h3>
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">{filteredData.pullRequestMetrics.totalPRs}</div>
+                  <div className="text-sm text-gray-600">Total PRs</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 mb-1">{filteredData.pullRequestMetrics.mergedPRs}</div>
+                  <div className="text-sm text-gray-600">Merged</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="text-lg font-bold text-slate-900 mb-1">{filteredData.pullRequestMetrics.avgReviewTime}h</div>
+                  <div className="text-xs text-gray-600">Avg Review Time</div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="text-lg font-bold text-slate-900 mb-1">{filteredData.pullRequestMetrics.reviewParticipation}%</div>
+                  <div className="text-xs text-gray-600">Review Participation</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Code Quality Overview</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Test Coverage</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-2 bg-gray-200 rounded-full">
+                      <div className="h-2 bg-green-500 rounded-full" style={{width: `${filteredData.developerMetrics.codeQuality.testCoverage}%`}}></div>
+                    </div>
+                    <span className="font-bold text-slate-900">{filteredData.developerMetrics.codeQuality.testCoverage}%</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Maintainability Index</span>
+                  <span className="font-bold text-slate-900">{filteredData.developerMetrics.codeQuality.maintainabilityIndex}/10</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Technical Debt</span>
+                  <span className="font-bold text-orange-600">{filteredData.developerMetrics.codeQuality.technicalDebt}h</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Security Hotspots</span>
+                  <span className="font-bold text-red-600">{filteredData.developerMetrics.codeQuality.securityHotspots}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Repository Health */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+            <div className="p-8 border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-slate-900">Repository Health</h3>
+              <p className="text-gray-600 mt-2">Overall health and activity across all repositories</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Repository</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Health Score</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Commits</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Contributors</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Last Activity</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Open Issues</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Active PRs</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredData.repoHealth.map((repo) => (
+                    <tr key={repo.name} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <GitBranch className="w-5 h-5 text-gray-400" />
+                          <span className="font-bold text-slate-900">{repo.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className={`text-2xl font-bold ${getHealthColor(repo.health)}`}>{repo.health}</div>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div className={`h-2 rounded-full ${repo.health >= 90 ? 'bg-green-500' : repo.health >= 80 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                                 style={{width: `${repo.health}%`}}></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">{repo.commits}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">{repo.contributors}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600">{repo.lastActivity}</td>
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">{repo.issues}</span>
+                      </td>
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">{repo.prs}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedView === 'dora' && (
+        <div className="space-y-8">
+          {/* Detailed DORA Metrics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {Object.entries(filteredData.doraMetrics).map(([key, metric]) => (
+              <div key={key} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</h3>
+                    <p className="text-gray-600">{metric.description}</p>
+                  </div>
+                  <div className={`px-4 py-2 rounded-xl text-sm font-bold border ${getStatusColor(metric.status)}`}>
+                    {metric.status.toUpperCase()}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="text-4xl font-bold text-slate-900">{metric.current}</div>
+                  <div className="flex items-center gap-2">
+                    {getTrendIcon(metric.trend)}
+                    <span className="font-bold text-green-600">{metric.trend}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="text-sm font-medium text-gray-700">Weekly Trend</div>
+                  <div className="flex items-end gap-2 h-20">
+                    {metric.details.weekly.map((value, index) => (
+                      <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                        <div className="bg-blue-500 rounded-t" style={{height: `${(value / Math.max(...metric.details.weekly)) * 60}px`, minHeight: '4px'}}></div>
+                        <div className="text-xs text-gray-500">W{index + 1}</div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="text-sm font-medium text-gray-700 mb-3">By Project</div>
+                    <div className="space-y-2">
+                      {Object.entries(metric.details.byProject).map(([project, value]) => (
+                        <div key={project} className="flex justify-between items-center">
+                          <span className="text-gray-600">{project}</span>
+                          <span className="font-bold text-slate-900">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {selectedView === 'quality' && (
+        <div className="space-y-8">
+          {/* Code Quality Trends */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Quality Trends</h3>
+              <div className="space-y-6">
+                {Object.entries(filteredData.qualityTrends).map(([metric, values]) => (
+                  <div key={metric}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-gray-700 capitalize">{metric}</span>
+                      <span className="font-bold text-slate-900">{values[values.length - 1]}%</span>
+                    </div>
+                    <div className="flex items-end gap-1 h-12">
+                      {values.map((value, index) => (
+                        <div key={index} className="flex-1 bg-blue-500 rounded-t" style={{height: `${(value / Math.max(...values)) * 100}%`, minHeight: '2px'}}></div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Language Distribution</h3>
+              <div className="space-y-4">
+                {Object.entries(filteredData.developerMetrics.commits.languages).map(([language, percentage]) => (
+                  <div key={language} className="flex justify-between items-center">
+                    <span className="text-gray-700">{language}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 h-3 bg-gray-200 rounded-full">
+                        <div className="h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style={{width: `${percentage}%`}}></div>
+                      </div>
+                      <span className="font-bold text-slate-900 w-12 text-right">{percentage}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* PR Size Distribution */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">Pull Request Size Distribution</h3>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              {Object.entries(filteredData.pullRequestMetrics.prSizeDistribution).map(([size, count]) => (
+                <div key={size} className="bg-gray-50 rounded-xl p-6 text-center">
+                  <div className="text-2xl font-bold text-slate-900 mb-2">{count}</div>
+                  <div className="text-sm text-gray-600">{size}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedView === 'teams' && (
+        <div className="space-y-8">
+          {/* Developer Productivity */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+            <div className="p-8 border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-slate-900">Developer Productivity</h3>
+              <p className="text-gray-600 mt-2">Individual contributions and metrics</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Developer</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Commits</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Lines Added</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Lines Deleted</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Files Changed</th>
+                    <th className="px-8 py-4 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">Projects</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredData.developerMetrics.commits.byAuthor.map((dev) => (
+                    <tr key={dev.name} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            {dev.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <span className="font-bold text-slate-900">{dev.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">{dev.commits}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-green-600">+{dev.linesAdded.toLocaleString()}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-red-600">-{dev.linesDeleted.toLocaleString()}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">{dev.files}</td>
+                      <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">{dev.projects}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Code Review Load */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">Code Review Load</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredData.pullRequestMetrics.reviewerLoad.map((reviewer) => (
+                <div key={reviewer.name} className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {reviewer.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <span className="font-bold text-slate-900">{reviewer.name}</span>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">{reviewer.reviews}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Avg Review Time</span>
+                      <span className="font-medium">{reviewer.avgTime}h</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Projects</span>
+                      <span className="font-medium">{reviewer.projects.join(', ')}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -8777,143 +9605,6 @@ const CreateProject = ({ setCurrentView, projects, setProjects }) => {
     </div>
   );
 };
-const ApplicationManagement = () => {
-  const applications = [
-    {
-      id: 1,
-      name: 'EDP Core',
-      environment: 'Production',
-      status: 'running',
-      lastDeploy: '2 hours ago',
-      version: 'v2.1.4',
-      health: 'healthy',
-      healthIcon: '🟢'
-    },
-    {
-      id: 2,
-      name: 'Corrigo Core',
-      environment: 'Production',
-      status: 'running',
-      lastDeploy: '1 day ago',
-      version: 'v1.8.2',
-      health: 'healthy',
-      healthIcon: '🟢'
-    },
-    {
-      id: 3,
-      name: 'TelmaAI',
-      environment: 'Staging',
-      status: 'deploying',
-      lastDeploy: '30 mins ago',
-      version: 'v3.0.1',
-      health: 'degraded',
-      healthIcon: '🟡'
-    },
-    {
-      id: 4,
-      name: 'ScheduleAI',
-      environment: 'Production',
-      status: 'failed',
-      lastDeploy: '6 hours ago',
-      version: 'v1.2.3',
-      health: 'down',
-      healthIcon: '🔴'
-    }
-  ];
-
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'running': return 'bg-green-100 text-green-700 border border-green-200';
-      case 'deploying': return 'bg-orange-100 text-orange-700 border border-orange-200';
-      case 'failed': return 'bg-red-100 text-red-700 border border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
-    }
-  };
-
-  return (
-    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold text-slate-900">Application Management</h2>
-        <div className="flex gap-4">
-          <button className="px-6 py-3 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all font-medium flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Filter
-          </button>
-          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Deploy New
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Application
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Environment
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Last Deploy
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Version
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Health
-                </th>
-                <th className="px-8 py-6 text-left text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {applications.map((app) => (
-                <tr key={app.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-slate-900">
-                    {app.name}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
-                    {app.environment}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap">
-                    <span className={`px-4 py-2 text-xs font-bold rounded-full ${getStatusBadgeClass(app.status)}`}>
-                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-medium">
-                    {app.lastDeploy}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 font-mono font-medium">
-                    {app.version}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm">
-                    <span className="flex items-center gap-2 font-medium">
-                      {app.healthIcon} {app.health.charAt(0).toUpperCase() + app.health.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm">
-                    <button className="px-4 py-2 border border-gray-200 rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Cloud Service Provider Onboarding
 const CloudOnboarding = ({ setCurrentPage }) => {
@@ -11505,8 +12196,6 @@ export default function App() {
         return <DashboardPage />;
       case 'financial':
         return <FinancialDashboard />;
-      case 'applications':
-        return <ApplicationManagement />;
       case 'projects':
         return <ProjectsManagement />;
       case 'cloud-onboarding':
@@ -11519,6 +12208,8 @@ export default function App() {
         return <KubernetesOnboardingStatus />;
       case 'vulnerabilities':
         return <VulnerabilitiesDashboard />;
+      case 'code-commits':
+        return <CodeCommitsDashboard />;
       case 'infrabuilder':
         return <InfraBuilder />;
       case 'deployments':
@@ -11535,7 +12226,6 @@ export default function App() {
       'home': 'https://hero.jll.com',
       'dashboard': 'https://hero.jll.com/dashboards/deployments',
       'financial': 'https://hero.jll.com/dashboards/financials',
-      'applications': 'https://hero.jll.com/dashboards/applications',
       'projects': 'https://hero.jll.com/onboarding/projects',
       'cloud-onboarding': 'https://hero.jll.com/onboarding/csp',
       'cloud-onboarding-status': 'https://hero.jll.com/onboarding/csp/status/REQ-2025-0789',
