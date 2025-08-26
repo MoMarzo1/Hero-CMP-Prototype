@@ -247,7 +247,7 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
         </div>
 
         {/* Ask HeroAI Chat Button - Fixed at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-r from-slate-800 to-slate-900 border-t border-slate-600">
           <button
             onClick={() => setShowAIChat(!showAIChat)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
@@ -461,7 +461,7 @@ const FloatingAIChat = ({ onClose }) => {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+      <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 rounded-b-xl">
         <div className="flex gap-2">
           <input
             type="text"
@@ -469,7 +469,7 @@ const FloatingAIChat = ({ onClose }) => {
             onChange={(e) => setUserInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything..."
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm"
+            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm font-medium bg-white"
           />
           <button
             onClick={() => handleSend()}
@@ -900,7 +900,7 @@ const AskHeroAI = () => {
       </div>
 
       {/* Input */}
-      <div className="p-6 border-t border-gray-200 bg-gray-50">
+      <div className="p-6 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
         <div className="flex gap-3">
           <input
             type="text"
@@ -908,7 +908,7 @@ const AskHeroAI = () => {
             onChange={(e) => setUserInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask anything..."
-            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-medium"
+            className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-medium bg-white"
           />
           <button
             onClick={() => handleSend()}
@@ -3744,7 +3744,7 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
 
   const [connections] = useState(() => generateDefaultConnections(previewResources));
 
-  // Helper functions (same as in StackConfiguration)
+  // Helper functions to assign icons and colors based on resource name
   function getResourceIcon(resourceName) {
     if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return Server;
     if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket') || resourceName.toLowerCase().includes('blob')) return HardDrive;
@@ -3759,15 +3759,42 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
   }
 
   function getResourceColor(resourceName) {
-    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return 'blue';
-    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket')) return 'green';
-    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql')) return 'orange';
-    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc')) return 'cyan';
-    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('gateway')) return 'indigo';
-    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks')) return 'purple';
-    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return 'yellow';
-    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics')) return 'pink';
-    return 'blue';
+    const name = resourceName.toLowerCase();
+    
+    // Azure specific colors (Microsoft blue theme)
+    if (name.includes('azure vm') || name.includes('virtual machine')) return 'blue';
+    if (name.includes('azure storage') || name.includes('blob storage')) return 'emerald';
+    if (name.includes('azure kubernetes') || name.includes('aks')) return 'purple';
+    if (name.includes('azure sql')) return 'blue';
+    if (name.includes('azure virtual network') || name.includes('vnet')) return 'indigo';
+    if (name.includes('azure load balancer')) return 'cyan';
+    if (name.includes('azure app service')) return 'teal';
+    if (name.includes('azure functions')) return 'yellow';
+    if (name.includes('cosmos db') || name.includes('cosmosdb')) return 'violet';
+    if (name.includes('azure cache') || name.includes('redis')) return 'red';
+    
+    // AWS specific colors (AWS orange theme)
+    if (name.includes('aws ec2') || name.includes('ec2 instance')) return 'orange';
+    if (name.includes('aws s3') || name.includes('s3 bucket')) return 'emerald';
+    if (name.includes('aws lambda') || name.includes('lambda')) return 'amber';
+    if (name.includes('aws rds') || name.includes('rds database')) return 'blue';
+    if (name.includes('aws vpc') || name.includes('vpc')) return 'indigo';
+    if (name.includes('aws load balancer') || name.includes('elb') || name.includes('alb')) return 'cyan';
+    if (name.includes('dynamodb')) return 'purple';
+    if (name.includes('api gateway')) return 'teal';
+    if (name.includes('cloudfront')) return 'pink';
+    if (name.includes('aws ecs') || name.includes('ecs')) return 'red';
+    
+    // Generic fallbacks
+    if (name.includes('vm') || name.includes('instance')) return 'blue';
+    if (name.includes('storage') || name.includes('bucket')) return 'emerald';
+    if (name.includes('database') || name.includes('sql')) return 'blue';
+    if (name.includes('network')) return 'indigo';
+    if (name.includes('load') || name.includes('balancer')) return 'cyan';
+    if (name.includes('kubernetes') || name.includes('container')) return 'purple';
+    if (name.includes('function')) return 'yellow';
+    if (name.includes('monitor') || name.includes('analytics')) return 'pink';
+    return 'blue'; // Default color
   }
 
   function generateDefaultConnections(resources) {
@@ -3791,38 +3818,38 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
   };
 
   return (
-    <div className="h-screen bg-gray-900 flex flex-col">
+    <div className="h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700 bg-gray-800">
+      <div className="p-6 border-b border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={onBack}
-              className="text-gray-400 hover:text-white flex items-center gap-2"
+              className="text-slate-600 hover:text-blue-600 flex items-center gap-2 font-medium transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
               Back to Stack Selection
             </button>
             <div>
-              <h1 className="text-xl font-semibold text-white">Stack Preview: {stack.name}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+              <h1 className="text-2xl font-bold text-slate-800">Stack Preview: {stack.name}</h1>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
                   APPROVED
                 </span>
-                <span className="text-gray-400 text-sm">{stack.resources.length} resources</span>
+                <span className="text-slate-500 text-sm font-medium">{stack.resources.length} resources</span>
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button 
               onClick={onBack}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors font-medium"
             >
               Cancel
             </button>
             <button 
               onClick={onSelect}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
             >
               Use This Stack
             </button>
@@ -3833,70 +3860,88 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
       {/* Main Content */}
       <div className="flex-1 flex">
         {/* Left Panel - Stack Details */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto">
+        <div className="w-80 bg-white border-r border-slate-200 overflow-y-auto shadow-sm">
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Stack Information</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-6 pb-3 border-b border-slate-100">Stack Information</h2>
             
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">Description</h3>
-                <p className="text-gray-400 text-sm">{stack.description}</p>
+            <div className="space-y-5">
+              <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+                  <Info className="w-4 h-4" />
+                  Description
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed font-medium">{stack.description}</p>
               </div>
 
               {stack.cost && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-300 mb-2">Estimated Cost</h3>
-                  <p className="text-green-400 font-semibold">{stack.cost}</p>
+                <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
+                  <h3 className="text-sm font-bold text-emerald-800 mb-3 uppercase tracking-wide flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Estimated Cost
+                  </h3>
+                  <p className="text-emerald-700 font-bold text-lg">{stack.cost}</p>
+                  <p className="text-emerald-600 text-xs mt-1 font-medium">Monthly estimate</p>
                 </div>
               )}
 
               {stack.deployTime && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-300 mb-2">Deployment Time</h3>
-                  <p className="text-blue-400 font-semibold">{stack.deployTime}</p>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200 shadow-sm">
+                  <h3 className="text-sm font-bold text-blue-800 mb-3 uppercase tracking-wide flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Deployment Time
+                  </h3>
+                  <p className="text-blue-700 font-bold text-lg">{stack.deployTime}</p>
+                  <p className="text-blue-600 text-xs mt-1 font-medium">Estimated duration</p>
                 </div>
               )}
 
-              <div>
-                <h3 className="text-sm font-semibold text-gray-300 mb-3">Included Resources</h3>
-                <div className="space-y-2">
+              <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-5 rounded-xl border border-indigo-200 shadow-sm">
+                <h3 className="text-sm font-bold text-indigo-800 mb-4 uppercase tracking-wide flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  Included Resources
+                </h3>
+                <div className="space-y-3">
                   {stack.resources.map((resource, idx) => {
                     const Icon = getResourceIcon(resource);
                     const color = getResourceColor(resource);
                     return (
-                      <div key={idx} className="flex items-center gap-3 p-2 bg-gray-700 rounded-lg">
-                        <div className={`w-8 h-8 rounded-lg bg-${color}-600 flex items-center justify-center`}>
-                          <Icon className="w-4 h-4 text-white" />
+                      <div key={idx} className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div className={`w-9 h-9 rounded-lg bg-${color}-600 flex items-center justify-center shadow-sm`}>
+                          <Icon className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-white text-sm font-medium">{resource}</span>
+                        <span className="text-slate-800 text-sm font-semibold flex-1">{resource}</span>
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-sm font-semibold text-gray-300 mb-3">Key Features</h3>
-                <div className="space-y-2 text-sm text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Production-ready configuration</span>
+              <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
+                <h3 className="text-sm font-bold text-emerald-800 mb-4 uppercase tracking-wide flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  Key Features
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-emerald-100">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-slate-700 font-medium">Production-ready configuration</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Security best practices included</span>
+                  <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-emerald-100">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-slate-700 font-medium">Security best practices included</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Auto-scaling capabilities</span>
+                  <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-emerald-100">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-slate-700 font-medium">Auto-scaling capabilities</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Monitoring and logging enabled</span>
+                  <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-emerald-100">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-slate-700 font-medium">Monitoring and logging enabled</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Backup and disaster recovery</span>
+                  <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-emerald-100">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-slate-700 font-medium">Backup and disaster recovery</span>
                   </div>
                 </div>
               </div>
@@ -3906,18 +3951,18 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
 
         {/* Right Panel - Visual Preview */}
         <div className="flex-1 flex flex-col">
-          <div className="p-4 border-b border-gray-700 bg-gray-800">
-            <h2 className="text-lg font-semibold text-white">Architecture Preview</h2>
-            <p className="text-gray-400 text-sm mt-1">Visual representation of the stack components and their connections</p>
+          <div className="p-6 border-b border-slate-200 bg-slate-100">
+            <h2 className="text-lg font-bold text-slate-800">Architecture Preview</h2>
+            <p className="text-slate-600 text-sm mt-1 font-medium">Visual representation of the stack components and their connections</p>
           </div>
 
-          <div className="flex-1 bg-gray-900 relative overflow-hidden"
-               style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+          <div className="flex-1 bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden"
+               style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
             
             {/* Preview overlay */}
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
-              <Eye className="w-4 h-4" />
-              <span className="text-sm font-medium">Preview Mode - Read Only</span>
+            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow-lg z-20 flex items-center gap-3 border border-purple-500">
+              <Eye className="w-5 h-5" />
+              <span className="text-sm font-semibold">Preview Mode - Read Only</span>
             </div>
 
             {/* SVG for connection lines */}
@@ -4010,16 +4055,31 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
           </div>
 
           {/* Bottom Info Bar */}
-          <div className="p-4 bg-gray-800 border-t border-gray-700">
-            <div className="flex items-center justify-between text-sm text-gray-400">
-              <div className="flex items-center gap-4">
-                <span>Resources: {previewResources.length}</span>
-                <span>Connections: {connections.length}</span>
-                <span>Status: Preview Mode</span>
+          <div className="p-4 bg-gradient-to-r from-slate-100 to-slate-200 border-t border-slate-300 shadow-sm">
+            <div className="flex items-center justify-between text-sm text-slate-600 font-medium">
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-2">
+                  <Package className="w-4 h-4 text-slate-500" />
+                  Resources: {previewResources.length}
+                </span>
+                <span className="flex items-center gap-2">
+                  <GitBranch className="w-4 h-4 text-slate-500" />
+                  Connections: {connections.length}
+                </span>
+                <span className="flex items-center gap-2 bg-purple-100 px-2 py-1 rounded-full text-purple-700">
+                  <Eye className="w-3 h-3" />
+                  Preview Mode
+                </span>
               </div>
-              <div className="flex items-center gap-4">
-                <span>Cost: {stack.cost || 'N/A'}</span>
-                <span>Deploy: {stack.deployTime || 'N/A'}</span>
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                  Cost: <span className="font-semibold text-emerald-600">{stack.cost || 'N/A'}</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  Deploy: <span className="font-semibold text-blue-600">{stack.deployTime || 'N/A'}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -4061,18 +4121,45 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
     if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return Zap;
     if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics') || resourceName.toLowerCase().includes('synapse') || resourceName.toLowerCase().includes('databricks')) return BarChart3;
     if (resourceName.toLowerCase().includes('app') || resourceName.toLowerCase().includes('web')) return Globe;
-    return Server; // Default icon
+    return Server;
   }
 
   function getResourceColor(resourceName) {
-    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return 'blue';
-    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket')) return 'green';
-    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql')) return 'orange';
-    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc')) return 'cyan';
-    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('gateway')) return 'indigo';
-    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks')) return 'purple';
-    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return 'yellow';
-    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics')) return 'pink';
+    const name = resourceName.toLowerCase();
+    
+    // Azure specific colors (Microsoft blue theme)
+    if (name.includes('azure vm') || name.includes('virtual machine')) return 'blue';
+    if (name.includes('azure storage') || name.includes('blob storage')) return 'emerald';
+    if (name.includes('azure kubernetes') || name.includes('aks')) return 'purple';
+    if (name.includes('azure sql')) return 'blue';
+    if (name.includes('azure virtual network') || name.includes('vnet')) return 'indigo';
+    if (name.includes('azure load balancer')) return 'cyan';
+    if (name.includes('azure app service')) return 'teal';
+    if (name.includes('azure functions')) return 'yellow';
+    if (name.includes('cosmos db') || name.includes('cosmosdb')) return 'violet';
+    if (name.includes('azure cache') || name.includes('redis')) return 'red';
+    
+    // AWS specific colors (AWS orange theme)
+    if (name.includes('aws ec2') || name.includes('ec2 instance')) return 'orange';
+    if (name.includes('aws s3') || name.includes('s3 bucket')) return 'emerald';
+    if (name.includes('aws lambda') || name.includes('lambda')) return 'amber';
+    if (name.includes('aws rds') || name.includes('rds database')) return 'blue';
+    if (name.includes('aws vpc') || name.includes('vpc')) return 'indigo';
+    if (name.includes('aws load balancer') || name.includes('elb') || name.includes('alb')) return 'cyan';
+    if (name.includes('dynamodb')) return 'purple';
+    if (name.includes('api gateway')) return 'teal';
+    if (name.includes('cloudfront')) return 'pink';
+    if (name.includes('aws ecs') || name.includes('ecs')) return 'red';
+    
+    // Generic fallbacks
+    if (name.includes('vm') || name.includes('instance')) return 'blue';
+    if (name.includes('storage') || name.includes('bucket')) return 'emerald';
+    if (name.includes('database') || name.includes('sql')) return 'blue';
+    if (name.includes('network')) return 'indigo';
+    if (name.includes('load') || name.includes('balancer')) return 'cyan';
+    if (name.includes('kubernetes') || name.includes('container')) return 'purple';
+    if (name.includes('function')) return 'yellow';
+    if (name.includes('monitor') || name.includes('analytics')) return 'pink';
     return 'blue'; // Default color
   }
 
@@ -4164,34 +4251,34 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
   };
 
   return (
-    <div className="h-screen bg-gray-900 flex flex-col">
+    <div className="h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700 bg-gray-800">
+      <div className="p-6 border-b border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={onBack}
-              className="text-gray-400 hover:text-white flex items-center gap-2"
+              className="text-slate-600 hover:text-blue-600 flex items-center gap-2 font-medium transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
               Back to Stack Selection
             </button>
-            <h1 className="text-xl font-semibold text-white">Configure Stack: {stack.name}</h1>
+            <h1 className="text-2xl font-bold text-slate-800">Configure Stack: {stack.name}</h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button 
               onClick={onBack}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors font-medium"
             >
               Cancel
             </button>
             <button 
               onClick={() => onSave(stack)}
               disabled={!allResourcesConfigured}
-              className={`px-6 py-2 rounded-lg transition-colors ${
+              className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-semibold ${
                 allResourcesConfigured
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow-md'
+                  : 'bg-slate-400 text-slate-300 cursor-not-allowed'
               }`}
             >
               Save Stack
@@ -4201,16 +4288,16 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
       </div>
 
       {/* Canvas */}
-      <div className="flex-1 bg-gray-900 relative overflow-hidden select-none"
-           style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+      <div className="flex-1 bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden select-none"
+           style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}
            onMouseMove={handleCanvasMouseMove}
            onMouseUp={handleCanvasMouseUp}
            onMouseLeave={handleCanvasMouseUp}>
         
         {/* Instruction overlay */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
-          <Settings className="w-4 h-4" />
-          <span className="text-sm font-medium">
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-lg z-20 flex items-center gap-3 border border-blue-500">
+          <Settings className="w-5 h-5" />
+          <span className="text-sm font-semibold">
             Drag resources to move them • Click to configure • Resources with red borders need configuration
           </span>
         </div>
@@ -4319,13 +4406,22 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="p-4 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
-        <div className="flex items-center gap-4 text-sm text-gray-400">
-          <span>Resources: {stackResources.length}</span>
-          <span>Configured: {stackResources.filter(r => r.configured).length}</span>
-          <span>Connections: {connections.length}</span>
+      <div className="p-4 bg-gradient-to-r from-slate-100 to-slate-200 border-t border-slate-300 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-6 text-sm text-slate-600 font-medium">
+          <span className="flex items-center gap-2">
+            <Package className="w-4 h-4 text-slate-500" />
+            Resources: {stackResources.length}
+          </span>
+          <span className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-500" />
+            Configured: <span className="font-semibold text-emerald-600">{stackResources.filter(r => r.configured).length}</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <GitBranch className="w-4 h-4 text-slate-500" />
+            Connections: {connections.length}
+          </span>
           {isDraggingResource && (
-            <span className="text-blue-400 flex items-center gap-1">
+            <span className="text-blue-600 flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
               <Activity className="w-3 h-3" />
               Dragging Resource
             </span>
@@ -4340,13 +4436,13 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
 
       {/* Resource Configuration Panel */}
       {showResourceConfig && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-700">
-            <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">Configure {selectedResource}</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 border border-slate-200">
+            <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-800">Configure {selectedResource}</h2>
               <button 
                 onClick={() => setShowResourceConfig(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-600 text-lg font-bold transition-colors"
               >
                 ✕
               </button>
@@ -4354,21 +4450,21 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Resource Name
                 </label>
                 <input 
                   type="text"
-                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
                   placeholder="Enter resource name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Region
                 </label>
-                <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <select className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all">
                   <option>East US</option>
                   <option>West US</option>
                   <option>Central US</option>
@@ -4378,10 +4474,10 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   SKU / Size
                 </label>
-                <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <select className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all">
                   <option>Standard_B1s (1 vCPU, 1 GB RAM)</option>
                   <option>Standard_B2s (2 vCPU, 4 GB RAM)</option>
                   <option>Standard_D2s_v3 (2 vCPU, 8 GB RAM)</option>
@@ -4390,45 +4486,45 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Tags
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <input 
                     type="text"
                     placeholder="Environment: production"
-                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 text-sm font-medium transition-all"
                   />
                   <input 
                     type="text"
                     placeholder="Project: infrastructure"
-                    className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 text-sm font-medium transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Additional Configuration
                 </label>
                 <textarea 
-                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  rows="3"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
+                  rows="4"
                   placeholder="Custom terraform variables..."
                 />
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-700 flex justify-end gap-3">
+            <div className="p-6 border-t border-slate-200 flex justify-end gap-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-b-2xl">
               <button 
                 onClick={() => setShowResourceConfig(false)}
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                className="px-5 py-2.5 text-slate-600 hover:text-slate-800 transition-colors font-medium rounded-lg hover:bg-slate-200"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => handleSaveResourceConfig({})}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
               >
                 Save Configuration
               </button>
@@ -4723,32 +4819,33 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
   };
 
   return (
-    <div className="h-screen bg-gray-900 flex">
+    <div className="h-screen bg-slate-50 flex">
       {/* Left Sidebar - Resource Library */}
-      <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto">
-        <div className="p-4 border-b border-gray-700">
+      <div className="w-80 bg-white border-r border-slate-200 overflow-y-auto shadow-lg">
+        <div className="p-6 border-b border-slate-200">
           <button 
             onClick={onBack}
-            className="text-gray-400 hover:text-white flex items-center gap-2 mb-4"
+            className="text-slate-600 hover:text-blue-600 flex items-center gap-2 mb-4 font-medium transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back to Stack Definition
           </button>
-          <h2 className="text-white font-semibold text-lg">Add New Resource</h2>
+          <h2 className="text-slate-800 font-bold text-xl">Resource Library</h2>
+          <p className="text-slate-500 text-sm mt-1 font-medium">Drag components to canvas</p>
         </div>
 
         <div className="p-4">
           <input 
             type="text"
             placeholder="Search Resources"
-            className="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full bg-slate-50 text-slate-900 placeholder-slate-500 border border-slate-200 rounded-lg px-4 py-3 mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
           />
 
           {Object.entries(resourceCategories).map(([key, category]) => (
             <div key={key} className="mb-4">
               <button
                 onClick={() => toggleCategory(key)}
-                className="w-full flex items-center justify-between p-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-800 transition-all duration-200 border border-slate-200 shadow-sm hover:shadow-md font-semibold"
               >
                 <div className="flex items-center gap-2">
                   <category.icon className="w-5 h-5" />
@@ -4768,12 +4865,12 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
                         key={resource.id}
                         draggable
                         onDragStart={() => handleDragStart(resource)}
-                        className={`p-3 bg-gray-600 hover:bg-gray-500 rounded-lg cursor-move transition-colors flex items-center gap-3 group`}
+                        className={`p-3 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-move transition-all duration-200 flex items-center gap-3 group shadow-sm hover:shadow-md`}
                       >
-                        <div className={`w-8 h-8 rounded-lg bg-${resource.color}-600 flex items-center justify-center`}>
+                        <div className={`w-9 h-9 rounded-lg bg-${resource.color}-600 flex items-center justify-center shadow-sm`}>
                           <Icon className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-white text-sm font-medium">{resource.name}</span>
+                        <span className="text-slate-800 text-sm font-semibold">{resource.name}</span>
                       </div>
                     );
                   })}
@@ -4786,22 +4883,22 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
 
       {/* Center Canvas */}
       <div className="flex-1 flex flex-col">
-        <div className="p-4 border-b border-gray-700 bg-gray-800">
+        <div className="p-6 border-b border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between">
             <input 
               type="text"
               value={customStack.name}
               onChange={(e) => setCustomStack({...customStack, name: e.target.value})}
-              className="bg-gray-700 text-white placeholder-gray-400 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-lg font-semibold"
+              className="bg-slate-50 text-slate-800 placeholder-slate-500 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 text-xl font-bold min-w-80 transition-all"
               placeholder="Enter stack name"
             />
             <div className="flex gap-2">
               <button 
                 onClick={toggleConnectionMode}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 border font-semibold shadow-sm ${
                   isConnecting 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-gray-700 text-gray-300 hover:text-white'
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600 shadow-md' 
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 hover:text-slate-900 hover:shadow-md'
                 }`}
               >
                 <GitBranch className="w-4 h-4" />
@@ -4809,7 +4906,7 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
               </button>
               <button 
                 onClick={onBack}
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -4829,8 +4926,8 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
         </div>
 
         <div 
-          className="canvas-container flex-1 bg-gray-900 relative overflow-hidden select-none"
-          style={{ backgroundImage: 'radial-gradient(circle, #374151 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+          className="canvas-container flex-1 bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden select-none"
+          style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           onMouseMove={handleCanvasMouseMove}
@@ -4839,9 +4936,9 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
         >
           {/* Connection mode overlay */}
           {isConnecting && (
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-20 flex items-center gap-2">
-              <GitBranch className="w-4 h-4" />
-              <span className="text-sm font-medium">
+            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-lg z-20 flex items-center gap-3 border border-blue-500">
+              <GitBranch className="w-5 h-5" />
+              <span className="text-sm font-semibold">
                 {connectionStart ? 'Click another resource to connect' : 'Click a resource to start connecting'}
               </span>
             </div>
@@ -5014,13 +5111,22 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
         </div>
 
         {/* Bottom Status Bar */}
-        <div className="p-4 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-gray-400">
-            <span>Resources: {customStack.resources.length}</span>
-            <span>Configured: {customStack.resources.filter(r => r.configured).length}</span>
-            <span>Connections: {connections.length}</span>
+        <div className="p-4 bg-gradient-to-r from-slate-100 to-slate-200 border-t border-slate-300 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-6 text-sm text-slate-600 font-medium">
+            <span className="flex items-center gap-2">
+              <Package className="w-4 h-4 text-slate-500" />
+              Resources: {customStack.resources.length}
+            </span>
+            <span className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-500" />
+              Configured: <span className="font-semibold text-emerald-600">{customStack.resources.filter(r => r.configured).length}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <GitBranch className="w-4 h-4 text-slate-500" />
+              Connections: {connections.length}
+            </span>
             {isConnecting && (
-              <span className="text-yellow-400 flex items-center gap-1">
+              <span className="text-amber-600 flex items-center gap-1 bg-amber-100 px-2 py-1 rounded-full">
                 <GitBranch className="w-3 h-3" />
                 Connection Mode
               </span>
@@ -5034,9 +5140,9 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
 
       {/* Right Configuration Panel */}
       {showConfigPanel && selectedResource && (
-        <div className="w-96 bg-gray-800 border-l border-gray-700 overflow-y-auto">
-          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-            <h3 className="text-white font-semibold">Configure {selectedResource.name}</h3>
+        <div className="w-96 bg-white border-l border-slate-200 overflow-y-auto shadow-lg">
+          <div className="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <h3 className="text-slate-800 font-bold text-lg">Configure {selectedResource.name}</h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => removeResource(selectedResource.instanceId)}
@@ -5046,7 +5152,7 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
               </button>
               <button 
                 onClick={() => setShowConfigPanel(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-500 hover:text-gray-700"
               >
                 ✕
               </button>
@@ -5098,7 +5204,7 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
       <div>
         <button
           onClick={() => toggleSection('basic')}
-          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+          className="w-full flex items-center justify-between p-3 text-slate-800 hover:bg-slate-100 rounded-lg border border-slate-200 font-semibold transition-all duration-200 shadow-sm"
         >
           <span className="font-medium">Basic Configuration</span>
           <ChevronRight className={`w-4 h-4 transition-transform ${
@@ -5109,11 +5215,11 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
         {expandedSections.includes('basic') && (
           <div className="mt-2 space-y-3 pl-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Region</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Region</label>
               <select 
                 value={config.region}
                 onChange={(e) => updateConfig('region', e.target.value)}
-                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
               >
                 {resource.id.startsWith('azure') ? (
                   <>
@@ -5171,7 +5277,7 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
       <div>
         <button
           onClick={() => toggleSection('tags')}
-          className="w-full flex items-center justify-between p-2 text-white hover:bg-gray-700 rounded-lg"
+          className="w-full flex items-center justify-between p-3 text-slate-800 hover:bg-slate-100 rounded-lg border border-slate-200 font-semibold transition-all duration-200 shadow-sm"
         >
           <span className="font-medium">Resource Tags</span>
           <ChevronRight className={`w-4 h-4 transition-transform ${
@@ -5183,12 +5289,12 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
           <div className="mt-2 space-y-3 pl-4">
             {Object.entries(config.tags).map(([key, value]) => (
               <div key={key}>
-                <label className="block text-sm font-medium text-gray-300 mb-1 capitalize">{key.replace('_', ' ')}</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-2 capitalize">{key.replace('_', ' ')}</label>
                 <input 
                   type="text"
                   value={value}
                   onChange={(e) => updateTags(key, e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
                   placeholder={`Enter ${key.replace('_', ' ')}`}
                 />
               </div>
@@ -5232,7 +5338,7 @@ const ResourceConfigPanel = ({ resource, onConfigUpdate }) => {
               ))}
               <button
                 onClick={() => updateEnvironmentVariables(`VAR_${Date.now()}`, '')}
-                className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1 font-medium"
               >
                 <Plus className="w-4 h-4" />
                 Add Variable
@@ -5519,9 +5625,9 @@ const DeploymentManagement = ({ setCurrentPage, openModal, setOpenModal }) => {
   const getCspIcon = (csp) => {
     switch(csp) {
       case 'AWS':
-        return <Cloud className="w-4 h-4 text-orange-500" />;
+        return <Server className="w-4 h-4 text-orange-600" />;
       case 'Azure':
-        return <Cloud className="w-4 h-4 text-blue-500" />;
+        return <Monitor className="w-4 h-4 text-blue-600" />;
       case 'GCP':
         return <Cloud className="w-4 h-4 text-red-500" />;
       default:
@@ -6216,14 +6322,15 @@ const NewDeploymentModal = ({ onClose, setCurrentPage }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-4 border-t border-gray-200 flex justify-between items-center bg-white flex-shrink-0">
-          <div className="text-sm text-gray-600">
-            * Required fields
+        <div className="px-8 py-6 border-t border-slate-200 flex justify-between items-center bg-gradient-to-r from-slate-50 to-slate-100 flex-shrink-0 rounded-b-2xl">
+          <div className="text-sm text-slate-600 font-medium flex items-center gap-2">
+            <span className="text-red-500 font-bold">*</span>
+            Required fields
           </div>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-white hover:border-slate-400 transition-all duration-200 font-medium shadow-sm"
             >
               Cancel
             </button>
@@ -6388,15 +6495,16 @@ const VulnerabilityReportModal = ({ component, vulnerabilities, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-8 py-6 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 rounded-b-2xl">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-600 font-medium flex items-center gap-2">
+              <Clock className="w-4 h-4 text-slate-500" />
               Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
             </div>
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
+                className="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-white hover:border-slate-400 transition-all duration-200 font-medium shadow-sm"
               >
                 Close
               </button>
@@ -7441,10 +7549,10 @@ const StageDetailsModal = ({ stage, deployment, onClose }) => {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
+        <div className="px-6 py-6 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 flex justify-end rounded-b-xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm"
           >
             Close
           </button>
