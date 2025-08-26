@@ -7450,8 +7450,8 @@ const FinancialDashboard = () => {
   const [drilldownTarget, setDrilldownTarget] = useState(null);
   const [chartView, setChartView] = useState('Daily'); // 'Daily', 'Weekly', 'Monthly'
   const [hoveredPoint, setHoveredPoint] = useState(null);
-  const [isHeroAICostPanelExpanded, setIsHeroAICostPanelExpanded] = useState(true);
-  const [isCostAnomaliesPanelExpanded, setIsCostAnomaliesPanelExpanded] = useState(true);
+  const [isHeroAICostPanelExpanded, setIsHeroAICostPanelExpanded] = useState(false);
+  const [isCostAnomaliesPanelExpanded, setIsCostAnomaliesPanelExpanded] = useState(false);
 
   // Comprehensive financial data with nested structure for drill-downs
   const financialData = {
@@ -8278,11 +8278,9 @@ const FinancialDashboard = () => {
         <div className={`transition-all duration-300 ease-in-out ${isHeroAICostPanelExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
           <div className="px-8 pb-8">
             <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-purple-200/50">
-              <div className="flex items-center justify-between mb-6">
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-purple-700">${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}</div>
-                  <div className="text-purple-600 text-sm font-medium">Total Monthly Savings Potential</div>
-                </div>
+              <div className="text-center mb-6">
+                <div className="text-3xl font-bold text-purple-700">${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}</div>
+                <div className="text-purple-600 text-sm font-medium">Total Monthly Savings Potential</div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
