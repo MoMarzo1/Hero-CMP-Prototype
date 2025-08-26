@@ -8,7 +8,9 @@ import {
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
   GitBranch, Package, Layers, Monitor, Trash2, PencilRuler, Info,
-  Sparkles, MoreVertical
+  Sparkles, MoreVertical, Rocket, Bolt, ShieldCheck, Award,
+  TestTube, Scale, Lock, Clock4, Users2, Palette, Settings2,
+  FlaskConical, Wrench, Gauge, Medal, Trophy, Flame
 } from 'lucide-react';
 
 // Enhanced Sidebar Component with HeroAI chat
@@ -1338,6 +1340,7 @@ const CodeCommitsDashboard = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
   const [selectedView, setSelectedView] = useState('overview');
   const [expandedMetrics, setExpandedMetrics] = useState(new Set());
+  const [isHeroAIPanelExpanded, setIsHeroAIPanelExpanded] = useState(true);
 
   // Comprehensive code metrics data structure
   const codeMetricsData = {
@@ -1702,45 +1705,173 @@ const CodeCommitsDashboard = () => {
 
   const filteredData = getFilteredData();
 
-  // Get contextual insights based on current filters
-  const getFilterInsights = () => {
+  // HeroAI insights and recommendations
+  const getHeroAIInsights = () => {
+    const data = filteredData;
     const insights = [];
-    
+    const recommendations = [];
+    const alerts = [];
+
+    // Analyze DORA metrics for insights
+    const deploymentFreq = data.doraMetrics.deploymentFrequency.current;
+    const leadTime = data.doraMetrics.leadTime.current;
+    const failureRate = data.doraMetrics.changeFailureRate.current;
+    const mttr = data.doraMetrics.mttr.current;
+
+    // Performance Analysis
+    if (deploymentFreq >= 2.5) {
+      insights.push({ icon: Rocket, text: "Excellent deployment velocity detected - your team is in the elite performance tier" });
+    } else if (deploymentFreq < 1.0) {
+      alerts.push({ icon: AlertTriangle, text: "Low deployment frequency may indicate deployment bottlenecks" });
+      recommendations.push("Consider implementing automated deployment pipelines and reducing batch sizes");
+    }
+
+    if (leadTime <= 2.0) {
+      insights.push({ icon: Bolt, text: "Outstanding lead time - changes reach production quickly" });
+    } else if (leadTime > 3.0) {
+      alerts.push({ icon: Clock4, text: "High lead time detected - development velocity could be improved" });
+      recommendations.push("Review code review processes and consider feature flagging to reduce cycle time");
+    }
+
+    if (failureRate <= 5.0) {
+      insights.push({ icon: ShieldCheck, text: "Excellent stability - very low change failure rate" });
+    } else if (failureRate > 15.0) {
+      alerts.push({ icon: Flame, text: "High change failure rate indicates quality issues" });
+      recommendations.push("Implement additional testing automation and consider trunk-based development");
+    }
+
+    // Code Quality Analysis
+    const coverage = data.developerMetrics.codeQuality.testCoverage;
+    const debt = data.developerMetrics.codeQuality.technicalDebt;
+    const hotspots = data.developerMetrics.codeQuality.securityHotspots;
+
+    if (coverage >= 90) {
+      insights.push({ icon: CheckCircle, text: "Excellent test coverage - well-protected codebase" });
+    } else if (coverage < 80) {
+      alerts.push({ icon: TestTube, text: "Test coverage below recommended threshold" });
+      recommendations.push("Prioritize writing unit tests for critical business logic");
+    }
+
+    if (debt > 5.0) {
+      alerts.push({ icon: Scale, text: "Technical debt accumulation detected" });
+      recommendations.push("Schedule regular refactoring sessions to address technical debt");
+    }
+
+    if (hotspots > 20) {
+      alerts.push({ icon: Lock, text: "Multiple security hotspots require attention" });
+      recommendations.push("Run security scans and address high-priority vulnerabilities");
+    }
+
+    // PR Analysis
+    const reviewTime = data.pullRequestMetrics.avgReviewTime;
+    const participation = data.pullRequestMetrics.reviewParticipation;
+
+    if (reviewTime > 8.0) {
+      alerts.push({ icon: Clock, text: "Long PR review times may slow development" });
+      recommendations.push("Consider smaller PR sizes and dedicated review time slots");
+    }
+
+    if (participation < 80) {
+      alerts.push({ icon: Users2, text: "Low review participation affects code quality" });
+      recommendations.push("Implement review assignment rotation and provide review guidelines");
+    }
+
+    // Filter-specific insights
     if (selectedProject !== 'All Projects') {
-      const projectInsights = {
-        'EDP Core': 'Highest performing project with excellent deployment frequency and lowest failure rates',
-        'TelmaAI': 'Strong AI/ML project with good metrics but slightly higher complexity',
-        'Corrigo Core': 'Legacy system with opportunities for improvement in deployment velocity',
-        'ScheduleAI': 'Well-balanced project with consistent performance across all metrics', 
-        'PropertyOS': 'Modern architecture showing strong performance and code quality'
+      const projectContext = {
+        'EDP Core': {
+          insight: { icon: Trophy, text: "EDP Core is your highest performing project with elite DevOps metrics" },
+          recommendation: "Use EDP Core's practices as a template for other projects"
+        },
+        'TelmaAI': {
+          insight: { icon: Cpu, text: "TelmaAI shows strong AI/ML development patterns with good testing practices" },
+          recommendation: "Monitor complexity growth as ML models evolve"
+        },
+        'Corrigo Core': {
+          insight: { icon: Settings2, text: "Corrigo Core shows legacy system characteristics with improvement opportunities" },
+          recommendation: "Focus on modernizing deployment practices and reducing lead time"
+        },
+        'ScheduleAI': {
+          insight: { icon: Gauge, text: "ScheduleAI demonstrates well-balanced development practices across all metrics" },
+          recommendation: "Maintain current practices and consider as reference for other projects"
+        },
+        'PropertyOS': {
+          insight: { icon: Home, text: "PropertyOS shows modern architecture benefits with strong performance" },
+          recommendation: "Continue leveraging modern practices and monitor scaling challenges"
+        }
       };
-      insights.push(projectInsights[selectedProject] || '');
+      
+      const context = projectContext[selectedProject];
+      if (context) {
+        insights.push(context.insight);
+        recommendations.push(context.recommendation);
+      }
     }
-    
+
     if (selectedComponent !== 'All Components') {
-      const componentInsights = {
-        'Frontend': 'High commit volume with lower complexity - React/Angular components',
-        'Backend API': 'Medium complexity with thorough testing - REST/GraphQL services',
-        'Database': 'Lower commit frequency but higher complexity - schema changes and migrations',
-        'Microservices': 'Distributed architecture with moderate complexity and review overhead',
-        'Infrastructure': 'Low commit volume, high complexity - DevOps and configuration changes'
+      const componentContext = {
+        'Frontend': {
+          insight: { icon: Palette, text: "Frontend components show high velocity with good maintainability" },
+          recommendation: "Consider component library standardization to improve consistency"
+        },
+        'Backend API': {
+          insight: { icon: Settings, text: "Backend APIs demonstrate solid engineering practices with good test coverage" },
+          recommendation: "Monitor API performance and consider implementing automated contract testing"
+        },
+        'Database': {
+          insight: { icon: Database, text: "Database changes follow careful review patterns due to high impact" },
+          recommendation: "Implement database migration testing and rollback procedures"
+        },
+        'Microservices': {
+          insight: { icon: Network, text: "Microservices show distributed development patterns with cross-team coordination" },
+          recommendation: "Focus on service contracts and inter-service communication monitoring"
+        },
+        'Infrastructure': {
+          insight: { icon: Wrench, text: "Infrastructure changes demonstrate careful change management practices" },
+          recommendation: "Consider Infrastructure as Code adoption and automated testing for configs"
+        }
       };
-      insights.push(componentInsights[selectedComponent] || '');
+      
+      const context = componentContext[selectedComponent];
+      if (context) {
+        insights.push(context.insight);
+        recommendations.push(context.recommendation);
+      }
+    }
+
+    // Add dynamic trend insights
+    const deploymentTrend = parseFloat(data.doraMetrics.deploymentFrequency.trend.replace('%', '').replace('+', ''));
+    const leadTimeTrend = parseFloat(data.doraMetrics.leadTime.trend.replace('%', '').replace('-', ''));
+    
+    if (deploymentTrend > 25) {
+      insights.push({ icon: TrendingUp, text: "Deployment frequency has significantly improved - excellent velocity gains" });
     }
     
-    if (selectedTimeRange !== '30d') {
-      const timeInsights = {
-        '7d': 'Recent activity snapshot - limited data for trend analysis',
-        '90d': 'Quarterly view showing longer-term trends and seasonal patterns',
-        '1y': 'Annual overview revealing major shifts and organizational changes'
-      };
-      insights.push(timeInsights[selectedTimeRange] || '');
+    if (leadTimeTrend > 30) {
+      insights.push({ icon: Target, text: "Lead time reduction is outstanding - your development process is highly optimized" });
+    }
+
+    // Add team performance insights
+    const totalCommits = data.developerMetrics.commits.total;
+    const avgReviewTime = data.pullRequestMetrics.avgReviewTime;
+    
+    if (selectedTimeRange === '7d' && totalCommits > 100) {
+      insights.push({ icon: Zap, text: "High development activity this week - team is very productive" });
     }
     
-    return insights.filter(insight => insight.length > 0);
+    if (avgReviewTime < 3.0) {
+      insights.push({ icon: Users, text: "Exceptionally fast code reviews - excellent team collaboration" });
+    }
+
+    // Add security and quality insights
+    if (coverage > 85 && debt < 3.0 && hotspots < 10) {
+      insights.push({ icon: Medal, text: "Exceptional code quality across all metrics - maintain these standards" });
+    }
+
+    return { insights, recommendations, alerts };
   };
 
-  const filterInsights = getFilterInsights();
+  const heroAIAnalysis = getHeroAIInsights();
 
   return (
     <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
@@ -1811,17 +1942,139 @@ const CodeCommitsDashboard = () => {
         ))}
       </div>
 
-      {/* Filter Insights Panel */}
-      {filterInsights.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 mb-8">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <h4 className="font-bold text-blue-900 mb-2">Filter Context & Insights</h4>
-              <div className="space-y-2">
-                {filterInsights.map((insight, index) => (
-                  <p key={index} className="text-blue-800 text-sm leading-relaxed">• {insight}</p>
-                ))}
+      {/* HeroAI Insights Panel */}
+      {(heroAIAnalysis.insights.length > 0 || heroAIAnalysis.recommendations.length > 0 || heroAIAnalysis.alerts.length > 0) && (
+        <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border border-purple-200 rounded-2xl mb-8 shadow-sm overflow-hidden transition-all duration-300">
+          {/* Panel Header - Always Visible */}
+          <div 
+            className="flex items-center justify-between p-8 cursor-pointer hover:bg-white/30 transition-colors"
+            onClick={() => setIsHeroAIPanelExpanded(!isHeroAIPanelExpanded)}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-blue-700 bg-clip-text text-transparent mb-2">
+                  HeroAI Insights & Recommendations
+                </h3>
+                <p className="text-gray-600">AI-powered analysis of your development metrics and performance patterns</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Summary badges when collapsed */}
+              {!isHeroAIPanelExpanded && (
+                <div className="flex items-center gap-2">
+                  {heroAIAnalysis.insights.length > 0 && (
+                    <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4" />
+                      {heroAIAnalysis.insights.length}
+                    </div>
+                  )}
+                  {heroAIAnalysis.recommendations.length > 0 && (
+                    <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1">
+                      <Target className="w-4 h-4" />
+                      {heroAIAnalysis.recommendations.length}
+                    </div>
+                  )}
+                  {heroAIAnalysis.alerts.length > 0 && (
+                    <div className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium flex items-center gap-1">
+                      <AlertTriangle className="w-4 h-4" />
+                      {heroAIAnalysis.alerts.length}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button className="p-2 hover:bg-white/50 rounded-xl transition-colors">
+                <ChevronRight className={`w-5 h-5 text-purple-600 transition-transform duration-300 ${isHeroAIPanelExpanded ? 'rotate-90' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Panel Content - Collapsible */}
+          <div className={`transition-all duration-300 ease-in-out ${isHeroAIPanelExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+            <div className="px-8 pb-8">
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Insights */}
+            {heroAIAnalysis.insights.length > 0 && (
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-green-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <h4 className="font-bold text-green-900">Key Insights</h4>
+                </div>
+                <div className="space-y-3">
+                  {heroAIAnalysis.insights.map((insight, index) => {
+                    const IconComponent = insight.icon;
+                    return (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <IconComponent className="w-4 h-4 text-green-600" />
+                        </div>
+                        <p className="text-green-800 text-sm leading-relaxed">{insight.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {heroAIAnalysis.recommendations.length > 0 && (
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-blue-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <Target className="w-5 h-5 text-blue-600" />
+                  <h4 className="font-bold text-blue-900">Recommendations</h4>
+                </div>
+                <div className="space-y-3">
+                  {heroAIAnalysis.recommendations.map((recommendation, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-blue-800 text-sm leading-relaxed">{recommendation}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Alerts */}
+            {heroAIAnalysis.alerts.length > 0 && (
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-orange-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <h4 className="font-bold text-orange-900">Action Items</h4>
+                </div>
+                <div className="space-y-3">
+                  {heroAIAnalysis.alerts.map((alert, index) => {
+                    const IconComponent = alert.icon;
+                    return (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <IconComponent className="w-4 h-4 text-orange-600" />
+                        </div>
+                        <p className="text-orange-800 text-sm leading-relaxed">{alert.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+              {/* AI Processing Indicator */}
+              <div className="mt-6 pt-4 border-t border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                    <span>Analysis generated by HeroAI • Last updated: {new Date().toLocaleTimeString()}</span>
+                  </div>
+                  <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Refresh Analysis
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
