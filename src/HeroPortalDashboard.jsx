@@ -7,7 +7,8 @@ import {
   Search, Filter, Download, Plus, Eye, MoreHorizontal,
   Server, Container, Network, HardDrive, Users,
   BarChart3, PieChart, LineChart, Target, Zap,
-  GitBranch, Package, Layers, Monitor, Trash2, PencilRuler, Info
+  GitBranch, Package, Layers, Monitor, Trash2, PencilRuler, Info,
+  Sparkles, MoreVertical
 } from 'lucide-react';
 
 // Enhanced Sidebar Component with HeroAI chat
@@ -6360,173 +6361,786 @@ const StageDetailsModal = ({ stage, deployment, onClose }) => {
 
 // Enhanced Financial Dashboard
 const FinancialDashboard = () => {
-  const projects = [
-    { name: 'EDP Core', spent: 5234, budget: 6000, color: 'slate' },
-    { name: 'TelmaAI', spent: 3245, budget: 3000, color: 'red' },
-    { name: 'Corrigo Core', spent: 2681, budget: 4000, color: 'green' },
-    { name: 'ScheduleAI', spent: 1687, budget: 2000, color: 'blue' }
-  ];
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+  const [selectedEnvironment, setSelectedEnvironment] = useState('All Environments');
+  const [selectedComponent, setSelectedComponent] = useState('All Components');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('July 2025');
+  const [viewMode, setViewMode] = useState('overview'); // 'overview', 'project-drill', 'component-drill'
+  const [drilldownTarget, setDrilldownTarget] = useState(null);
+
+  // Comprehensive financial data with nested structure for drill-downs
+  const financialData = {
+    "All Projects": {
+      "All Environments": {
+        "All Components": {
+          currentSpend: 47284,
+          monthlyBudget: 52000,
+          forecastedSpend: 49750,
+          budgetUtilization: 90.9,
+          costTrend: 12.4,
+          burnRate: 1642,
+          avgDailyCost: 1576,
+          totalSavingsPotential: 3420
+        }
+      }
+    },
+    "EDP Core": {
+      "All Environments": {
+        "All Components": {
+          currentSpend: 18245,
+          monthlyBudget: 20000,
+          forecastedSpend: 19340,
+          budgetUtilization: 91.2,
+          costTrend: 8.7,
+          burnRate: 634,
+          avgDailyCost: 612,
+          totalSavingsPotential: 1250
+        }
+      },
+      "Production": {
+        "All Components": {
+          currentSpend: 12400,
+          monthlyBudget: 14000,
+          forecastedSpend: 13100,
+          budgetUtilization: 88.6,
+          costTrend: 6.2,
+          burnRate: 430,
+          avgDailyCost: 415,
+          totalSavingsPotential: 820
+        },
+        "API Gateway": { currentSpend: 2890, monthlyBudget: 3200, forecastedSpend: 3050, costTrend: 5.2 },
+        "Database": { currentSpend: 4200, monthlyBudget: 4800, forecastedSpend: 4450, costTrend: 8.1 },
+        "Load Balancer": { currentSpend: 1840, monthlyBudget: 2000, forecastedSpend: 1920, costTrend: 4.3 },
+        "Web Application": { currentSpend: 2170, monthlyBudget: 2500, forecastedSpend: 2280, costTrend: 7.8 },
+        "Storage": { currentSpend: 1300, monthlyBudget: 1500, forecastedSpend: 1400, costTrend: 9.2 }
+      },
+      "Staging": {
+        "All Components": {
+          currentSpend: 3845,
+          monthlyBudget: 4000,
+          forecastedSpend: 4080,
+          budgetUtilization: 96.1,
+          costTrend: 15.3,
+          burnRate: 134,
+          avgDailyCost: 129,
+          totalSavingsPotential: 280
+        }
+      },
+      "Development": {
+        "All Components": {
+          currentSpend: 2000,
+          monthlyBudget: 2000,
+          forecastedSpend: 2160,
+          budgetUtilization: 100.0,
+          costTrend: 18.2,
+          burnRate: 70,
+          avgDailyCost: 68,
+          totalSavingsPotential: 150
+        }
+      }
+    },
+    "TelmaAI": {
+      "All Environments": {
+        "All Components": {
+          currentSpend: 12680,
+          monthlyBudget: 12000,
+          forecastedSpend: 13420,
+          budgetUtilization: 105.7,
+          costTrend: 22.1,
+          burnRate: 441,
+          avgDailyCost: 425,
+          totalSavingsPotential: 890
+        }
+      },
+      "Production": {
+        "All Components": {
+          currentSpend: 8950,
+          monthlyBudget: 8500,
+          forecastedSpend: 9480,
+          budgetUtilization: 105.3,
+          costTrend: 24.7,
+          burnRate: 311,
+          avgDailyCost: 300,
+          totalSavingsPotential: 620
+        }
+      }
+    },
+    "Corrigo Core": {
+      "All Environments": {
+        "All Components": {
+          currentSpend: 9841,
+          monthlyBudget: 12000,
+          forecastedSpend: 10420,
+          budgetUtilization: 82.0,
+          costTrend: 5.8,
+          burnRate: 342,
+          avgDailyCost: 330,
+          totalSavingsPotential: 680
+        }
+      }
+    },
+    "ScheduleAI": {
+      "All Environments": {
+        "All Components": {
+          currentSpend: 6518,
+          monthlyBudget: 8000,
+          forecastedSpend: 6970,
+          budgetUtilization: 81.5,
+          costTrend: -2.3,
+          burnRate: 227,
+          avgDailyCost: 219,
+          totalSavingsPotential: 600
+        }
+      }
+    }
+  };
+
+  // Get current financial metrics based on selections
+  const getCurrentMetrics = () => {
+    const projectData = financialData[selectedProject] || financialData["All Projects"];
+    const envData = projectData[selectedEnvironment] || projectData["All Environments"];
+    const componentData = envData[selectedComponent] || envData["All Components"];
+    return componentData;
+  };
+
+  const currentMetrics = getCurrentMetrics();
+
+  // Enhanced cost anomalies based on selections
+  const getCostAnomalies = () => {
+    const baseAnomalies = [
+      {
+        id: 1,
+        severity: 'critical',
+        title: 'TelmaAI Project - Budget Exceeded',
+        description: 'Current spend: $12,680 | Budget: $12,000 | Overage: $680 (5.7%)',
+        project: 'TelmaAI',
+        environment: 'Production',
+        component: 'ML Training Instances',
+        time: '2 hours ago',
+        impact: '$680',
+        recommendation: 'Scale down training instances during off-peak hours'
+      },
+      {
+        id: 2,
+        severity: 'warning',
+        title: 'Azure VM Costs Spike - EDP Core',
+        description: 'Daily cost increased by 45% ($156 → $226) - Check vm-web-03 instance',
+        project: 'EDP Core',
+        environment: 'Production',
+        component: 'Web Application',
+        time: '5 hours ago',
+        impact: '$70/day',
+        recommendation: 'Right-size VM instance or enable auto-scaling'
+      },
+      {
+        id: 3,
+        severity: 'warning',
+        title: 'Storage Costs Growing - Corrigo Core',
+        description: 'Database storage costs increased 28% over last 7 days',
+        project: 'Corrigo Core',
+        environment: 'Production',
+        component: 'Database',
+        time: '1 day ago',
+        impact: '$42/day',
+        recommendation: 'Archive old data or implement data lifecycle policies'
+      },
+      {
+        id: 4,
+        severity: 'info',
+        title: 'Unused Resources Detected',
+        description: '5 idle load balancers consuming $180/month across all projects',
+        project: 'Multiple',
+        environment: 'Staging',
+        component: 'Load Balancer',
+        time: '2 days ago',
+        impact: '$180/month',
+        recommendation: 'Remove unused staging load balancers'
+      }
+    ];
+
+    // Filter anomalies based on current selections
+    return baseAnomalies.filter(anomaly => {
+      if (selectedProject !== 'All Projects' && anomaly.project !== selectedProject && anomaly.project !== 'Multiple') return false;
+      if (selectedEnvironment !== 'All Environments' && anomaly.environment !== selectedEnvironment) return false;
+      if (selectedComponent !== 'All Components' && anomaly.component !== selectedComponent) return false;
+      return true;
+    });
+  };
+
+  // HeroAI Cost Optimization Recommendations
+  const getHeroAIRecommendations = () => {
+    const baseRecommendations = [
+      {
+        id: 1,
+        priority: 'high',
+        title: 'Right-size Overprovisioned Resources',
+        description: 'Machine learning analysis identified 12 oversized VM instances across production environments',
+        projects: ['EDP Core', 'TelmaAI', 'Corrigo Core'],
+        monthlySavings: 2340,
+        confidenceScore: 94,
+        implementation: 'Automated - 1-click deployment',
+        timeToImplement: '15 minutes',
+        riskLevel: 'low',
+        details: {
+          resourceCount: 12,
+          avgUtilization: '23%',
+          recommendedAction: 'Downgrade from Standard_D4s_v3 to Standard_D2s_v3',
+          affectedServices: ['Web Apps', 'API Services', 'Background Jobs']
+        }
+      },
+      {
+        id: 2,
+        priority: 'high',
+        title: 'Optimize Data Storage Lifecycle',
+        description: 'Intelligent tiering can move 2.4TB of cold data to cheaper storage tiers',
+        projects: ['EDP Core', 'Corrigo Core'],
+        monthlySavings: 890,
+        confidenceScore: 91,
+        implementation: 'Policy-based automation',
+        timeToImplement: '30 minutes',
+        riskLevel: 'very-low',
+        details: {
+          dataVolume: '2.4TB',
+          currentTier: 'Hot Storage',
+          recommendedTier: 'Cool/Archive',
+          accessPattern: 'Less than 3 times per month'
+        }
+      },
+      {
+        id: 3,
+        priority: 'medium',
+        title: 'Reserved Instance Opportunities',
+        description: 'Lock in discounts with reserved instances for consistent workloads',
+        projects: ['TelmaAI', 'ScheduleAI'],
+        monthlySavings: 1280,
+        confidenceScore: 87,
+        implementation: 'Manual purchase required',
+        timeToImplement: '2 hours',
+        riskLevel: 'low',
+        details: {
+          instanceTypes: ['Standard_D8s_v3', 'Standard_E4s_v3'],
+          commitmentPeriod: '12 months',
+          potentialDiscount: '42%'
+        }
+      },
+      {
+        id: 4,
+        priority: 'medium',
+        title: 'Automated Scaling Optimization',
+        description: 'Enable intelligent auto-scaling to match resource usage with demand',
+        projects: ['All Projects'],
+        monthlySavings: 1560,
+        confidenceScore: 82,
+        implementation: 'Configuration update',
+        timeToImplement: '45 minutes',
+        riskLevel: 'medium',
+        details: {
+          currentScaling: 'Manual',
+          recommendedStrategy: 'Predictive auto-scaling',
+          avgLoadVariation: '67%'
+        }
+      },
+      {
+        id: 5,
+        priority: 'low',
+        title: 'Container Resource Optimization',
+        description: 'Kubernetes pod resource limits can be optimized based on actual usage patterns',
+        projects: ['TelmaAI', 'ScheduleAI'],
+        monthlySavings: 420,
+        confidenceScore: 78,
+        implementation: 'YAML configuration update',
+        timeToImplement: '1 hour',
+        riskLevel: 'medium',
+        details: {
+          podCount: 45,
+          avgMemoryUtil: '34%',
+          avgCpuUtil: '28%',
+          recommendedAction: 'Reduce resource requests by 40%'
+        }
+      }
+    ];
+
+    // Filter and sort by project selection
+    let filtered = baseRecommendations;
+    if (selectedProject !== 'All Projects') {
+      filtered = baseRecommendations.filter(rec => 
+        rec.projects.includes(selectedProject) || rec.projects.includes('All Projects')
+      );
+    }
+
+    return filtered.sort((a, b) => {
+      const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+  };
+
+  const handleDrillDown = (type, target) => {
+    setViewMode(`${type}-drill`);
+    setDrilldownTarget(target);
+  };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-white to-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold text-slate-900">Financial Dashboard</h2>
-        <div className="flex gap-4">
-          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium">
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+      {/* Header with Advanced Filters */}
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h2 className="text-4xl font-bold text-slate-900 mb-2">Financial Analytics Dashboard</h2>
+          <p className="text-gray-600">Enterprise cost intelligence with HeroAI optimization</p>
+        </div>
+        
+        <div className="flex gap-3">
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white text-slate-900 font-medium text-sm"
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+          >
             <option>All Projects</option>
             <option>EDP Core</option>
-            <option>Corrigo Core</option>
             <option>TelmaAI</option>
+            <option>Corrigo Core</option>
+            <option>ScheduleAI</option>
           </select>
-          <select className="px-6 py-3 border border-gray-200 rounded-xl bg-white text-slate-900 font-medium">
+          
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white text-slate-900 font-medium text-sm"
+            value={selectedEnvironment}
+            onChange={(e) => setSelectedEnvironment(e.target.value)}
+          >
+            <option>All Environments</option>
+            <option>Production</option>
+            <option>Staging</option>
+            <option>Development</option>
+          </select>
+          
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white text-slate-900 font-medium text-sm"
+            value={selectedComponent}
+            onChange={(e) => setSelectedComponent(e.target.value)}
+          >
+            <option>All Components</option>
+            <option>API Gateway</option>
+            <option>Database</option>
+            <option>Load Balancer</option>
+            <option>Web Application</option>
+            <option>Storage</option>
+            <option>Container Registry</option>
+            <option>Kubernetes Cluster</option>
+            <option>CDN</option>
+            <option>Monitoring</option>
+          </select>
+          
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white text-slate-900 font-medium text-sm"
+            value={selectedTimeframe}
+            onChange={(e) => setSelectedTimeframe(e.target.value)}
+          >
             <option>July 2025</option>
             <option>June 2025</option>
             <option>May 2025</option>
+            <option>Q2 2025</option>
+            <option>YTD 2025</option>
           </select>
-          <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:shadow-lg transition-all font-medium">
+          
+          <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm">
             <Download className="w-4 h-4 inline mr-2" />
-            Export Report
+            Export
           </button>
         </div>
       </div>
 
-      {/* Cost Metrics */}
-      <div className="grid grid-cols-4 gap-8 mb-12">
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-slate-700">$12,847</div>
-          <div className="text-gray-600 font-medium mb-2">Current Month Spend</div>
-          <div className="text-sm text-green-600">↗️ +8.3% vs last month</div>
+      {/* Key Financial Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className={`flex items-center gap-1 ${currentMetrics.costTrend >= 0 ? 'text-orange-600' : 'text-green-600'}`}>
+              {currentMetrics.costTrend >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              <span className="text-xs font-medium">{Math.abs(currentMetrics.costTrend)}%</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.currentSpend?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Current Spend</p>
         </div>
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-green-500">$15,000</div>
-          <div className="text-gray-600 font-medium mb-2">Monthly Budget</div>
-          <div className="text-sm text-green-600">✅ 85.6% utilized</div>
-        </div>
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-blue-600">$2,153</div>
-          <div className="text-gray-600 font-medium mb-2">Budget Remaining</div>
-          <div className="text-sm text-orange-600">⏰ 7 days left</div>
-        </div>
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-          <div className="text-5xl font-bold mb-4 text-red-600">$342</div>
-          <div className="text-gray-600 font-medium mb-2">Cost Anomalies</div>
-          <div className="text-sm text-red-600">🚨 3 alerts active</div>
-        </div>
-      </div>
 
-      {/* Spending Alerts */}
-      <div className="bg-white rounded-2xl p-8 mb-12 shadow-sm border border-gray-100">
-        <h3 className="flex items-center gap-3 mb-8 text-slate-900 font-bold text-xl">
-          <AlertTriangle className="w-6 h-6 text-red-600" />
-          Spending Alerts
-          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">3</span>
-        </h3>
-        
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 p-6 bg-red-50 border-l-4 border-red-600 rounded-xl">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Target className="w-5 h-5 text-green-600" />
+            </div>
+            <div className={`flex items-center gap-1 ${currentMetrics.budgetUtilization > 95 ? 'text-red-600' : currentMetrics.budgetUtilization > 80 ? 'text-orange-600' : 'text-green-600'}`}>
+              <span className="text-xs font-medium">{currentMetrics.budgetUtilization?.toFixed(1) || '0'}%</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.monthlyBudget?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Monthly Budget</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+            </div>
+            <div className="flex items-center gap-1 text-purple-600">
+              <Clock className="w-4 h-4" />
+              <span className="text-xs font-medium">EOM</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.forecastedSpend?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Forecasted</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <Zap className="w-5 h-5 text-red-600" />
             </div>
-            <div className="flex-1">
-              <div className="font-bold text-red-600 mb-1">TelmaAI Project - Budget Exceeded</div>
-              <div className="text-gray-600 text-sm">Current spend: $3,245 | Budget: $3,000 | Overage: $245 (8.2%)</div>
+            <div className="flex items-center gap-1 text-slate-600">
+              <span className="text-xs font-medium">per day</span>
             </div>
-            <div className="text-sm text-gray-500">2 hours ago</div>
           </div>
-          
-          <div className="flex items-center gap-4 p-6 bg-orange-50 border-l-4 border-orange-500 rounded-xl">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-            </div>
-            <div className="flex-1">
-              <div className="font-bold text-orange-700 mb-1">Azure VM Costs Spike - EDP Core</div>
-              <div className="text-gray-600 text-sm">Daily cost increased by 45% ($156 → $226) - Check vm-web-03 instance</div>
-            </div>
-            <div className="text-sm text-gray-500">5 hours ago</div>
-          </div>
-          
-          <div className="flex items-center gap-4 p-6 bg-orange-50 border-l-4 border-orange-500 rounded-xl">
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.burnRate?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Burn Rate</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-orange-600" />
             </div>
-            <div className="flex-1">
-              <div className="font-bold text-orange-700 mb-1">Approaching 90% Budget Threshold</div>
-              <div className="text-gray-600 text-sm">ScheduleAI project at $2,687 of $3,000 monthly budget</div>
+            <div className="flex items-center gap-1 text-slate-600">
+              <span className="text-xs font-medium">avg</span>
             </div>
-            <div className="text-sm text-gray-500">1 day ago</div>
           </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.avgDailyCost?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Daily Cost</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div className="flex items-center gap-1 text-emerald-600">
+              <span className="text-xs font-medium">HeroAI</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 mb-1">${currentMetrics.totalSavingsPotential?.toLocaleString() || '0'}</div>
+          <p className="text-sm text-gray-600">Savings Potential</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
-        {/* Cost Trends Chart */}
-        <div className="col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-slate-900 font-bold text-xl">Daily Cost Trends - July 2025</h3>
-            <select className="px-4 py-2 border border-gray-200 rounded-lg text-sm">
-              <option>All Services</option>
-              <option>Compute Only</option>
-              <option>Storage Only</option>
-              <option>Networking Only</option>
-            </select>
+      {/* Enhanced Spending Alerts */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="flex items-center gap-3 text-slate-900 font-bold text-xl">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+            Cost Anomalies & Alerts
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">{getCostAnomalies().length}</span>
+          </h3>
+          <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors">
+            Configure Alerts
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          {getCostAnomalies().map((anomaly) => (
+            <div key={anomaly.id} className={`flex items-start gap-4 p-4 border-l-4 rounded-xl ${
+              anomaly.severity === 'critical' ? 'bg-red-50 border-red-500' :
+              anomaly.severity === 'warning' ? 'bg-orange-50 border-orange-500' :
+              'bg-blue-50 border-blue-500'
+            }`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                anomaly.severity === 'critical' ? 'bg-red-100' :
+                anomaly.severity === 'warning' ? 'bg-orange-100' :
+                'bg-blue-100'
+              }`}>
+                <AlertTriangle className={`w-4 h-4 ${
+                  anomaly.severity === 'critical' ? 'text-red-600' :
+                  anomaly.severity === 'warning' ? 'text-orange-600' :
+                  'text-blue-600'
+                }`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`font-bold mb-1 ${
+                  anomaly.severity === 'critical' ? 'text-red-600' :
+                  anomaly.severity === 'warning' ? 'text-orange-700' :
+                  'text-blue-700'
+                }`}>
+                  {anomaly.title}
+                </div>
+                <div className="text-gray-600 text-sm mb-2">{anomaly.description}</div>
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <span>Project: {anomaly.project}</span>
+                  <span>Environment: {anomaly.environment}</span>
+                  <span>Impact: {anomaly.impact}</span>
+                  <span>{anomaly.time}</span>
+                </div>
+                <div className="mt-2 p-2 bg-white rounded text-xs text-gray-700">
+                  <strong>Recommendation:</strong> {anomaly.recommendation}
+                </div>
+              </div>
+              <button className="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                Resolve
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Dashboard Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Cost Forecast & Trends */}
+        <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-slate-900 font-bold text-xl">Cost Trends & Forecast</h3>
+            <div className="flex gap-2">
+              <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">Daily</button>
+              <button className="px-3 py-1 text-slate-600 rounded text-sm hover:bg-gray-100">Weekly</button>
+              <button className="px-3 py-1 text-slate-600 rounded text-sm hover:bg-gray-100">Monthly</button>
+            </div>
           </div>
           
-          <div className="h-80 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500">
+          {/* Forecast Summary */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <div className="text-2xl font-bold text-blue-700">${(currentMetrics.forecastedSpend - currentMetrics.currentSpend).toLocaleString()}</div>
+              <div className="text-sm text-blue-600">Projected Additional</div>
+            </div>
+            <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+              <div className="text-2xl font-bold text-green-700">
+                {currentMetrics.forecastedSpend < currentMetrics.monthlyBudget ? 'Under' : 'Over'}
+              </div>
+              <div className="text-sm text-green-600">Budget Status</div>
+            </div>
+            <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+              <div className="text-2xl font-bold text-purple-700">
+                ${Math.abs(currentMetrics.monthlyBudget - currentMetrics.forecastedSpend).toLocaleString()}
+              </div>
+              <div className="text-sm text-purple-600">Variance</div>
+            </div>
+          </div>
+          
+          {/* Chart placeholder with more detail */}
+          <div className="h-64 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
             <div className="text-center">
-              <TrendingUp className="w-16 h-16 mx-auto mb-4 text-blue-600" />
-              <p className="text-lg font-medium">Cost trend visualization</p>
-              <p className="text-sm">Interactive chart would display here</p>
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-blue-500" />
+              <p className="text-lg font-medium text-slate-700">Interactive Cost Forecast Chart</p>
+              <p className="text-sm text-gray-500">Historical trends + ML-powered predictions</p>
+              <div className="mt-4 flex justify-center gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span>Actual Spend</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span>Forecast</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span>Budget Limit</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Project Cost Breakdown */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <h3 className="text-slate-900 font-bold mb-8 text-xl">Project Cost Breakdown</h3>
+        {/* Project Breakdown with Drill-down */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-slate-900 font-bold text-xl">Cost Breakdown</h3>
+            <button className="p-2 text-slate-500 hover:text-slate-700">
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
           
-          {projects.map((project) => {
-            const percentage = Math.min((project.spent / project.budget) * 100, 100);
-            const isOverBudget = project.spent > project.budget;
+          {['EDP Core', 'TelmaAI', 'Corrigo Core', 'ScheduleAI'].map((project) => {
+            const projectData = financialData[project]?.["All Environments"]?.["All Components"];
+            if (!projectData) return null;
+            
+            const percentage = (projectData.currentSpend / projectData.monthlyBudget) * 100;
+            const isOverBudget = projectData.currentSpend > projectData.monthlyBudget;
             
             return (
-              <div key={project.name} className="mb-6">
+              <div key={project} className="mb-6 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                   onClick={() => handleDrillDown('project', project)}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-slate-900">{project.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-slate-900">{project}</span>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
                   <span className={`font-bold ${isOverBudget ? 'text-red-600' : 'text-slate-700'}`}>
-                    ${project.spent.toLocaleString()}
+                    ${projectData.currentSpend.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div className="bg-gray-200 rounded-full h-2 overflow-hidden mb-2">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isOverBudget ? 'bg-gradient-to-r from-red-600 to-red-500' : 
-                      percentage > 80 ? 'bg-gradient-to-r from-orange-500 to-yellow-500' : 
-                      'bg-gradient-to-r from-green-500 to-emerald-500'
+                      isOverBudget ? 'bg-gradient-to-r from-red-500 to-red-600' : 
+                      percentage > 80 ? 'bg-gradient-to-r from-orange-400 to-yellow-500' : 
+                      'bg-gradient-to-r from-green-400 to-emerald-500'
                     }`}
-                    style={{ width: `${percentage}%` }}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
                   ></div>
                 </div>
-                <div className={`text-sm mt-2 ${isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
-                  Budget: ${project.budget.toLocaleString()} • {Math.round(percentage)}% used
-                  {isOverBudget && ' ⚠️'}
+                <div className="flex justify-between text-xs text-gray-600">
+                  <span>Budget: ${projectData.monthlyBudget.toLocaleString()}</span>
+                  <span className={isOverBudget ? 'text-red-600 font-medium' : ''}>{Math.round(percentage)}% used</span>
                 </div>
               </div>
             );
           })}
 
-          {/* Cost Optimization */}
-          <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-            <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center">
-              💡 Cost Optimization
-            </h4>
-            <div className="text-sm text-gray-600 space-y-2">
-              <div>• Resize 3 oversized VMs: <strong className="text-green-600">Save $156/month</strong></div>
-              <div>• Enable auto-scaling: <strong className="text-green-600">Save $89/month</strong></div>
-              <div>• Archive old snapshots: <strong className="text-green-600">Save $34/month</strong></div>
+          <button className="w-full mt-4 px-4 py-2 border border-gray-200 rounded-lg text-sm text-slate-600 hover:bg-gray-50 transition-colors">
+            View All Projects
+          </button>
+        </div>
+      </div>
+
+      {/* HeroAI Cost Optimization Recommendations */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <button className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors">
-              View Details
+            <div>
+              <h3 className="text-xl font-bold">HeroAI Cost Optimization</h3>
+              <p className="text-indigo-100 text-sm">AI-powered recommendations to reduce your cloud spend</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold">${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}</div>
+            <div className="text-indigo-100 text-sm">Total Monthly Savings</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {getHeroAIRecommendations().slice(0, 3).map((rec) => (
+            <div key={rec.id} className="bg-white bg-opacity-10 rounded-lg p-4 hover:bg-opacity-20 transition-all cursor-pointer">
+              <div className="flex items-start justify-between mb-3">
+                <div className={`px-2 py-1 rounded text-xs font-medium ${
+                  rec.priority === 'high' ? 'bg-red-500' : rec.priority === 'medium' ? 'bg-orange-500' : 'bg-blue-500'
+                }`}>
+                  {rec.priority.toUpperCase()}
+                </div>
+                <div className="text-right">
+                  <div className="font-bold">${rec.monthlySavings.toLocaleString()}</div>
+                  <div className="text-xs text-indigo-100">per month</div>
+                </div>
+              </div>
+              
+              <h4 className="font-bold mb-2">{rec.title}</h4>
+              <p className="text-sm text-indigo-100 mb-3 line-clamp-2">{rec.description}</p>
+              
+              <div className="flex justify-between items-center text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span>{rec.confidenceScore}% confidence</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{rec.timeToImplement}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-center mt-6">
+          <button className="px-6 py-2 bg-white text-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition-colors">
+            View All Recommendations
+          </button>
+        </div>
+      </div>
+
+      {/* Component & Environment Performance Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Component Performance */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-slate-900 font-bold text-xl">Component Cost Analysis</h3>
+            <button className="px-3 py-1 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">
+              Configure
             </button>
+          </div>
+          
+          <div className="space-y-4">
+            {['API Gateway', 'Database', 'Load Balancer', 'Web Application', 'Storage'].map((component, index) => (
+              <div key={component} 
+                   className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                   onClick={() => handleDrillDown('component', component)}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-slate-900">{component}</div>
+                    <div className="text-sm text-gray-600">{[12, 8, 5, 15, 7][index]} resources</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="font-semibold text-slate-900">${[2890, 4200, 1840, 2170, 1300][index].toLocaleString()}</div>
+                    <div className={`text-sm ${[5.2, 8.1, 4.3, 7.8, 9.2][index] >= 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                      {[5.2, 8.1, 4.3, 7.8, 9.2][index] >= 0 ? '+' : ''}{[5.2, 8.1, 4.3, 7.8, 9.2][index]}%
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Environment Performance */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-slate-900 font-bold text-xl">Environment Cost Distribution</h3>
+            <button className="px-3 py-1 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">
+              Optimize
+            </button>
+          </div>
+          
+          <div className="space-y-6">
+            {[
+              { env: 'Production', cost: 28450, budget: 32000, resources: 84, trend: 6.8 },
+              { env: 'Staging', cost: 12340, budget: 15000, resources: 32, trend: 14.2 },
+              { env: 'Development', cost: 6494, budget: 5000, resources: 28, trend: 22.1 }
+            ].map((env, index) => (
+              <div key={env.env} 
+                   className="cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                   onClick={() => handleDrillDown('environment', env.env)}>
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      index === 0 ? 'bg-green-500' : index === 1 ? 'bg-orange-500' : 'bg-red-500'
+                    }`}></div>
+                    <div className="font-medium text-slate-900">{env.env}</div>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">${env.cost.toLocaleString()}</div>
+                    <div className={`text-sm ${env.trend >= 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                      {env.trend >= 0 ? '+' : ''}{env.trend}%
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-200 rounded-full h-2 mb-2">
+                  <div 
+                    className={`h-2 rounded-full ${
+                      env.cost > env.budget ? 'bg-red-500' : env.cost > env.budget * 0.8 ? 'bg-orange-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${Math.min((env.cost / env.budget) * 100, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-xs text-gray-600">
+                  <span>{env.resources} resources</span>
+                  <span>Budget: ${env.budget.toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
