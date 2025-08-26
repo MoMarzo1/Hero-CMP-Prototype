@@ -3672,6 +3672,8 @@ const DeploymentManagement = ({ setCurrentPage }) => {
   const [selectedDeployment, setSelectedDeployment] = useState(null);
   const [filterEnvironment, setFilterEnvironment] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [showDeploymentHistory, setShowDeploymentHistory] = useState(false);
+  const [selectedComponent, setSelectedComponent] = useState(null);
 
   // Sample deployment data aligned with InfraBuilder components
   const deployments = [
@@ -3849,6 +3851,19 @@ const DeploymentManagement = ({ setCurrentPage }) => {
     }
   };
 
+  // Show deployment history if selected
+  if (showDeploymentHistory && selectedComponent) {
+    return (
+      <DeploymentHistory 
+        component={selectedComponent}
+        onBack={() => {
+          setShowDeploymentHistory(false);
+          setSelectedComponent(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -3965,9 +3980,12 @@ const DeploymentManagement = ({ setCurrentPage }) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => setSelectedDeployment(deployment)}
+                        onClick={() => {
+                          setSelectedComponent(deployment.component);
+                          setShowDeploymentHistory(true);
+                        }}
                         className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View"
+                        title="View Deployment History"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -4632,6 +4650,1049 @@ const VulnerabilityReportModal = ({ component, vulnerabilities, onClose }) => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Deployment History Component
+const DeploymentHistory = ({ component, onBack }) => {
+  const [selectedStage, setSelectedStage] = useState(null);
+  const [selectedDeployment, setSelectedDeployment] = useState(null);
+  
+  // Sample deployment history data
+  const deploymentHistory = {
+    'API Gateway': [
+      {
+        id: 'dep-hist-001',
+        triggeredBy: 'John Smith',
+        deploymentTarget: 'aws-prod-123456',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v2.3.1',
+        lastDeployment: '2025-01-15 14:30:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-002',
+        triggeredBy: 'Sarah Johnson',
+        deploymentTarget: 'aws-dev-234567',
+        environment: 'Non-Prod',
+        environmentType: 'Dev',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v2.3.0',
+        lastDeployment: '2025-01-14 16:45:00',
+        status: 'Failure',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'failure', substages: { unit: 'failure', cost: 'success' } },
+          apply: { status: 'not-run' },
+          postValidation: { status: 'not-run', substages: { smoke: 'not-run' } }
+        }
+      },
+      {
+        id: 'dep-hist-003',
+        triggeredBy: 'Mike Chen',
+        deploymentTarget: 'aws-prod-123456',
+        environment: 'Prod',
+        environmentType: 'Prod-DR',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v2.2.8',
+        lastDeployment: '2025-01-13 09:20:00',
+        status: 'Warning',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'warning', substages: { sentinel: 'warning' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'warning' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Database': [
+      {
+        id: 'dep-hist-004',
+        triggeredBy: 'Lisa Wang',
+        deploymentTarget: 'azure-sub-345678',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v4.1.0',
+        lastDeployment: '2025-01-14 09:00:00',
+        status: 'Failure',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'failure', substages: { sentinel: 'failure' } },
+          init: { status: 'not-run' },
+          plan: { status: 'not-run' },
+          testing: { status: 'not-run', substages: { unit: 'not-run', cost: 'not-run' } },
+          apply: { status: 'not-run' },
+          postValidation: { status: 'not-run', substages: { smoke: 'not-run' } }
+        }
+      },
+      {
+        id: 'dep-hist-005',
+        triggeredBy: 'David Kim',
+        deploymentTarget: 'azure-sub-345678',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v4.0.9',
+        lastDeployment: '2025-01-12 11:30:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Load Balancer': [
+      {
+        id: 'dep-hist-006',
+        triggeredBy: 'Emma Davis',
+        deploymentTarget: 'gcp-project-456789',
+        environment: 'Non-Prod',
+        environmentType: 'Dev',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'feature/lb-updates',
+        version: 'v3.0.0',
+        lastDeployment: '2025-01-15 10:45:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-007',
+        triggeredBy: 'Alex Rodriguez',
+        deploymentTarget: 'gcp-project-456789',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v2.9.8',
+        lastDeployment: '2025-01-14 13:22:00',
+        status: 'Warning',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'warning', substages: { unit: 'success', cost: 'warning' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Web Application': [
+      {
+        id: 'dep-hist-008',
+        triggeredBy: 'Rachel Martinez',
+        deploymentTarget: 'azure-sub-789012',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'release/v1.8.5',
+        version: 'v1.8.5',
+        lastDeployment: '2025-01-15 12:15:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-009',
+        triggeredBy: 'Tom Wilson',
+        deploymentTarget: 'azure-sub-789012',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v1.8.4',
+        lastDeployment: '2025-01-13 16:30:00',
+        status: 'Failure',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'failure', substages: { sentinel: 'failure' } },
+          init: { status: 'not-run' },
+          plan: { status: 'not-run' },
+          testing: { status: 'not-run', substages: { unit: 'not-run', cost: 'not-run' } },
+          apply: { status: 'not-run' },
+          postValidation: { status: 'not-run', substages: { smoke: 'not-run' } }
+        }
+      },
+      {
+        id: 'dep-hist-010',
+        triggeredBy: 'Rachel Martinez',
+        deploymentTarget: 'azure-sub-789012',
+        environment: 'Non-Prod',
+        environmentType: 'Dev',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v1.8.3',
+        lastDeployment: '2025-01-12 14:45:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Container Registry': [
+      {
+        id: 'dep-hist-011',
+        triggeredBy: 'Kevin Zhang',
+        deploymentTarget: 'aws-dev-234567',
+        environment: 'Non-Prod',
+        environmentType: 'UAT',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'feature/registry-updates',
+        version: 'v1.2.3',
+        lastDeployment: '2025-01-14 16:20:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-012',
+        triggeredBy: 'Amy Parker',
+        deploymentTarget: 'aws-prod-345678',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v1.2.2',
+        lastDeployment: '2025-01-13 09:15:00',
+        status: 'Failure',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'failure', substages: { sentinel: 'failure' } },
+          init: { status: 'not-run' },
+          plan: { status: 'not-run' },
+          testing: { status: 'not-run', substages: { unit: 'not-run', cost: 'not-run' } },
+          apply: { status: 'not-run' },
+          postValidation: { status: 'not-run', substages: { smoke: 'not-run' } }
+        }
+      }
+    ],
+    'Storage': [
+      {
+        id: 'dep-hist-013',
+        triggeredBy: 'Marcus Johnson',
+        deploymentTarget: 'gcp-project-789123',
+        environment: 'Non-Prod',
+        environmentType: 'Test',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'feature/storage-optimization',
+        version: 'v2.0.0',
+        lastDeployment: '2025-01-13 11:30:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-014',
+        triggeredBy: 'Nina Chen',
+        deploymentTarget: 'gcp-project-789123',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v1.9.8',
+        lastDeployment: '2025-01-12 15:45:00',
+        status: 'Warning',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'warning', substages: { unit: 'success', cost: 'warning' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'warning', substages: { smoke: 'warning' } }
+        }
+      },
+      {
+        id: 'dep-hist-015',
+        triggeredBy: 'Marcus Johnson',
+        deploymentTarget: 'gcp-project-789123',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v1.9.7',
+        lastDeployment: '2025-01-11 08:20:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Kubernetes Cluster': [
+      {
+        id: 'dep-hist-016',
+        triggeredBy: 'Jason Lee',
+        deploymentTarget: 'aws-prod-567890',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v1.27.3',
+        lastDeployment: '2025-01-13 08:45:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-017',
+        triggeredBy: 'Priya Patel',
+        deploymentTarget: 'aws-stage-567891',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'release/v1.27.3',
+        version: 'v1.27.2',
+        lastDeployment: '2025-01-12 17:30:00',
+        status: 'Warning',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'warning', substages: { sentinel: 'warning' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-018',
+        triggeredBy: 'Jason Lee',
+        deploymentTarget: 'aws-dev-567892',
+        environment: 'Non-Prod',
+        environmentType: 'Dev',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v1.27.1',
+        lastDeployment: '2025-01-11 12:15:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'CDN': [
+      {
+        id: 'dep-hist-019',
+        triggeredBy: 'Sophie Turner',
+        deploymentTarget: 'azure-sub-901234',
+        environment: 'Non-Prod',
+        environmentType: 'Demo',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'feature/cdn-performance',
+        version: 'v1.5.2',
+        lastDeployment: '2025-01-12 15:00:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-020',
+        triggeredBy: 'Carlos Rivera',
+        deploymentTarget: 'azure-sub-901234',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v1.5.1',
+        lastDeployment: '2025-01-10 14:20:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'Monitoring': [
+      {
+        id: 'dep-hist-021',
+        triggeredBy: 'Diana Wong',
+        deploymentTarget: 'gcp-project-234567',
+        environment: 'Non-Prod',
+        environmentType: 'QA',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'feature/monitoring-dashboards',
+        version: 'v3.2.1',
+        lastDeployment: '2025-01-12 13:20:00',
+        status: 'Warning',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'warning', substages: { unit: 'warning', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'warning', substages: { smoke: 'warning' } }
+        }
+      },
+      {
+        id: 'dep-hist-022',
+        triggeredBy: 'Ben Thompson',
+        deploymentTarget: 'gcp-project-234567',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v3.2.0',
+        lastDeployment: '2025-01-11 16:45:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-023',
+        triggeredBy: 'Diana Wong',
+        deploymentTarget: 'gcp-project-234567',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v3.1.9',
+        lastDeployment: '2025-01-10 11:30:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      }
+    ],
+    'VPC': [
+      {
+        id: 'dep-hist-024',
+        triggeredBy: 'Robert Kim',
+        deploymentTarget: 'aws-prod-678901',
+        environment: 'Prod',
+        environmentType: 'Prod',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'main',
+        version: 'v2.0.0',
+        lastDeployment: '2025-01-11 10:00:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-025',
+        triggeredBy: 'Grace Liu',
+        deploymentTarget: 'aws-stage-678902',
+        environment: 'Non-Prod',
+        environmentType: 'Stage',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'release/v2.0.0',
+        version: 'v1.9.9',
+        lastDeployment: '2025-01-10 14:30:00',
+        status: 'Success',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'success' },
+          testing: { status: 'success', substages: { unit: 'success', cost: 'success' } },
+          apply: { status: 'success' },
+          postValidation: { status: 'success', substages: { smoke: 'success' } }
+        }
+      },
+      {
+        id: 'dep-hist-026',
+        triggeredBy: 'Robert Kim',
+        deploymentTarget: 'aws-dev-678903',
+        environment: 'Non-Prod',
+        environmentType: 'Dev',
+        pipeline: 'Standard TF Cloud Pipeline',
+        branch: 'develop',
+        version: 'v1.9.8',
+        lastDeployment: '2025-01-09 16:15:00',
+        status: 'Failure',
+        stages: {
+          validate: { status: 'success', substages: { format: 'success', validate: 'success' } },
+          security: { status: 'success', substages: { sentinel: 'success' } },
+          init: { status: 'success' },
+          plan: { status: 'failure' },
+          testing: { status: 'not-run', substages: { unit: 'not-run', cost: 'not-run' } },
+          apply: { status: 'not-run' },
+          postValidation: { status: 'not-run', substages: { smoke: 'not-run' } }
+        }
+      }
+    ]
+  };
+
+  const history = deploymentHistory[component] || [];
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Success': case 'success': return 'text-green-600';
+      case 'Failure': case 'failure': return 'text-red-600';
+      case 'Warning': case 'warning': return 'text-orange-600';
+      case 'not-run': return 'text-gray-400';
+      default: return 'text-gray-500';
+    }
+  };
+
+  const getStatusIcon = (status, size = 'w-4 h-4') => {
+    switch(status) {
+      case 'success':
+        return <CheckCircle className={`${size} text-green-600`} />;
+      case 'failure':
+        return <XCircle className={`${size} text-red-600`} />;
+      case 'warning':
+        return <AlertTriangle className={`${size} text-orange-600`} />;
+      case 'not-run':
+        return <div className={`${size} border border-gray-300 rounded-full bg-gray-100`} />;
+      default:
+        return <div className={`${size} border border-gray-300 rounded-full bg-gray-100`} />;
+    }
+  };
+
+  const getStageDetails = (stageName, stage) => {
+    const details = {
+      validate: {
+        title: 'Validation Stage',
+        description: 'Terraform configuration validation',
+        substages: {
+          format: { name: 'Terraform Format Check', description: 'Validates HCL formatting standards' },
+          validate: { name: 'Terraform Validate', description: 'Validates configuration syntax and references' }
+        }
+      },
+      security: {
+        title: 'Security Scans',
+        description: 'Security policy validation',
+        substages: {
+          sentinel: { name: 'Sentinel Policy Scans', description: 'Enforces security and compliance policies' }
+        }
+      },
+      init: {
+        title: 'Terraform Init',
+        description: 'Initializes Terraform working directory',
+        substages: {}
+      },
+      plan: {
+        title: 'Terraform Plan',
+        description: 'Creates execution plan for infrastructure changes',
+        substages: {}
+      },
+      testing: {
+        title: 'Testing & Validation',
+        description: 'Automated testing and cost analysis',
+        substages: {
+          unit: { name: 'Unit Tests (Terratest)', description: 'Runs automated infrastructure tests' },
+          cost: { name: 'Cost Estimation', description: 'Estimates monthly infrastructure costs' }
+        }
+      },
+      apply: {
+        title: 'Terraform Apply',
+        description: 'Applies infrastructure changes',
+        substages: {}
+      },
+      postValidation: {
+        title: 'Post-Deployment Validation',
+        description: 'Verifies deployment success',
+        substages: {
+          smoke: { name: 'Smoke Tests', description: 'Validates core functionality is operational' }
+        }
+      }
+    };
+    return details[stageName] || {};
+  };
+
+  const StageIndicator = ({ stage, title, stageName, deployment }) => (
+    <button
+      onClick={() => {
+        setSelectedStage({ ...getStageDetails(stageName, stage), stage, stageName });
+        setSelectedDeployment(deployment);
+      }}
+      className="p-1 hover:bg-gray-100 rounded-lg transition-colors group relative"
+      title={`${title}: ${stage.status}`}
+    >
+      {getStatusIcon(stage.status, 'w-5 h-5')}
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        {title}
+      </div>
+    </button>
+  );
+
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-8 flex items-center gap-4">
+        <button
+          onClick={onBack}
+          className="p-2 hover:bg-white rounded-lg transition-colors border border-gray-200"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Deployment History</h1>
+          <p className="text-gray-600">Component: {component}</p>
+        </div>
+      </div>
+
+      {/* Deployment History Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="w-full">
+          <table className="w-full table-fixed">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">User</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Target</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">Env</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">Pipeline</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">Branch</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">Version</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Time</th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">Status</th>
+                <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[17%]">Stages</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {history.map((deployment) => (
+                <tr key={deployment.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-2 py-3">
+                    <div className="text-xs font-medium text-slate-900 truncate" title={deployment.triggeredBy}>
+                      {deployment.triggeredBy}
+                    </div>
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className="text-xs text-gray-600 font-mono truncate block" title={deployment.deploymentTarget}>
+                      {deployment.deploymentTarget}
+                    </span>
+                  </td>
+                  <td className="px-2 py-3">
+                    <div>
+                      <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${
+                        deployment.environment === 'Prod' 
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {deployment.environment}
+                      </span>
+                      <div className="text-xs text-gray-500 mt-1 truncate">{deployment.environmentType}</div>
+                    </div>
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className="text-xs text-gray-700 truncate block" title={deployment.pipeline}>
+                      {deployment.pipeline.replace('Standard ', '')}
+                    </span>
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className="text-xs text-gray-700 font-mono truncate block" title={deployment.branch}>
+                      {deployment.branch}
+                    </span>
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className="text-xs font-mono text-gray-700">{deployment.version}</span>
+                  </td>
+                  <td className="px-2 py-3">
+                    <div className="text-xs text-gray-600">
+                      <div className="truncate">{deployment.lastDeployment.split(' ')[0]}</div>
+                      <div className="truncate text-gray-500">{deployment.lastDeployment.split(' ')[1]}</div>
+                    </div>
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${
+                      deployment.status === 'Success' 
+                        ? 'bg-green-100 text-green-700'
+                        : deployment.status === 'Failure'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-orange-100 text-orange-700'
+                    }`}>
+                      {deployment.status}
+                    </span>
+                  </td>
+                  <td className="px-2 py-3">
+                    <div className="flex justify-center gap-1">
+                      <StageIndicator 
+                        stage={deployment.stages.validate} 
+                        title="Validate"
+                        stageName="validate"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.security} 
+                        title="Security"
+                        stageName="security"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.init} 
+                        title="Init"
+                        stageName="init"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.plan} 
+                        title="Plan"
+                        stageName="plan"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.testing} 
+                        title="Test"
+                        stageName="testing"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.apply} 
+                        title="Apply"
+                        stageName="apply"
+                        deployment={deployment}
+                      />
+                      <StageIndicator 
+                        stage={deployment.stages.postValidation} 
+                        title="Post"
+                        stageName="postValidation"
+                        deployment={deployment}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {history.length === 0 && (
+          <div className="text-center py-12">
+            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600">No deployment history available for this component</p>
+          </div>
+        )}
+      </div>
+
+      {/* Stage Details Modal */}
+      {selectedStage && (
+        <StageDetailsModal
+          stage={selectedStage}
+          deployment={selectedDeployment}
+          onClose={() => {
+            setSelectedStage(null);
+            setSelectedDeployment(null);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+// Stage Details Modal
+const StageDetailsModal = ({ stage, deployment, onClose }) => {
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'success': return 'text-green-600';
+      case 'failure': return 'text-red-600';
+      case 'warning': return 'text-orange-600';
+      case 'not-run': return 'text-gray-400';
+      default: return 'text-gray-500';
+    }
+  };
+
+  const getStatusBg = (status) => {
+    switch(status) {
+      case 'success': return 'bg-green-50 border-green-200';
+      case 'failure': return 'bg-red-50 border-red-200';
+      case 'warning': return 'bg-orange-50 border-orange-200';
+      case 'not-run': return 'bg-gray-50 border-gray-200';
+      default: return 'bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'success': return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'failure': return <XCircle className="w-5 h-5 text-red-600" />;
+      case 'warning': return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+      case 'not-run': return <div className="w-5 h-5 border-2 border-gray-300 rounded-full" />;
+      default: return <div className="w-5 h-5 border-2 border-gray-300 rounded-full" />;
+    }
+  };
+
+  const getStatusMessage = (stageName, status) => {
+    const messages = {
+      validate: {
+        success: 'Configuration validation completed successfully. All Terraform files are properly formatted and valid.',
+        failure: 'Configuration validation failed. Found syntax errors or formatting issues in Terraform files.',
+        warning: 'Configuration validation completed with warnings. Some non-critical issues were found.',
+        'not-run': 'Validation stage was not executed.'
+      },
+      security: {
+        success: 'Security scans passed. All policies are compliant with organizational standards.',
+        failure: 'Security scan failed. Critical security violations detected that must be addressed.',
+        warning: 'Security scan completed with warnings. Some policies need review but are not blocking.',
+        'not-run': 'Security scanning stage was not executed.'
+      },
+      init: {
+        success: 'Terraform initialization successful. All providers and modules downloaded.',
+        failure: 'Terraform initialization failed. Check provider configuration and network connectivity.',
+        warning: 'Terraform initialization completed with warnings.',
+        'not-run': 'Terraform initialization was not executed.'
+      },
+      plan: {
+        success: 'Terraform plan generated successfully. Ready to apply changes.',
+        failure: 'Terraform plan failed. Unable to generate execution plan.',
+        warning: 'Terraform plan completed with warnings. Review changes carefully.',
+        'not-run': 'Terraform planning was not executed.'
+      },
+      testing: {
+        success: 'All tests passed successfully. Infrastructure code meets quality standards.',
+        failure: 'Testing failed. One or more test suites did not pass.',
+        warning: 'Testing completed with warnings. Some non-critical tests failed.',
+        'not-run': 'Testing stage was not executed.'
+      },
+      apply: {
+        success: 'Infrastructure changes applied successfully. All resources deployed as planned.',
+        failure: 'Terraform apply failed. Infrastructure changes were not completed.',
+        warning: 'Terraform apply completed with warnings. Some resources may need attention.',
+        'not-run': 'Terraform apply was not executed.'
+      },
+      postValidation: {
+        success: 'Post-deployment validation successful. All systems are operational.',
+        failure: 'Post-deployment validation failed. Deployed infrastructure is not functioning as expected.',
+        warning: 'Post-deployment validation completed with warnings. Some checks need attention.',
+        'not-run': 'Post-deployment validation was not executed.'
+      }
+    };
+    return messages[stageName]?.[status] || 'No details available.';
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            {getStatusIcon(stage.stage.status)}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">{stage.title}</h3>
+              <p className="text-sm text-gray-600">{stage.description}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <XCircle className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+          {/* Deployment Info */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Deployment ID:</span>
+                <span className="ml-2 font-medium text-slate-900">{deployment.id}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Version:</span>
+                <span className="ml-2 font-medium text-slate-900">{deployment.version}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Branch:</span>
+                <span className="ml-2 font-medium text-slate-900 font-mono">{deployment.branch}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Time:</span>
+                <span className="ml-2 font-medium text-slate-900">{deployment.lastDeployment}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stage Status */}
+          <div className={`mb-6 p-4 border rounded-lg ${getStatusBg(stage.stage.status)}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`text-sm font-medium uppercase ${getStatusColor(stage.stage.status)}`}>
+                Stage {stage.stage.status}
+              </span>
+            </div>
+            <p className="text-sm text-gray-700">
+              {getStatusMessage(stage.stageName, stage.stage.status)}
+            </p>
+          </div>
+
+          {/* Substages if available */}
+          {stage.stage.substages && Object.keys(stage.stage.substages).length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-slate-900 mb-3">Substage Details</h4>
+              <div className="space-y-3">
+                {Object.entries(stage.stage.substages).map(([key, status]) => (
+                  <div key={key} className={`p-3 border rounded-lg ${getStatusBg(status)}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {getStatusIcon(status)}
+                        <div>
+                          <p className="font-medium text-sm text-slate-900">
+                            {stage.substages[key]?.name || key}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {stage.substages[key]?.description || 'No description available'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-medium uppercase ${getStatusColor(status)}`}>
+                        {status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Logs/Output Section */}
+          {stage.stage.status !== 'not-run' && (
+            <div className="mt-6">
+              <h4 className="text-sm font-semibold text-slate-900 mb-3">Execution Logs</h4>
+              <div className="bg-gray-900 text-gray-300 p-4 rounded-lg font-mono text-xs overflow-x-auto">
+                {stage.stage.status === 'success' && (
+                  <div>
+                    <div className="text-green-400">✓ Stage execution started at {deployment.lastDeployment}</div>
+                    <div className="text-gray-400 mt-1">Running {stage.title.toLowerCase()}...</div>
+                    <div className="text-green-400 mt-1">✓ All checks passed successfully</div>
+                    <div className="text-gray-400 mt-1">Stage completed in 2.3 seconds</div>
+                  </div>
+                )}
+                {stage.stage.status === 'failure' && (
+                  <div>
+                    <div className="text-yellow-400">→ Stage execution started at {deployment.lastDeployment}</div>
+                    <div className="text-gray-400 mt-1">Running {stage.title.toLowerCase()}...</div>
+                    <div className="text-red-400 mt-1">✗ Error: Stage validation failed</div>
+                    <div className="text-red-400 mt-1">  Details: {stage.stageName === 'security' ? 'Security policy violation detected' : 'Unexpected error occurred'}</div>
+                    <div className="text-gray-400 mt-1">Stage failed after 1.8 seconds</div>
+                  </div>
+                )}
+                {stage.stage.status === 'warning' && (
+                  <div>
+                    <div className="text-yellow-400">→ Stage execution started at {deployment.lastDeployment}</div>
+                    <div className="text-gray-400 mt-1">Running {stage.title.toLowerCase()}...</div>
+                    <div className="text-orange-400 mt-1">⚠ Warning: Non-critical issues detected</div>
+                    <div className="text-gray-400 mt-1">Stage completed with warnings in 3.1 seconds</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
