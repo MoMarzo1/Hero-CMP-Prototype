@@ -6367,6 +6367,8 @@ const FinancialDashboard = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('July 2025');
   const [viewMode, setViewMode] = useState('overview'); // 'overview', 'project-drill', 'component-drill'
   const [drilldownTarget, setDrilldownTarget] = useState(null);
+  const [chartView, setChartView] = useState('Daily'); // 'Daily', 'Weekly', 'Monthly'
+  const [hoveredPoint, setHoveredPoint] = useState(null);
 
   // Comprehensive financial data with nested structure for drill-downs
   const financialData = {
@@ -6495,6 +6497,89 @@ const FinancialDashboard = () => {
     }
   };
 
+  // Generate chart data based on selections and view mode
+  const generateChartData = () => {
+    const currentMetrics = getCurrentMetrics();
+    const baseDaily = currentMetrics.avgDailyCost || 1576;
+    
+    // Generate realistic historical and forecast data
+    const generateDataPoints = (days, startValue, volatility = 0.15) => {
+      const points = [];
+      let currentValue = startValue;
+      
+      for (let i = 0; i < days; i++) {
+        // Add some realistic variance and trends
+        const randomFactor = (Math.random() - 0.5) * volatility;
+        const trendFactor = selectedProject === 'TelmaAI' ? 0.002 : selectedProject === 'ScheduleAI' ? -0.001 : 0.0005;
+        currentValue = Math.max(0, currentValue * (1 + randomFactor + trendFactor));
+        points.push(currentValue);
+      }
+      return points;
+    };
+
+    const today = new Date();
+    const formatDate = (date, view) => {
+      if (view === 'Daily') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (view === 'Weekly') return `Week ${Math.ceil(date.getDate() / 7)}`;
+      return date.toLocaleDateString('en-US', { month: 'short' });
+    };
+
+    if (chartView === 'Daily') {
+      // Last 15 days historical + 16 days forecast
+      const historical = generateDataPoints(15, baseDaily * 0.9);
+      const forecast = generateDataPoints(16, historical[historical.length - 1], 0.1);
+      
+      return {
+        labels: Array.from({length: 31}, (_, i) => {
+          const date = new Date(today);
+          date.setDate(date.getDate() - 15 + i);
+          return formatDate(date, 'Daily');
+        }),
+        historical: historical,
+        forecast: forecast,
+        budget: Array(31).fill(currentMetrics.monthlyBudget / 31),
+        actualSpend: [...historical, ...Array(16).fill(null)],
+        forecastSpend: [...Array(15).fill(null), ...forecast]
+      };
+    } else if (chartView === 'Weekly') {
+      // Last 8 weeks historical + 8 weeks forecast
+      const weeklyBase = baseDaily * 7;
+      const historical = generateDataPoints(8, weeklyBase * 0.9);
+      const forecast = generateDataPoints(8, historical[historical.length - 1], 0.12);
+      
+      return {
+        labels: Array.from({length: 16}, (_, i) => {
+          const date = new Date(today);
+          date.setDate(date.getDate() - (8 - i) * 7);
+          return formatDate(date, 'Weekly');
+        }),
+        historical: historical,
+        forecast: forecast,
+        budget: Array(16).fill(currentMetrics.monthlyBudget / 4),
+        actualSpend: [...historical, ...Array(8).fill(null)],
+        forecastSpend: [...Array(8).fill(null), ...forecast]
+      };
+    } else {
+      // Last 6 months historical + 6 months forecast
+      const monthlyBase = baseDaily * 30;
+      const historical = generateDataPoints(6, monthlyBase * 0.85);
+      const forecast = generateDataPoints(6, historical[historical.length - 1], 0.08);
+      
+      return {
+        labels: Array.from({length: 12}, (_, i) => {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - 6 + i);
+          return formatDate(date, 'Monthly');
+        }),
+        historical: historical,
+        forecast: forecast,
+        budget: Array(12).fill(currentMetrics.monthlyBudget),
+        actualSpend: [...historical, ...Array(6).fill(null)],
+        forecastSpend: [...Array(6).fill(null), ...forecast]
+      };
+    }
+  };
+
   // Get current financial metrics based on selections
   const getCurrentMetrics = () => {
     const projectData = financialData[selectedProject] || financialData["All Projects"];
@@ -6504,6 +6589,214 @@ const FinancialDashboard = () => {
   };
 
   const currentMetrics = getCurrentMetrics();
+  const chartData = generateChartData();
+
+  // Interactive Chart Component
+  const InteractiveCostChart = ({ data, width = 600, height = 240 }) => {
+    const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+    
+    // Calculate scales
+    const allValues = [...data.historical, ...data.forecast, ...data.budget].filter(v => v !== null);
+    const maxValue = Math.max(...allValues);
+    const minValue = Math.min(...allValues);
+    const valueRange = maxValue - minValue;
+    const yMax = maxValue + (valueRange * 0.1);
+    const yMin = Math.max(0, minValue - (valueRange * 0.1));
+    
+    const xScale = (index) => (index / (data.labels.length - 1)) * chartWidth;
+    const yScale = (value) => chartHeight - ((value - yMin) / (yMax - yMin)) * chartHeight;
+    
+    // Generate path strings
+    const generatePath = (values, startIndex = 0) => {
+      const validPoints = values
+        .map((value, index) => ({ value, index: index + startIndex }))
+        .filter(({ value }) => value !== null);
+      
+      if (validPoints.length === 0) return '';
+      
+      return validPoints
+        .map(({ value, index }, i) => 
+          `${i === 0 ? 'M' : 'L'} ${xScale(index)} ${yScale(value)}`
+        ).join(' ');
+    };
+
+    const historicalPath = generatePath(data.historical);
+    const forecastPath = generatePath(data.forecast, data.historical.length);
+    const budgetPath = generatePath(data.budget);
+
+    return (
+      <div className="relative">
+        <svg width={width} height={height} className="overflow-visible">
+          <defs>
+            <linearGradient id="historicalGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+            </linearGradient>
+            <linearGradient id="forecastGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+          
+          <g transform={`translate(${margin.left}, ${margin.top})`}>
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map(ratio => (
+              <line
+                key={ratio}
+                x1="0"
+                y1={chartHeight * ratio}
+                x2={chartWidth}
+                y2={chartHeight * ratio}
+                stroke="#E5E7EB"
+                strokeWidth="1"
+                strokeDasharray={ratio === 0 || ratio === 1 ? "0" : "3,3"}
+              />
+            ))}
+            
+            {/* Vertical divider between historical and forecast */}
+            <line
+              x1={xScale(data.historical.length - 1)}
+              y1="0"
+              x2={xScale(data.historical.length - 1)}
+              y2={chartHeight}
+              stroke="#D1D5DB"
+              strokeWidth="2"
+              strokeDasharray="5,5"
+            />
+            
+            {/* Budget line */}
+            <path
+              d={budgetPath}
+              fill="none"
+              stroke="#EF4444"
+              strokeWidth="2"
+              strokeDasharray="8,4"
+              opacity="0.7"
+            />
+            
+            {/* Historical area */}
+            <path
+              d={`${historicalPath} L ${xScale(data.historical.length - 1)} ${chartHeight} L ${xScale(0)} ${chartHeight} Z`}
+              fill="url(#historicalGradient)"
+            />
+            
+            {/* Historical line */}
+            <path
+              d={historicalPath}
+              fill="none"
+              stroke="#3B82F6"
+              strokeWidth="3"
+            />
+            
+            {/* Forecast area */}
+            <path
+              d={`${forecastPath} L ${xScale(data.labels.length - 1)} ${chartHeight} L ${xScale(data.historical.length)} ${chartHeight} Z`}
+              fill="url(#forecastGradient)"
+            />
+            
+            {/* Forecast line */}
+            <path
+              d={forecastPath}
+              fill="none"
+              stroke="#8B5CF6"
+              strokeWidth="3"
+              strokeDasharray="6,3"
+            />
+            
+            {/* Data points */}
+            {data.historical.map((value, index) => (
+              <circle
+                key={`hist-${index}`}
+                cx={xScale(index)}
+                cy={yScale(value)}
+                r="4"
+                fill="#3B82F6"
+                stroke="white"
+                strokeWidth="2"
+                className="cursor-pointer hover:r-6 transition-all"
+                onMouseEnter={() => setHoveredPoint({ type: 'historical', index, value, label: data.labels[index] })}
+                onMouseLeave={() => setHoveredPoint(null)}
+              />
+            ))}
+            
+            {data.forecast.map((value, index) => (
+              <circle
+                key={`forecast-${index}`}
+                cx={xScale(index + data.historical.length)}
+                cy={yScale(value)}
+                r="3"
+                fill="#8B5CF6"
+                stroke="white"
+                strokeWidth="2"
+                className="cursor-pointer hover:r-5 transition-all"
+                onMouseEnter={() => setHoveredPoint({ type: 'forecast', index, value, label: data.labels[index + data.historical.length] })}
+                onMouseLeave={() => setHoveredPoint(null)}
+              />
+            ))}
+            
+            {/* Y-axis labels */}
+            {[0, 0.25, 0.5, 0.75, 1].map(ratio => (
+              <text
+                key={ratio}
+                x="-10"
+                y={chartHeight * ratio + 5}
+                textAnchor="end"
+                className="text-xs fill-gray-600"
+              >
+                ${Math.round((yMin + (yMax - yMin) * (1 - ratio)) / 1000)}k
+              </text>
+            ))}
+            
+            {/* X-axis labels */}
+            {data.labels.map((label, index) => {
+              const showLabel = chartView === 'Daily' ? index % 3 === 0 : 
+                              chartView === 'Weekly' ? index % 2 === 0 : true;
+              return showLabel ? (
+                <text
+                  key={index}
+                  x={xScale(index)}
+                  y={chartHeight + 15}
+                  textAnchor="middle"
+                  className="text-xs fill-gray-600"
+                >
+                  {label}
+                </text>
+              ) : null;
+            })}
+            
+            {/* Chart labels */}
+            <text x={chartWidth / 4} y="-5" textAnchor="middle" className="text-xs fill-gray-700 font-medium">
+              Historical Data
+            </text>
+            <text x={chartWidth * 3/4} y="-5" textAnchor="middle" className="text-xs fill-gray-700 font-medium">
+              Forecast
+            </text>
+          </g>
+        </svg>
+        
+        {/* Tooltip */}
+        {hoveredPoint && (
+          <div 
+            className="absolute bg-slate-900 text-white px-3 py-2 rounded-lg text-sm shadow-lg pointer-events-none z-10"
+            style={{
+              left: margin.left + xScale(hoveredPoint.type === 'historical' ? hoveredPoint.index : hoveredPoint.index + data.historical.length) - 50,
+              top: margin.top + yScale(hoveredPoint.value) - 40
+            }}
+          >
+            <div className="font-medium">{hoveredPoint.label}</div>
+            <div className="text-blue-300">
+              ${Math.round(hoveredPoint.value).toLocaleString()}
+            </div>
+            <div className="text-xs text-gray-300">
+              {hoveredPoint.type === 'historical' ? 'Actual' : 'Predicted'}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Enhanced cost anomalies based on selections
   const getCostAnomalies = () => {
@@ -6896,9 +7189,30 @@ const FinancialDashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-slate-900 font-bold text-xl">Cost Trends & Forecast</h3>
             <div className="flex gap-2">
-              <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">Daily</button>
-              <button className="px-3 py-1 text-slate-600 rounded text-sm hover:bg-gray-100">Weekly</button>
-              <button className="px-3 py-1 text-slate-600 rounded text-sm hover:bg-gray-100">Monthly</button>
+              <button 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  chartView === 'Daily' ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-gray-100'
+                }`}
+                onClick={() => setChartView('Daily')}
+              >
+                Daily
+              </button>
+              <button 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  chartView === 'Weekly' ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-gray-100'
+                }`}
+                onClick={() => setChartView('Weekly')}
+              >
+                Weekly
+              </button>
+              <button 
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  chartView === 'Monthly' ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-gray-100'
+                }`}
+                onClick={() => setChartView('Monthly')}
+              >
+                Monthly
+              </button>
             </div>
           </div>
           
@@ -6922,26 +7236,24 @@ const FinancialDashboard = () => {
             </div>
           </div>
           
-          {/* Chart placeholder with more detail */}
-          <div className="h-64 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
-            <div className="text-center">
-              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-blue-500" />
-              <p className="text-lg font-medium text-slate-700">Interactive Cost Forecast Chart</p>
-              <p className="text-sm text-gray-500">Historical trends + ML-powered predictions</p>
-              <div className="mt-4 flex justify-center gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span>Actual Spend</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span>Forecast</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span>Budget Limit</span>
-                </div>
-              </div>
+          {/* Interactive Chart */}
+          <div className="bg-white rounded-lg p-4">
+            <InteractiveCostChart data={chartData} width={650} height={280} />
+          </div>
+
+          {/* Chart Legend */}
+          <div className="flex justify-center gap-6 mt-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 bg-blue-500 rounded"></div>
+              <span className="text-gray-700">Historical Data</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 bg-purple-500 rounded" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 4px)' }}></div>
+              <span className="text-gray-700">Forecast</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-red-500 opacity-70" style={{ backgroundImage: 'repeating-linear-gradient(90deg, red 0px, red 6px, transparent 6px, transparent 10px)' }}></div>
+              <span className="text-gray-700">Budget Limit</span>
             </div>
           </div>
         </div>
