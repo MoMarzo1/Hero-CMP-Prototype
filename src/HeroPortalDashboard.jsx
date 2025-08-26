@@ -7450,6 +7450,8 @@ const FinancialDashboard = () => {
   const [drilldownTarget, setDrilldownTarget] = useState(null);
   const [chartView, setChartView] = useState('Daily'); // 'Daily', 'Weekly', 'Monthly'
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [isHeroAICostPanelExpanded, setIsHeroAICostPanelExpanded] = useState(true);
+  const [isCostAnomaliesPanelExpanded, setIsCostAnomaliesPanelExpanded] = useState(true);
 
   // Comprehensive financial data with nested structure for drill-downs
   const financialData = {
@@ -8235,18 +8237,153 @@ const FinancialDashboard = () => {
         </div>
       </div>
 
-      {/* Enhanced Spending Alerts */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="flex items-center gap-3 text-slate-900 font-bold text-xl">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
-            Cost Anomalies & Alerts
-            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">{getCostAnomalies().length}</span>
-          </h3>
-          <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors">
-            Configure Alerts
-          </button>
+      {/* HeroAI Cost Optimization Recommendations */}
+      <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border border-purple-200 rounded-2xl mb-8 shadow-sm overflow-hidden transition-all duration-300">
+        {/* Panel Header - Always Visible */}
+        <div 
+          className="flex items-center justify-between p-8 cursor-pointer hover:bg-white/30 transition-colors"
+          onClick={() => setIsHeroAICostPanelExpanded(!isHeroAICostPanelExpanded)}
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-blue-700 bg-clip-text text-transparent mb-2">
+                HeroAI Cost Optimization
+              </h3>
+              <p className="text-gray-600">AI-powered recommendations to reduce your cloud spend</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Summary when collapsed */}
+            {!isHeroAICostPanelExpanded && (
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  ${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}
+                </div>
+                <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                  {getHeroAIRecommendations().length} recommendations
+                </div>
+              </div>
+            )}
+            <button className="p-2 hover:bg-white/50 rounded-xl transition-colors">
+              <ChevronRight className={`w-5 h-5 text-purple-600 transition-transform duration-300 ${isHeroAICostPanelExpanded ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
         </div>
+
+        {/* Panel Content - Collapsible */}
+        <div className={`transition-all duration-300 ease-in-out ${isHeroAICostPanelExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+          <div className="px-8 pb-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-purple-200/50">
+              <div className="flex items-center justify-between mb-6">
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-purple-700">${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}</div>
+                  <div className="text-purple-600 text-sm font-medium">Total Monthly Savings Potential</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {getHeroAIRecommendations().slice(0, 3).map((rec) => (
+                  <div key={rec.id} className="bg-white rounded-lg p-4 border border-purple-200/30 hover:shadow-md transition-all cursor-pointer">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`px-2 py-1 rounded text-xs font-medium text-white ${
+                        rec.priority === 'high' ? 'bg-red-500' : rec.priority === 'medium' ? 'bg-orange-500' : 'bg-blue-500'
+                      }`}>
+                        {rec.priority.toUpperCase()}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-purple-700">${rec.monthlySavings.toLocaleString()}</div>
+                        <div className="text-xs text-purple-600">per month</div>
+                      </div>
+                    </div>
+                    
+                    <h4 className="font-bold mb-2 text-gray-900">{rec.title}</h4>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{rec.description}</p>
+                    
+                    <div className="flex justify-between items-center text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-gray-600">{rec.confidenceScore}% confidence</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-gray-500" />
+                        <span className="text-gray-600">{rec.timeToImplement}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center">
+                <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg transition-all">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    View All Recommendations
+                  </div>
+                </button>
+              </div>
+
+              {/* AI Processing Indicator */}
+              <div className="mt-6 pt-4 border-t border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                    <span>Cost analysis generated by HeroAI • Last updated: {new Date().toLocaleTimeString()}</span>
+                  </div>
+                  <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Refresh Analysis
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced Spending Alerts */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden transition-all duration-300">
+        {/* Panel Header - Always Visible */}
+        <div 
+          className="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => setIsCostAnomaliesPanelExpanded(!isCostAnomaliesPanelExpanded)}
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+            <h3 className="text-slate-900 font-bold text-xl">Cost Anomalies & Alerts</h3>
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">{getCostAnomalies().length}</span>
+            {/* Summary when collapsed */}
+            {!isCostAnomaliesPanelExpanded && (
+              <div className="flex items-center gap-2 ml-4">
+                <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                  {getCostAnomalies().filter(a => a.severity === 'critical').length} critical
+                </div>
+                <div className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                  {getCostAnomalies().filter(a => a.severity === 'warning').length} warnings
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            {isCostAnomaliesPanelExpanded && (
+              <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors">
+                Configure Alerts
+              </button>
+            )}
+            <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+              <ChevronRight className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isCostAnomaliesPanelExpanded ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Panel Content - Collapsible */}
+        <div className={`transition-all duration-300 ease-in-out ${isCostAnomaliesPanelExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+          <div className="px-6 pb-6">
         
         <div className="space-y-4">
           {getCostAnomalies().map((anomaly) => (
@@ -8290,6 +8427,8 @@ const FinancialDashboard = () => {
               </button>
             </div>
           ))}
+          </div>
+          </div>
         </div>
       </div>
 
@@ -8427,62 +8566,6 @@ const FinancialDashboard = () => {
         </div>
       </div>
 
-      {/* HeroAI Cost Optimization Recommendations */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold">HeroAI Cost Optimization</h3>
-              <p className="text-indigo-100 text-sm">AI-powered recommendations to reduce your cloud spend</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">${getHeroAIRecommendations().reduce((sum, rec) => sum + rec.monthlySavings, 0).toLocaleString()}</div>
-            <div className="text-indigo-100 text-sm">Total Monthly Savings</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {getHeroAIRecommendations().slice(0, 3).map((rec) => (
-            <div key={rec.id} className="bg-white bg-opacity-10 rounded-lg p-4 hover:bg-opacity-20 transition-all cursor-pointer">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`px-2 py-1 rounded text-xs font-medium ${
-                  rec.priority === 'high' ? 'bg-red-500' : rec.priority === 'medium' ? 'bg-orange-500' : 'bg-blue-500'
-                }`}>
-                  {rec.priority.toUpperCase()}
-                </div>
-                <div className="text-right">
-                  <div className="font-bold">${rec.monthlySavings.toLocaleString()}</div>
-                  <div className="text-xs text-indigo-100">per month</div>
-                </div>
-              </div>
-              
-              <h4 className="font-bold mb-2">{rec.title}</h4>
-              <p className="text-sm text-indigo-100 mb-3 line-clamp-2">{rec.description}</p>
-              
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>{rec.confidenceScore}% confidence</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{rec.timeToImplement}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <button className="px-6 py-2 bg-white text-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition-colors">
-            View All Recommendations
-          </button>
-        </div>
-      </div>
 
       {/* Component & Environment Performance Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
