@@ -23,6 +23,9 @@ import ELBIcon from './CSPAssets/AWS/Elastic Load Balancing.svg';
 import APIGatewayIcon from './CSPAssets/AWS/API Gateway.svg';
 import CloudFrontIcon from './CSPAssets/AWS/CloudFront.svg';
 import ECSIcon from './CSPAssets/AWS/Elastic Container Service.svg';
+import EKSIcon from './CSPAssets/AWS/Elastic Kubernetes Service.svg';
+import CloudWatchIcon from './CSPAssets/AWS/CloudWatch.svg';
+import DynamoDBIcon from './CSPAssets/AWS/DynamoDB.svg';
 
 // Azure Icons
 import AzureIcon from './CSPAssets/Azure/Azure-A.svg';
@@ -36,6 +39,10 @@ import AzureAppServiceIcon from './CSPAssets/Azure/Azure-App-Services.svg';
 import AzureFunctionsIcon from './CSPAssets/Azure/Azure-Function-Apps.svg';
 import AzureCosmosDBIcon from './CSPAssets/Azure/Azure-Cosmos-DB.svg';
 import AzureRedisIcon from './CSPAssets/Azure/Azure-Cache-Redis.svg';
+import AzureApplicationGatewayIcon from './CSPAssets/Azure/Azure-Application-Gateways.svg';
+import AzureKeyVaultIcon from './CSPAssets/Azure/Azure-Key-Vaults.svg';
+import AzureMonitorIcon from './CSPAssets/Azure/Azure-Monitor.svg';
+import AzureNetworkSecurityGroupIcon from './CSPAssets/Azure/Azure-Network-Security-Groups.svg';
 
 // GCP Icons
 import GCPIcon from './CSPAssets/GCP/Gcp.svg';
@@ -71,7 +78,7 @@ const ELBIconComponent = ({ className, ...props }) => (
 );
 
 const DynamoDBIconComponent = ({ className, ...props }) => (
-  <img src={RDSIcon} alt="DynamoDB" className={`w-8 h-8 ${className}`} {...props} />
+  <img src={DynamoDBIcon} alt="DynamoDB" className={`w-8 h-8 ${className}`} {...props} />
 );
 
 const APIGatewayIconComponent = ({ className, ...props }) => (
@@ -84,6 +91,14 @@ const CloudFrontIconComponent = ({ className, ...props }) => (
 
 const ECSIconComponent = ({ className, ...props }) => (
   <img src={ECSIcon} alt="ECS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const EKSIconComponent = ({ className, ...props }) => (
+  <img src={EKSIcon} alt="EKS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const CloudWatchIconComponent = ({ className, ...props }) => (
+  <img src={CloudWatchIcon} alt="CloudWatch" className={`w-8 h-8 ${className}`} {...props} />
 );
 
 // Azure Icon Components
@@ -129,6 +144,22 @@ const AzureCosmosDBIconComponent = ({ className, ...props }) => (
 
 const AzureRedisIconComponent = ({ className, ...props }) => (
   <img src={AzureRedisIcon} alt="Azure Redis" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureApplicationGatewayIconComponent = ({ className, ...props }) => (
+  <img src={AzureApplicationGatewayIcon} alt="Azure Application Gateway" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureKeyVaultIconComponent = ({ className, ...props }) => (
+  <img src={AzureKeyVaultIcon} alt="Azure Key Vault" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureMonitorIconComponent = ({ className, ...props }) => (
+  <img src={AzureMonitorIcon} alt="Azure Monitor" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureNetworkSecurityGroupIconComponent = ({ className, ...props }) => (
+  <img src={AzureNetworkSecurityGroupIcon} alt="Azure Network Security Group" className={`w-8 h-8 ${className}`} {...props} />
 );
 
 // GCP Icon Component
@@ -1469,7 +1500,7 @@ const CodeCommitsDashboard = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
   const [selectedView, setSelectedView] = useState('overview');
   const [expandedMetrics, setExpandedMetrics] = useState(new Set());
-  const [isHeroAIPanelExpanded, setIsHeroAIPanelExpanded] = useState(true);
+  const [isHeroAIPanelExpanded, setIsHeroAIPanelExpanded] = useState(false);
 
   // Comprehensive code metrics data structure
   const codeMetricsData = {
@@ -3237,7 +3268,8 @@ const InfraBuilder = () => {
         description: 'React-based SPA with Redux state management', 
         version: 'v2.1.0', 
         lastDeployment: '2025-01-06 14:23 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'AWS'
       },
       { 
         id: 2, 
@@ -3245,7 +3277,8 @@ const InfraBuilder = () => {
         description: 'Kong-based API gateway with rate limiting', 
         version: 'v1.8.2', 
         lastDeployment: '2025-01-05 09:15 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'AWS'
       },
       { 
         id: 3, 
@@ -3253,7 +3286,8 @@ const InfraBuilder = () => {
         description: 'Kubernetes cluster with auto-scaling', 
         version: 'v3.0.1', 
         lastDeployment: '2025-01-04 16:45 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'Azure'
       },
       { 
         id: 4, 
@@ -3261,7 +3295,8 @@ const InfraBuilder = () => {
         description: 'PostgreSQL HA cluster with read replicas', 
         version: 'v14.5', 
         lastDeployment: '2025-01-02 11:30 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'Azure'
       },
       { 
         id: 5, 
@@ -3269,7 +3304,8 @@ const InfraBuilder = () => {
         description: 'Azure Blob Storage with CDN integration', 
         version: 'v1.2.0', 
         lastDeployment: '2025-01-03 08:00 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'Azure'
       }
     ],
     'Project Beta': [
@@ -3279,7 +3315,8 @@ const InfraBuilder = () => {
         description: 'Apache Kafka cluster with Spark streaming', 
         version: 'v2.8.0', 
         lastDeployment: '2025-01-07 10:20 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'AWS'
       },
       { 
         id: 7, 
@@ -3287,7 +3324,8 @@ const InfraBuilder = () => {
         description: 'AWS API Gateway with Lambda integration', 
         version: 'v2.0.0', 
         lastDeployment: '2025-01-06 15:30 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'AWS'
       },
       { 
         id: 8, 
@@ -3295,7 +3333,8 @@ const InfraBuilder = () => {
         description: 'MongoDB sharded cluster', 
         version: 'v5.0.3', 
         lastDeployment: '2025-01-05 12:00 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'AWS'
       }
     ],
     'Project Gamma': [
@@ -3305,7 +3344,8 @@ const InfraBuilder = () => {
         description: 'Vue.js application with Vuex', 
         version: 'v1.5.0', 
         lastDeployment: '2025-01-07 09:00 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'GCP'
       },
       { 
         id: 10, 
@@ -3313,17 +3353,32 @@ const InfraBuilder = () => {
         description: 'Docker Swarm cluster', 
         version: 'v2.3.1', 
         lastDeployment: '2025-01-06 13:45 UTC',
-        status: 'deployed'
+        status: 'deployed',
+        csp: 'GCP'
       }
     ]
   };
 
   const components = componentsData[selectedProject] || [];
 
+  // Helper function to get CSP icon
+  const getInfraBuilderCspIcon = (csp) => {
+    switch(csp) {
+      case 'AWS':
+        return <img src={AWSIcon} alt="AWS" className="w-5 h-5" />;
+      case 'Azure':
+        return <img src={AzureIcon} alt="Azure" className="w-5 h-5" />;
+      case 'GCP':
+        return <img src={GCPIcon} alt="GCP" className="w-5 h-5" />;
+      default:
+        return <Cloud className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
   const handleCreateComponent = () => {
     console.log('Creating new component:', newComponent);
     setShowCreateModal(false);
-    setNewComponent({ project: '', name: '', description: '' });
+    setNewComponent({ project: '', name: '', description: '', csp: 'AWS' });
   };
 
   const handleViewComponent = (component) => {
@@ -3409,6 +3464,9 @@ const InfraBuilder = () => {
                   Version
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  CSP
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Project
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -3437,6 +3495,12 @@ const InfraBuilder = () => {
                     <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
                       {component.version}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      {getInfraBuilderCspIcon(component.csp)}
+                      <span className="text-sm text-gray-700">{component.csp}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {selectedProject}
@@ -3491,6 +3555,21 @@ const InfraBuilder = () => {
                   <option value="Project Alpha">Project Alpha</option>
                   <option value="Project Beta">Project Beta</option>
                   <option value="Project Gamma">Project Gamma</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Cloud Service Provider
+                </label>
+                <select 
+                  value={newComponent.csp}
+                  onChange={(e) => setNewComponent({...newComponent, csp: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="AWS">AWS</option>
+                  <option value="Azure">Azure</option>
+                  <option value="GCP">GCP</option>
                 </select>
               </div>
 
@@ -3561,6 +3640,7 @@ const ComponentBuilder = ({
 
   if (showStackDefinition) {
     return <StackDefinition 
+      component={component}
       onBack={() => setShowStackDefinition(false)}
       onSelectStack={(stack) => {
         setSelectedStack(stack);
@@ -3616,6 +3696,21 @@ const ComponentBuilder = ({
             <span className="font-semibold text-gray-600">Version:</span>
             <p className="text-gray-900 mt-1">{component.version}</p>
           </div>
+          <div>
+            <span className="font-semibold text-gray-600">Cloud Service Provider:</span>
+            <div className="flex items-center gap-2 mt-1">
+              {component.csp === 'AWS' && <img src={AWSIcon} alt="AWS" className="w-5 h-5" />}
+              {component.csp === 'Azure' && <img src={AzureIcon} alt="Azure" className="w-5 h-5" />}
+              {component.csp === 'GCP' && <img src={GCPIcon} alt="GCP" className="w-5 h-5" />}
+              <span className="text-gray-900 font-medium">{component.csp}</span>
+            </div>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Status:</span>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+              {component.status}
+            </span>
+          </div>
           <div className="col-span-2">
             <span className="font-semibold text-gray-600">Description:</span>
             <p className="text-gray-900 mt-1">{component.description}</p>
@@ -3623,12 +3718,6 @@ const ComponentBuilder = ({
           <div>
             <span className="font-semibold text-gray-600">Last Deployment:</span>
             <p className="text-gray-900 mt-1">{component.lastDeployment}</p>
-          </div>
-          <div>
-            <span className="font-semibold text-gray-600">Status:</span>
-            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-              {component.status}
-            </span>
           </div>
         </div>
       </div>
@@ -3682,48 +3771,93 @@ const ComponentBuilder = ({
 };
 
 // Stack Definition Page
-const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustomStack }) => {
+const StackDefinition = ({ component, onBack, onSelectStack, showCustomStack, setShowCustomStack }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [previewStack, setPreviewStack] = useState(null);
 
-  const prebuiltStacks = [
-    { 
-      id: 1, 
-      name: 'Azure VM + Storage', 
-      description: 'Virtual Machine deployment with corresponding Azure Storage Account, Network Security Groups, and backup configuration',
-      resources: ['Azure Virtual Machine', 'Storage Account (Blob + Files)', 'Virtual Network + Subnet', 'Network Security Group', 'Recovery Services Vault'],
-      image: 'stackTemplate1.png',
-      cost: '$180-320/month',
-      deployTime: '8-12 minutes'
-    },
-    { 
-      id: 2, 
-      name: 'AKS + PaaS Database', 
-      description: 'Azure Kubernetes Service with managed SQL Server database connectivity, including ingress, monitoring, and secrets management',
-      resources: ['AKS Cluster (3 nodes)', 'Azure SQL Database', 'Application Gateway', 'Key Vault for secrets', 'Azure Monitor + Log Analytics'],
-      image: 'stackTemplate1.png',
-      cost: '$450-800/month',
-      deployTime: '15-20 minutes'
-    },
-    { 
-      id: 3, 
-      name: 'Multi-Tier Web App', 
-      description: 'Complete 3-tier web application with load balancer, multiple VMs, and database backend with Redis caching layer',
-      resources: ['Load Balancer + 2 Web VMs', 'Application VM (API tier)', 'Azure SQL Database', 'Redis Cache', 'Storage Account + CDN'],
-      image: 'stackTemplate2.png',
-      cost: '$650-1200/month',
-      deployTime: '20-25 minutes'
-    },
-    { 
-      id: 4, 
-      name: 'Data Analytics Platform', 
-      description: 'Complete data platform with ingestion, processing, and analytics capabilities using Azure data services',
-      resources: ['Data Factory (ETL)', 'Azure Synapse Analytics', 'Data Lake Storage Gen2', 'Power BI Embedded', 'Event Hub for streaming'],
-      image: 'stackTemplate2.png',
-      cost: '$800-1500/month',
-      deployTime: '25-30 minutes'
-    }
-  ];
+  // Prebuilt stacks by CSP
+  const allPrebuiltStacks = {
+    Azure: [
+      { 
+        id: 1, 
+        name: 'Azure VM + Storage', 
+        description: 'Virtual Machine deployment with corresponding Azure Storage Account, Network Security Groups, and backup configuration',
+        resources: ['Azure Virtual Machine', 'Storage Account', 'Virtual Network', 'Network Security Group', 'Recovery Services Vault'],
+        image: 'stackTemplate1.png',
+        cost: '$180-320/month',
+        deployTime: '8-12 minutes',
+        csp: 'Azure'
+      },
+      { 
+        id: 2, 
+        name: 'AKS + PaaS Database', 
+        description: 'Azure Kubernetes Service with managed SQL Server database connectivity, including ingress, monitoring, and secrets management',
+        resources: ['AKS Cluster', 'Azure SQL Database', 'Application Gateway', 'Key Vault', 'Azure Monitor'],
+        image: 'stackTemplate1.png',
+        cost: '$450-800/month',
+        deployTime: '15-20 minutes',
+        csp: 'Azure'
+      },
+      { 
+        id: 3, 
+        name: 'Azure Web App Stack', 
+        description: 'Complete web application infrastructure with App Service, SQL Database, and Redis Cache',
+        resources: ['App Service', 'SQL Database', 'Redis Cache', 'Virtual Network', 'CDN'],
+        image: 'stackTemplate2.png',
+        cost: '$350-600/month',
+        deployTime: '10-15 minutes',
+        csp: 'Azure'
+      }
+    ],
+    AWS: [
+      { 
+        id: 4, 
+        name: 'EC2 + S3 Storage', 
+        description: 'EC2 instances with S3 bucket for storage, VPC networking, and CloudWatch monitoring',
+        resources: ['EC2 Instance', 'S3 Bucket', 'VPC', 'Security Groups', 'CloudWatch'],
+        image: 'stackTemplate1.png',
+        cost: '$150-280/month',
+        deployTime: '5-10 minutes',
+        csp: 'AWS'
+      },
+      { 
+        id: 5, 
+        name: 'EKS + RDS Stack', 
+        description: 'Elastic Kubernetes Service with RDS database, Application Load Balancer, and Secrets Manager',
+        resources: ['EKS Cluster', 'RDS Database', 'ALB', 'Secrets Manager', 'CloudWatch'],
+        image: 'stackTemplate1.png',
+        cost: '$500-900/month',
+        deployTime: '20-25 minutes',
+        csp: 'AWS'
+      },
+      { 
+        id: 6, 
+        name: 'Serverless API Stack', 
+        description: 'API Gateway with Lambda functions, DynamoDB, and CloudFront distribution',
+        resources: ['API Gateway', 'Lambda', 'DynamoDB', 'CloudFront', 'S3'],
+        image: 'stackTemplate2.png',
+        cost: '$50-200/month',
+        deployTime: '5-8 minutes',
+        csp: 'AWS'
+      }
+    ],
+    GCP: [
+      { 
+        id: 7, 
+        name: 'Compute Engine + Storage', 
+        description: 'Google Compute Engine with Cloud Storage and VPC networking',
+        resources: ['Compute Engine', 'Cloud Storage', 'VPC', 'Firewall Rules', 'Cloud Monitoring'],
+        image: 'stackTemplate1.png',
+        cost: '$140-260/month',
+        deployTime: '5-10 minutes',
+        csp: 'GCP'
+      }
+    ]
+  };
+
+  // Filter stacks based on component's CSP
+  const componentCsp = component?.csp || 'Azure';
+  const prebuiltStacks = allPrebuiltStacks[componentCsp] || [];
 
   const handlePreview = (stack) => {
     setPreviewStack(stack);
@@ -3732,6 +3866,7 @@ const StackDefinition = ({ onBack, onSelectStack, showCustomStack, setShowCustom
 
   if (showCustomStack) {
     return <CustomStackBuilder 
+      componentCsp={componentCsp}
       onBack={() => setShowCustomStack(false)}
       onSave={(stack) => {
         onSelectStack(stack);
@@ -3869,15 +4004,66 @@ const StackPreview = ({ stack, onBack, onSelect }) => {
 
   // Helper functions to assign icons and colors based on resource name
   function getResourceIcon(resourceName) {
-    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return Server;
-    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket') || resourceName.toLowerCase().includes('blob')) return HardDrive;
-    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql') || resourceName.toLowerCase().includes('cosmos') || resourceName.toLowerCase().includes('dynamo') || resourceName.toLowerCase().includes('rds')) return Database;
-    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc') || resourceName.toLowerCase().includes('vnet')) return Network;
-    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('balancer') || resourceName.toLowerCase().includes('gateway')) return Activity;
-    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks') || resourceName.toLowerCase().includes('ecs')) return Container;
-    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return Zap;
-    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics') || resourceName.toLowerCase().includes('synapse') || resourceName.toLowerCase().includes('databricks')) return BarChart3;
-    if (resourceName.toLowerCase().includes('app') || resourceName.toLowerCase().includes('web')) return Globe;
+    const name = resourceName.toLowerCase();
+    
+    // Azure resources with CSP icons
+    if ((name.includes('azure') || stack.csp === 'Azure')) {
+      if (name.includes('virtual machine') || name.includes('vm')) return AzureVMIconComponent;
+      if (name.includes('storage account') || name.includes('storage')) return AzureStorageIconComponent;
+      if (name.includes('sql database')) return AzureSQLIconComponent;
+      if (name.includes('aks cluster') || name.includes('aks') || name.includes('kubernetes')) return AzureAKSIconComponent;
+      if (name.includes('virtual network') || name.includes('vnet')) return AzureVNetIconComponent;
+      if (name.includes('load balancer')) return AzureLBIconComponent;
+      if (name.includes('app service')) return AzureAppServiceIconComponent;
+      if (name.includes('functions')) return AzureFunctionsIconComponent;
+      if (name.includes('cosmos')) return AzureCosmosDBIconComponent;
+      if (name.includes('redis cache') || name.includes('redis') || name.includes('cache')) return AzureRedisIconComponent;
+      if (name.includes('application gateway')) return AzureApplicationGatewayIconComponent;
+      if (name.includes('key vault')) return AzureKeyVaultIconComponent;
+      if (name.includes('azure monitor') || name.includes('monitor')) return AzureMonitorIconComponent;
+      if (name.includes('cdn')) return Globe;
+      if (name.includes('recovery services vault') || name.includes('recovery')) return Shield;
+      if (name.includes('network security group') || name.includes('network security')) return AzureNetworkSecurityGroupIconComponent;
+    }
+    
+    // AWS resources with CSP icons
+    if ((name.includes('aws') || stack.csp === 'AWS')) {
+      if (name.includes('ec2 instance') || name.includes('ec2')) return EC2IconComponent;
+      if (name.includes('s3 bucket') || name.includes('s3')) return S3IconComponent;
+      if (name.includes('lambda')) return LambdaIconComponent;
+      if (name.includes('rds database') || name.includes('rds')) return RDSIconComponent;
+      if (name.includes('vpc')) return VPCIconComponent;
+      if (name.includes('alb') || name.includes('elb') || name.includes('load balancer')) return ELBIconComponent;
+      if (name.includes('dynamodb')) return DynamoDBIconComponent;
+      if (name.includes('api gateway')) return APIGatewayIconComponent;
+      if (name.includes('cloudfront')) return CloudFrontIconComponent;
+      if (name.includes('ecs cluster') || name.includes('ecs')) return ECSIconComponent;
+      if (name.includes('eks cluster') || name.includes('eks')) return EKSIconComponent;
+      if (name.includes('cloudwatch')) return CloudWatchIconComponent;
+      if (name.includes('secrets manager') || name.includes('secrets')) return Shield;
+      if (name.includes('security groups') || name.includes('security')) return Shield;
+    }
+    
+    // GCP resources (generic icons for now)
+    if ((name.includes('gcp') || name.includes('google') || stack.csp === 'GCP')) {
+      if (name.includes('compute engine')) return Server;
+      if (name.includes('cloud storage')) return HardDrive;
+      if (name.includes('vpc')) return Network;
+      if (name.includes('firewall')) return Shield;
+      if (name.includes('monitoring')) return Monitor;
+    }
+    
+    // Default fallback icons
+    if (name.includes('vm') || name.includes('instance')) return Server;
+    if (name.includes('storage') || name.includes('bucket')) return HardDrive;
+    if (name.includes('database') || name.includes('sql')) return Database;
+    if (name.includes('network')) return Network;
+    if (name.includes('load') || name.includes('balancer')) return Activity;
+    if (name.includes('kubernetes')) return Container;
+    if (name.includes('function')) return Zap;
+    if (name.includes('monitor') || name.includes('analytics')) return BarChart3;
+    if (name.includes('app') || name.includes('web')) return Globe;
+    
     return Server;
   }
 
@@ -4235,15 +4421,66 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
 
   // Helper functions to assign icons and colors based on resource name
   function getResourceIcon(resourceName) {
-    if (resourceName.toLowerCase().includes('vm') || resourceName.toLowerCase().includes('instance')) return Server;
-    if (resourceName.toLowerCase().includes('storage') || resourceName.toLowerCase().includes('bucket') || resourceName.toLowerCase().includes('blob')) return HardDrive;
-    if (resourceName.toLowerCase().includes('database') || resourceName.toLowerCase().includes('sql') || resourceName.toLowerCase().includes('cosmos') || resourceName.toLowerCase().includes('dynamo') || resourceName.toLowerCase().includes('rds')) return Database;
-    if (resourceName.toLowerCase().includes('network') || resourceName.toLowerCase().includes('vpc') || resourceName.toLowerCase().includes('vnet')) return Network;
-    if (resourceName.toLowerCase().includes('load') || resourceName.toLowerCase().includes('balancer') || resourceName.toLowerCase().includes('gateway')) return Activity;
-    if (resourceName.toLowerCase().includes('kubernetes') || resourceName.toLowerCase().includes('aks') || resourceName.toLowerCase().includes('ecs')) return Container;
-    if (resourceName.toLowerCase().includes('function') || resourceName.toLowerCase().includes('lambda')) return Zap;
-    if (resourceName.toLowerCase().includes('monitor') || resourceName.toLowerCase().includes('analytics') || resourceName.toLowerCase().includes('synapse') || resourceName.toLowerCase().includes('databricks')) return BarChart3;
-    if (resourceName.toLowerCase().includes('app') || resourceName.toLowerCase().includes('web')) return Globe;
+    const name = resourceName.toLowerCase();
+    
+    // Azure resources with CSP icons
+    if ((name.includes('azure') || stack.csp === 'Azure')) {
+      if (name.includes('virtual machine') || name.includes('vm')) return AzureVMIconComponent;
+      if (name.includes('storage account') || name.includes('storage')) return AzureStorageIconComponent;
+      if (name.includes('sql database')) return AzureSQLIconComponent;
+      if (name.includes('aks cluster') || name.includes('aks') || name.includes('kubernetes')) return AzureAKSIconComponent;
+      if (name.includes('virtual network') || name.includes('vnet')) return AzureVNetIconComponent;
+      if (name.includes('load balancer')) return AzureLBIconComponent;
+      if (name.includes('app service')) return AzureAppServiceIconComponent;
+      if (name.includes('functions')) return AzureFunctionsIconComponent;
+      if (name.includes('cosmos')) return AzureCosmosDBIconComponent;
+      if (name.includes('redis cache') || name.includes('redis') || name.includes('cache')) return AzureRedisIconComponent;
+      if (name.includes('application gateway')) return AzureApplicationGatewayIconComponent;
+      if (name.includes('key vault')) return AzureKeyVaultIconComponent;
+      if (name.includes('azure monitor') || name.includes('monitor')) return AzureMonitorIconComponent;
+      if (name.includes('cdn')) return Globe;
+      if (name.includes('recovery services vault') || name.includes('recovery')) return Shield;
+      if (name.includes('network security group') || name.includes('network security')) return AzureNetworkSecurityGroupIconComponent;
+    }
+    
+    // AWS resources with CSP icons
+    if ((name.includes('aws') || stack.csp === 'AWS')) {
+      if (name.includes('ec2 instance') || name.includes('ec2')) return EC2IconComponent;
+      if (name.includes('s3 bucket') || name.includes('s3')) return S3IconComponent;
+      if (name.includes('lambda')) return LambdaIconComponent;
+      if (name.includes('rds database') || name.includes('rds')) return RDSIconComponent;
+      if (name.includes('vpc')) return VPCIconComponent;
+      if (name.includes('alb') || name.includes('elb') || name.includes('load balancer')) return ELBIconComponent;
+      if (name.includes('dynamodb')) return DynamoDBIconComponent;
+      if (name.includes('api gateway')) return APIGatewayIconComponent;
+      if (name.includes('cloudfront')) return CloudFrontIconComponent;
+      if (name.includes('ecs cluster') || name.includes('ecs')) return ECSIconComponent;
+      if (name.includes('eks cluster') || name.includes('eks')) return EKSIconComponent;
+      if (name.includes('cloudwatch')) return CloudWatchIconComponent;
+      if (name.includes('secrets manager') || name.includes('secrets')) return Shield;
+      if (name.includes('security groups') || name.includes('security')) return Shield;
+    }
+    
+    // GCP resources (generic icons for now)
+    if ((name.includes('gcp') || name.includes('google') || stack.csp === 'GCP')) {
+      if (name.includes('compute engine')) return Server;
+      if (name.includes('cloud storage')) return HardDrive;
+      if (name.includes('vpc')) return Network;
+      if (name.includes('firewall')) return Shield;
+      if (name.includes('monitoring')) return Monitor;
+    }
+    
+    // Default fallback icons
+    if (name.includes('vm') || name.includes('instance')) return Server;
+    if (name.includes('storage') || name.includes('bucket')) return HardDrive;
+    if (name.includes('database') || name.includes('sql')) return Database;
+    if (name.includes('network')) return Network;
+    if (name.includes('load') || name.includes('balancer')) return Activity;
+    if (name.includes('kubernetes')) return Container;
+    if (name.includes('function')) return Zap;
+    if (name.includes('monitor') || name.includes('analytics')) return BarChart3;
+    if (name.includes('app') || name.includes('web')) return Globe;
+    
     return Server;
   }
 
@@ -4660,11 +4897,11 @@ const StackConfiguration = ({ stack, onBack, onSave, resourceConfigs, setResourc
 };
 
 // Custom Stack Builder
-const CustomStackBuilder = ({ onBack, onSave }) => {
+const CustomStackBuilder = ({ componentCsp, onBack, onSave }) => {
   const [customStack, setCustomStack] = useState({ name: '', resources: [] });
   const [draggedResource, setDraggedResource] = useState(null);
   const [selectedResource, setSelectedResource] = useState(null);
-  const [expandedCategories, setExpandedCategories] = useState(['azure', 'aws']);
+  const [expandedCategories, setExpandedCategories] = useState([]);
   const [connections, setConnections] = useState([]);
   const [showConfigPanel, setShowConfigPanel] = useState(false);
   const [isDraggingResource, setIsDraggingResource] = useState(false);
@@ -4673,7 +4910,8 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
   const [connectionStart, setConnectionStart] = useState(null);
   const [tempConnection, setTempConnection] = useState(null);
 
-  const resourceCategories = {
+  // All resource categories
+  const allResourceCategories = {
     azure: {
       name: 'Azure Services',
       icon: AzureIconComponent,
@@ -4707,8 +4945,33 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
         { id: 'aws-cloudfront', name: 'AWS CloudFront', icon: CloudFrontIconComponent, color: 'slate', category: 'network' },
         { id: 'aws-ecs', name: 'AWS ECS', icon: ECSIconComponent, color: 'slate', category: 'compute' }
       ]
+    },
+    gcp: {
+      name: 'GCP Services',
+      icon: GCPIconComponent,
+      color: 'red',
+      resources: [
+        { id: 'gcp-compute', name: 'Compute Engine', icon: Server, color: 'slate', category: 'compute' },
+        { id: 'gcp-storage', name: 'Cloud Storage', icon: HardDrive, color: 'slate', category: 'storage' },
+        { id: 'gcp-vpc', name: 'VPC Network', icon: Network, color: 'slate', category: 'network' },
+        { id: 'gcp-sql', name: 'Cloud SQL', icon: Database, color: 'slate', category: 'database' }
+      ]
     }
   };
+
+  // Filter resource categories based on component CSP
+  const cspKey = componentCsp ? componentCsp.toLowerCase() : 'azure';
+  const resourceCategories = {};
+  
+  // Only show resources for the component's CSP
+  if (allResourceCategories[cspKey]) {
+    resourceCategories[cspKey] = allResourceCategories[cspKey];
+  }
+
+  // Set expanded categories for the available CSP
+  React.useEffect(() => {
+    setExpandedCategories([cspKey]);
+  }, [cspKey]);
 
   const toggleCategory = (category) => {
     setExpandedCategories(prev => 
