@@ -12,6 +12,129 @@ import {
   TestTube, Scale, Lock, Clock4, Users2, Palette, Settings2,
   FlaskConical, Wrench, Gauge, Medal, Trophy, Flame
 } from 'lucide-react';
+// AWS Icons
+import AWSIcon from './CSPAssets/AWS/Aws.svg';
+import EC2Icon from './CSPAssets/AWS/EC2.svg';
+import S3Icon from './CSPAssets/AWS/S3.svg';
+import LambdaIcon from './CSPAssets/AWS/Lambda.svg';
+import RDSIcon from './CSPAssets/AWS/RDS.svg';
+import VPCIcon from './CSPAssets/AWS/Virtual Private Cloud.svg';
+import ELBIcon from './CSPAssets/AWS/Elastic Load Balancing.svg';
+import APIGatewayIcon from './CSPAssets/AWS/API Gateway.svg';
+import CloudFrontIcon from './CSPAssets/AWS/CloudFront.svg';
+import ECSIcon from './CSPAssets/AWS/Elastic Container Service.svg';
+
+// Azure Icons
+import AzureIcon from './CSPAssets/Azure/Azure-A.svg';
+import AzureVMIcon from './CSPAssets/Azure/Azure-Virtual-Machine.svg';
+import AzureStorageIcon from './CSPAssets/Azure/Azure-Storage-Accounts.svg';
+import AzureAKSIcon from './CSPAssets/Azure/Azure-Kubernetes-Services.svg';
+import AzureSQLIcon from './CSPAssets/Azure/Azure-SQL-Database.svg';
+import AzureVNetIcon from './CSPAssets/Azure/Azure-Virtual-Networks.svg';
+import AzureLBIcon from './CSPAssets/Azure/Azure-Load-Balancers.svg';
+import AzureAppServiceIcon from './CSPAssets/Azure/Azure-App-Services.svg';
+import AzureFunctionsIcon from './CSPAssets/Azure/Azure-Function-Apps.svg';
+import AzureCosmosDBIcon from './CSPAssets/Azure/Azure-Cosmos-DB.svg';
+import AzureRedisIcon from './CSPAssets/Azure/Azure-Cache-Redis.svg';
+
+// GCP Icons
+import GCPIcon from './CSPAssets/GCP/Gcp.svg';
+
+// SVG Icon Component Wrappers
+// AWS Icon Components
+const AWSIconComponent = ({ className, ...props }) => (
+  <img src={AWSIcon} alt="AWS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const EC2IconComponent = ({ className, ...props }) => (
+  <img src={EC2Icon} alt="EC2" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const S3IconComponent = ({ className, ...props }) => (
+  <img src={S3Icon} alt="S3" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const LambdaIconComponent = ({ className, ...props }) => (
+  <img src={LambdaIcon} alt="Lambda" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const RDSIconComponent = ({ className, ...props }) => (
+  <img src={RDSIcon} alt="RDS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const VPCIconComponent = ({ className, ...props }) => (
+  <img src={VPCIcon} alt="VPC" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const ELBIconComponent = ({ className, ...props }) => (
+  <img src={ELBIcon} alt="ELB" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const DynamoDBIconComponent = ({ className, ...props }) => (
+  <img src={RDSIcon} alt="DynamoDB" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const APIGatewayIconComponent = ({ className, ...props }) => (
+  <img src={APIGatewayIcon} alt="API Gateway" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const CloudFrontIconComponent = ({ className, ...props }) => (
+  <img src={CloudFrontIcon} alt="CloudFront" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const ECSIconComponent = ({ className, ...props }) => (
+  <img src={ECSIcon} alt="ECS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+// Azure Icon Components
+const AzureIconComponent = ({ className, ...props }) => (
+  <img src={AzureIcon} alt="Azure" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureVMIconComponent = ({ className, ...props }) => (
+  <img src={AzureVMIcon} alt="Azure VM" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureStorageIconComponent = ({ className, ...props }) => (
+  <img src={AzureStorageIcon} alt="Azure Storage" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureAKSIconComponent = ({ className, ...props }) => (
+  <img src={AzureAKSIcon} alt="Azure AKS" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureSQLIconComponent = ({ className, ...props }) => (
+  <img src={AzureSQLIcon} alt="Azure SQL" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureVNetIconComponent = ({ className, ...props }) => (
+  <img src={AzureVNetIcon} alt="Azure VNet" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureLBIconComponent = ({ className, ...props }) => (
+  <img src={AzureLBIcon} alt="Azure Load Balancer" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureAppServiceIconComponent = ({ className, ...props }) => (
+  <img src={AzureAppServiceIcon} alt="Azure App Service" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureFunctionsIconComponent = ({ className, ...props }) => (
+  <img src={AzureFunctionsIcon} alt="Azure Functions" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureCosmosDBIconComponent = ({ className, ...props }) => (
+  <img src={AzureCosmosDBIcon} alt="Azure Cosmos DB" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+const AzureRedisIconComponent = ({ className, ...props }) => (
+  <img src={AzureRedisIcon} alt="Azure Redis" className={`w-8 h-8 ${className}`} {...props} />
+);
+
+// GCP Icon Component
+const GCPIconComponent = ({ className, ...props }) => (
+  <img src={GCPIcon} alt="GCP" className={`w-4 h-4 ${className}`} {...props} />
+);
 
 // Enhanced Sidebar Component with HeroAI chat
 const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
@@ -4553,36 +4676,36 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
   const resourceCategories = {
     azure: {
       name: 'Azure Services',
-      icon: Cloud,
+      icon: AzureIconComponent,
       color: 'blue',
       resources: [
-        { id: 'azure-vm', name: 'Azure Virtual Machine', icon: Server, color: 'blue', category: 'compute' },
-        { id: 'azure-storage', name: 'Azure Storage Account', icon: HardDrive, color: 'green', category: 'storage' },
-        { id: 'azure-aks', name: 'Azure Kubernetes Service', icon: Container, color: 'purple', category: 'compute' },
-        { id: 'azure-sql', name: 'Azure SQL Database', icon: Database, color: 'orange', category: 'database' },
-        { id: 'azure-vnet', name: 'Azure Virtual Network', icon: Network, color: 'cyan', category: 'network' },
-        { id: 'azure-lb', name: 'Azure Load Balancer', icon: Activity, color: 'indigo', category: 'network' },
-        { id: 'azure-appservice', name: 'Azure App Service', icon: Globe, color: 'teal', category: 'compute' },
-        { id: 'azure-functions', name: 'Azure Functions', icon: Zap, color: 'yellow', category: 'compute' },
-        { id: 'azure-cosmosdb', name: 'Azure Cosmos DB', icon: Database, color: 'pink', category: 'database' },
-        { id: 'azure-redis', name: 'Azure Cache for Redis', icon: Monitor, color: 'red', category: 'database' }
+        { id: 'azure-vm', name: 'Azure Virtual Machine', icon: AzureVMIconComponent, color: 'slate', category: 'compute' },
+        { id: 'azure-storage', name: 'Azure Storage Account', icon: AzureStorageIconComponent, color: 'slate', category: 'storage' },
+        { id: 'azure-aks', name: 'Azure Kubernetes Service', icon: AzureAKSIconComponent, color: 'slate', category: 'compute' },
+        { id: 'azure-sql', name: 'Azure SQL Database', icon: AzureSQLIconComponent, color: 'slate', category: 'database' },
+        { id: 'azure-vnet', name: 'Azure Virtual Network', icon: AzureVNetIconComponent, color: 'slate', category: 'network' },
+        { id: 'azure-lb', name: 'Azure Load Balancer', icon: AzureLBIconComponent, color: 'slate', category: 'network' },
+        { id: 'azure-appservice', name: 'Azure App Service', icon: AzureAppServiceIconComponent, color: 'slate', category: 'compute' },
+        { id: 'azure-functions', name: 'Azure Functions', icon: AzureFunctionsIconComponent, color: 'slate', category: 'compute' },
+        { id: 'azure-cosmosdb', name: 'Azure Cosmos DB', icon: AzureCosmosDBIconComponent, color: 'slate', category: 'database' },
+        { id: 'azure-redis', name: 'Azure Cache for Redis', icon: AzureRedisIconComponent, color: 'slate', category: 'database' }
       ]
     },
     aws: {
       name: 'AWS Services',
-      icon: Cloud,
+      icon: AWSIconComponent,
       color: 'orange',
       resources: [
-        { id: 'aws-ec2', name: 'AWS EC2 Instance', icon: Server, color: 'orange', category: 'compute' },
-        { id: 'aws-s3', name: 'AWS S3 Bucket', icon: HardDrive, color: 'green', category: 'storage' },
-        { id: 'aws-lambda', name: 'AWS Lambda', icon: Zap, color: 'yellow', category: 'compute' },
-        { id: 'aws-rds', name: 'AWS RDS Database', icon: Database, color: 'blue', category: 'database' },
-        { id: 'aws-vpc', name: 'AWS VPC', icon: Network, color: 'cyan', category: 'network' },
-        { id: 'aws-elb', name: 'AWS Load Balancer', icon: Activity, color: 'indigo', category: 'network' },
-        { id: 'aws-dynamodb', name: 'AWS DynamoDB', icon: Database, color: 'purple', category: 'database' },
-        { id: 'aws-apigateway', name: 'AWS API Gateway', icon: Globe, color: 'teal', category: 'network' },
-        { id: 'aws-cloudfront', name: 'AWS CloudFront', icon: Monitor, color: 'pink', category: 'network' },
-        { id: 'aws-ecs', name: 'AWS ECS', icon: Container, color: 'red', category: 'compute' }
+        { id: 'aws-ec2', name: 'AWS EC2 Instance', icon: EC2IconComponent, color: 'slate', category: 'compute' },
+        { id: 'aws-s3', name: 'AWS S3 Bucket', icon: S3IconComponent, color: 'slate', category: 'storage' },
+        { id: 'aws-lambda', name: 'AWS Lambda', icon: LambdaIconComponent, color: 'slate', category: 'compute' },
+        { id: 'aws-rds', name: 'AWS RDS Database', icon: RDSIconComponent, color: 'slate', category: 'database' },
+        { id: 'aws-vpc', name: 'AWS VPC', icon: VPCIconComponent, color: 'slate', category: 'network' },
+        { id: 'aws-elb', name: 'AWS Load Balancer', icon: ELBIconComponent, color: 'slate', category: 'network' },
+        { id: 'aws-dynamodb', name: 'AWS DynamoDB', icon: DynamoDBIconComponent, color: 'slate', category: 'database' },
+        { id: 'aws-apigateway', name: 'AWS API Gateway', icon: APIGatewayIconComponent, color: 'slate', category: 'network' },
+        { id: 'aws-cloudfront', name: 'AWS CloudFront', icon: CloudFrontIconComponent, color: 'slate', category: 'network' },
+        { id: 'aws-ecs', name: 'AWS ECS', icon: ECSIconComponent, color: 'slate', category: 'compute' }
       ]
     }
   };
@@ -4835,11 +4958,7 @@ const CustomStackBuilder = ({ onBack, onSave }) => {
         </div>
 
         <div className="p-4">
-          <input 
-            type="text"
-            placeholder="Search Resources"
-            className="w-full bg-slate-50 text-slate-900 placeholder-slate-500 border border-slate-200 rounded-lg px-4 py-3 mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 font-medium transition-all"
-          />
+        
 
           {Object.entries(resourceCategories).map(([key, category]) => (
             <div key={key} className="mb-4">
@@ -5625,11 +5744,11 @@ const DeploymentManagement = ({ setCurrentPage, openModal, setOpenModal }) => {
   const getCspIcon = (csp) => {
     switch(csp) {
       case 'AWS':
-        return <Server className="w-4 h-4 text-orange-600" />;
+        return <img src={AWSIcon} alt="AWS" className="w-5 h-5" />;
       case 'Azure':
-        return <Monitor className="w-4 h-4 text-blue-600" />;
+        return <img src={AzureIcon} alt="Azure" className="w-5 h-5" />;
       case 'GCP':
-        return <Cloud className="w-4 h-4 text-red-500" />;
+        return <img src={GCPIcon} alt="GCP" className="w-5 h-5" />;
       default:
         return <Cloud className="w-4 h-4 text-gray-500" />;
     }
