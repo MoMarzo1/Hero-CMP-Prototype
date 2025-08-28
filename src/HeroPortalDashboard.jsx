@@ -278,6 +278,17 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                   <GitBranch className="w-4 h-4 inline mr-2" />
                   Code Commits
                 </div>
+                <div 
+                  onClick={() => setCurrentPage('observability')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                    isActive('observability') 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Monitor className="w-4 h-4 inline mr-2" />
+                  Observability
+                </div>
               </div>
             )}
           </div>
@@ -329,10 +340,6 @@ const Sidebar = ({ currentUser, currentPage, setCurrentPage }) => {
                 <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
                   <Network className="w-4 h-4 inline mr-2" />
                   API Management
-                </div>
-                <div className="px-4 py-2 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-                  <Monitor className="w-4 h-4 inline mr-2" />
-                  Observability
                 </div>
               </div>
             )}
@@ -673,6 +680,7 @@ const Breadcrumb = ({ currentPage }) => {
       'home': ['Home'],
       'dashboard': ['Home', 'Dashboards', 'Deployments'],
       'financial': ['Home', 'Dashboards', 'Financials'],
+      'observability': ['Home', 'Dashboards', 'Observability'],
       'projects': ['Home', 'Onboarding', 'Projects'],
       'cloud-onboarding': ['Home', 'Onboarding', 'Cloud Service Provider'],
       'cloud-onboarding-status': ['Home', 'Onboarding', 'Cloud Service Provider', 'Status'],
@@ -9162,6 +9170,783 @@ const FinancialDashboard = () => {
   );
 };
 
+// Comprehensive Observability Dashboard Component
+const ObservabilityDashboard = () => {
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+  const [selectedEnvironment, setSelectedEnvironment] = useState('All Environments');
+  const [selectedComponent, setSelectedComponent] = useState('All Components');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 24 Hours');
+  const [selectedMetricView, setSelectedMetricView] = useState('overview');
+  const [isHeroAIInsightsExpanded, setIsHeroAIInsightsExpanded] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [metricsFilter, setMetricsFilter] = useState('all');
+
+  // Projects list
+  const projects = ['All Projects', 'EDP Core', 'TelmaAI', 'Corrigo Core', 'ScheduleAI', 'WorkplaceOne'];
+  const environments = ['All Environments', 'Production', 'Staging', 'Development', 'UAT', 'DR'];
+  const components = ['All Components', 'API Gateway', 'Database', 'Cache Layer', 'Message Queue', 'Load Balancer', 'Web Application', 'Background Jobs', 'Storage'];
+  const timeframes = ['Last 15 Minutes', 'Last Hour', 'Last 24 Hours', 'Last 7 Days', 'Last 30 Days'];
+
+  // Comprehensive observability metrics data
+  const getMetricsData = () => {
+    const baseMetrics = {
+      'All Projects': {
+        'All Environments': {
+          'All Components': {
+            availability: 99.92,
+            responseTime: 145,
+            errorRate: 0.08,
+            throughput: 12500,
+            saturation: 42,
+            apdex: 0.96,
+            activeAlerts: 3,
+            criticalAlerts: 1,
+            services: 47,
+            healthyServices: 44,
+            degradedServices: 2,
+            downServices: 1,
+            totalRequests: '15.2M',
+            successfulRequests: '15.1M',
+            failedRequests: '12.2K',
+            p50Latency: 45,
+            p95Latency: 145,
+            p99Latency: 320,
+            cpuUsage: 42,
+            memoryUsage: 68,
+            diskUsage: 55,
+            networkIn: '12.4 GB/s',
+            networkOut: '8.7 GB/s',
+            activeConnections: 8542,
+            queueDepth: 127,
+            cacheHitRate: 92.5,
+            dbConnections: 145,
+            dbQueryTime: 12.4
+          }
+        }
+      },
+      'EDP Core': {
+        'Production': {
+          'All Components': {
+            availability: 99.95,
+            responseTime: 120,
+            errorRate: 0.05,
+            throughput: 5200,
+            saturation: 38,
+            apdex: 0.97,
+            activeAlerts: 1,
+            criticalAlerts: 0,
+            services: 18,
+            healthyServices: 17,
+            degradedServices: 1,
+            downServices: 0,
+            totalRequests: '6.2M',
+            successfulRequests: '6.19M',
+            failedRequests: '3.1K',
+            p50Latency: 35,
+            p95Latency: 120,
+            p99Latency: 280,
+            cpuUsage: 38,
+            memoryUsage: 62,
+            diskUsage: 48,
+            networkIn: '4.8 GB/s',
+            networkOut: '3.2 GB/s',
+            activeConnections: 3245,
+            queueDepth: 45,
+            cacheHitRate: 94.2,
+            dbConnections: 67,
+            dbQueryTime: 8.2
+          },
+          'API Gateway': {
+            availability: 99.98,
+            responseTime: 25,
+            errorRate: 0.02,
+            throughput: 5200,
+            saturation: 28,
+            p50Latency: 15,
+            p95Latency: 25,
+            p99Latency: 45,
+            cpuUsage: 28,
+            memoryUsage: 45,
+            activeConnections: 2145
+          },
+          'Database': {
+            availability: 99.99,
+            responseTime: 8.2,
+            errorRate: 0.01,
+            throughput: 3800,
+            saturation: 45,
+            cpuUsage: 45,
+            memoryUsage: 78,
+            diskUsage: 65,
+            dbConnections: 67,
+            dbQueryTime: 8.2,
+            queueDepth: 12
+          }
+        },
+        'Staging': {
+          'All Components': {
+            availability: 98.8,
+            responseTime: 180,
+            errorRate: 1.2,
+            throughput: 800,
+            saturation: 25,
+            apdex: 0.92,
+            activeAlerts: 0,
+            criticalAlerts: 0,
+            services: 18,
+            healthyServices: 18,
+            degradedServices: 0,
+            downServices: 0
+          }
+        }
+      },
+      'TelmaAI': {
+        'Production': {
+          'All Components': {
+            availability: 99.88,
+            responseTime: 220,
+            errorRate: 0.12,
+            throughput: 3200,
+            saturation: 52,
+            apdex: 0.94,
+            activeAlerts: 2,
+            criticalAlerts: 1,
+            services: 12,
+            healthyServices: 10,
+            degradedServices: 1,
+            downServices: 1,
+            totalRequests: '4.8M',
+            successfulRequests: '4.79M',
+            failedRequests: '5.8K',
+            p50Latency: 85,
+            p95Latency: 220,
+            p99Latency: 450,
+            cpuUsage: 52,
+            memoryUsage: 75,
+            diskUsage: 58,
+            networkIn: '3.2 GB/s',
+            networkOut: '2.8 GB/s',
+            activeConnections: 2834,
+            queueDepth: 234,
+            cacheHitRate: 88.5,
+            dbConnections: 45,
+            dbQueryTime: 18.5
+          }
+        }
+      }
+    };
+
+    const projectData = baseMetrics[selectedProject] || baseMetrics['All Projects'];
+    const envData = projectData[selectedEnvironment] || projectData['All Environments'] || projectData[Object.keys(projectData)[0]];
+    const componentData = envData[selectedComponent] || envData['All Components'] || envData[Object.keys(envData)[0]];
+    
+    return componentData;
+  };
+
+  const currentMetrics = getMetricsData();
+
+  // Get alert severity color
+  const getAlertSeverity = (severity) => {
+    switch(severity) {
+      case 'critical': return 'bg-red-100 text-red-700 border-red-200';
+      case 'warning': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'info': return 'bg-blue-100 text-blue-700 border-blue-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  // Active alerts data
+  const activeAlerts = [
+    {
+      id: 1,
+      severity: 'critical',
+      title: 'High Error Rate in Payment Service',
+      project: 'TelmaAI',
+      environment: 'Production',
+      component: 'API Gateway',
+      description: 'Error rate exceeded 5% threshold for the last 15 minutes',
+      metric: 'errorRate',
+      currentValue: '5.8%',
+      threshold: '5%',
+      duration: '18 minutes',
+      timestamp: '2025-01-28 14:32:00'
+    },
+    {
+      id: 2,
+      severity: 'warning',
+      title: 'Database Connection Pool Near Capacity',
+      project: 'EDP Core',
+      environment: 'Production',
+      component: 'Database',
+      description: 'Connection pool utilization at 85% of maximum capacity',
+      metric: 'dbConnections',
+      currentValue: '170/200',
+      threshold: '80%',
+      duration: '45 minutes',
+      timestamp: '2025-01-28 14:05:00'
+    },
+    {
+      id: 3,
+      severity: 'warning',
+      title: 'Increased P99 Latency',
+      project: 'Corrigo Core',
+      environment: 'Production',
+      component: 'Web Application',
+      description: 'P99 latency increased by 150% compared to baseline',
+      metric: 'p99Latency',
+      currentValue: '850ms',
+      threshold: '500ms',
+      duration: '12 minutes',
+      timestamp: '2025-01-28 14:38:00'
+    }
+  ];
+
+  // Service health breakdown
+  const serviceHealthData = [
+    { name: 'Authentication Service', status: 'healthy', availability: 99.99, responseTime: 45, errorRate: 0.01 },
+    { name: 'Payment Gateway', status: 'degraded', availability: 99.2, responseTime: 320, errorRate: 0.8 },
+    { name: 'User Management', status: 'healthy', availability: 99.95, responseTime: 78, errorRate: 0.05 },
+    { name: 'Notification Service', status: 'healthy', availability: 99.98, responseTime: 120, errorRate: 0.02 },
+    { name: 'Data Pipeline', status: 'down', availability: 0, responseTime: 0, errorRate: 100 },
+    { name: 'Report Generator', status: 'healthy', availability: 99.92, responseTime: 220, errorRate: 0.08 },
+    { name: 'File Storage', status: 'healthy', availability: 99.99, responseTime: 95, errorRate: 0.01 },
+    { name: 'Search Engine', status: 'degraded', availability: 98.5, responseTime: 450, errorRate: 1.5 }
+  ];
+
+  // HeroAI insights data
+  const heroAIInsights = [
+    {
+      type: 'anomaly',
+      severity: 'high',
+      title: 'Unusual Traffic Pattern Detected',
+      description: 'API Gateway experiencing 3x normal traffic from IP range 192.168.x.x. Possible load testing or DDoS attempt.',
+      recommendation: 'Enable rate limiting for the affected IP range and monitor closely. Consider scaling API Gateway instances if legitimate traffic.',
+      confidence: 92,
+      affectedServices: ['API Gateway', 'Load Balancer'],
+      timeDetected: '5 minutes ago'
+    },
+    {
+      type: 'prediction',
+      severity: 'medium',
+      title: 'Database Storage Capacity Warning',
+      description: 'At current growth rate, database storage will reach 90% capacity in approximately 12 days.',
+      recommendation: 'Plan for storage expansion or implement data archival strategy. Consider partitioning historical data.',
+      confidence: 88,
+      affectedServices: ['Database', 'Data Pipeline'],
+      timeDetected: '1 hour ago'
+    },
+    {
+      type: 'optimization',
+      severity: 'low',
+      title: 'Cache Hit Rate Below Optimal',
+      description: 'Cache hit rate at 88.5%, below the recommended 95% for optimal performance.',
+      recommendation: 'Review cache TTL settings and implement predictive caching for frequently accessed data.',
+      confidence: 95,
+      affectedServices: ['Cache Layer', 'API Gateway'],
+      timeDetected: '30 minutes ago'
+    },
+    {
+      type: 'correlation',
+      severity: 'medium',
+      title: 'Correlated Service Degradation',
+      description: 'Payment Gateway errors correlate with increased database query time. Root cause likely in database performance.',
+      recommendation: 'Investigate slow queries in the payment database. Consider query optimization or index tuning.',
+      confidence: 87,
+      affectedServices: ['Payment Gateway', 'Database'],
+      timeDetected: '15 minutes ago'
+    }
+  ];
+
+  // Render metric card
+  const MetricCard = ({ title, value, unit, trend, status, icon: Icon }) => {
+    const getTrendColor = () => {
+      if (status === 'critical') return 'text-red-600';
+      if (status === 'warning') return 'text-orange-600';
+      if (trend > 0) return 'text-green-600';
+      if (trend < 0) return 'text-red-600';
+      return 'text-gray-400';
+    };
+
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+        <div className="flex items-start justify-between mb-4">
+          <div className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+            <Icon className="w-5 h-5 text-blue-600" />
+          </div>
+          {trend !== undefined && (
+            <div className={`flex items-center gap-1 ${getTrendColor()}`}>
+              {trend > 0 ? <TrendingUp className="w-4 h-4" /> : trend < 0 ? <TrendingDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+              <span className="text-sm font-medium">{Math.abs(trend)}%</span>
+            </div>
+          )}
+        </div>
+        <div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">
+            {value}{unit && <span className="text-lg font-normal text-gray-500 ml-1">{unit}</span>}
+          </div>
+          <div className="text-sm text-gray-600">{title}</div>
+        </div>
+      </div>
+    );
+  };
+
+  // Latency distribution chart
+  const LatencyChart = () => {
+    const latencyData = [
+      { percentile: 'p50', value: currentMetrics.p50Latency || 45, label: '50th' },
+      { percentile: 'p75', value: (currentMetrics.p50Latency || 45) * 1.8, label: '75th' },
+      { percentile: 'p90', value: (currentMetrics.p50Latency || 45) * 2.5, label: '90th' },
+      { percentile: 'p95', value: currentMetrics.p95Latency || 145, label: '95th' },
+      { percentile: 'p99', value: currentMetrics.p99Latency || 320, label: '99th' }
+    ];
+
+    const maxValue = Math.max(...latencyData.map(d => d.value));
+
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-slate-900 mb-4">Latency Distribution</h3>
+        <div className="space-y-3">
+          {latencyData.map((item) => (
+            <div key={item.percentile} className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-600 w-12">{item.label}</span>
+              <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    item.value > 300 ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                    item.value > 200 ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
+                    item.value > 100 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
+                    'bg-gradient-to-r from-green-500 to-green-600'
+                  }`}
+                  style={{ width: `${(item.value / maxValue) * 100}%` }}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-700">
+                  {item.value}ms
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Observability Dashboard</h1>
+            <p className="text-gray-600">Real-time monitoring and insights across your infrastructure</p>
+          </div>
+          <div className="flex gap-3">
+            <button className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export Report
+            </button>
+            <button className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all flex items-center gap-2">
+              <Bell className="w-4 h-4" />
+              Alert Rules
+            </button>
+            <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
+              <Settings2 className="w-4 h-4" />
+              Configure
+            </button>
+          </div>
+        </div>
+
+        {/* Filters Row */}
+        <div className="flex gap-3 flex-wrap">
+          <select
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all"
+          >
+            {projects.map(project => (
+              <option key={project} value={project}>{project}</option>
+            ))}
+          </select>
+          <select
+            value={selectedEnvironment}
+            onChange={(e) => setSelectedEnvironment(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all"
+          >
+            {environments.map(env => (
+              <option key={env} value={env}>{env}</option>
+            ))}
+          </select>
+          <select
+            value={selectedComponent}
+            onChange={(e) => setSelectedComponent(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all"
+          >
+            {components.map(comp => (
+              <option key={comp} value={comp}>{comp}</option>
+            ))}
+          </select>
+          <select
+            value={selectedTimeframe}
+            onChange={(e) => setSelectedTimeframe(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all"
+          >
+            {timeframes.map(time => (
+              <option key={time} value={time}>{time}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Key Metrics Overview */}
+      <div className="grid grid-cols-6 gap-4 mb-8">
+        <MetricCard
+          title="Availability"
+          value={currentMetrics.availability}
+          unit="%"
+          trend={0.02}
+          status={currentMetrics.availability < 99.5 ? 'warning' : 'healthy'}
+          icon={Activity}
+        />
+        <MetricCard
+          title="Avg Response Time"
+          value={currentMetrics.responseTime}
+          unit="ms"
+          trend={-12.5}
+          status={currentMetrics.responseTime > 200 ? 'warning' : 'healthy'}
+          icon={Clock}
+        />
+        <MetricCard
+          title="Error Rate"
+          value={currentMetrics.errorRate}
+          unit="%"
+          trend={currentMetrics.errorRate > 0.5 ? 15 : -8}
+          status={currentMetrics.errorRate > 1 ? 'critical' : currentMetrics.errorRate > 0.5 ? 'warning' : 'healthy'}
+          icon={AlertCircle}
+        />
+        <MetricCard
+          title="Throughput"
+          value={(currentMetrics.throughput / 1000).toFixed(1)}
+          unit="k req/s"
+          trend={5.2}
+          icon={Zap}
+        />
+        <MetricCard
+          title="Saturation"
+          value={currentMetrics.saturation}
+          unit="%"
+          trend={currentMetrics.saturation > 60 ? 8 : -3}
+          status={currentMetrics.saturation > 80 ? 'critical' : currentMetrics.saturation > 60 ? 'warning' : 'healthy'}
+          icon={Gauge}
+        />
+        <MetricCard
+          title="Apdex Score"
+          value={currentMetrics.apdex}
+          unit=""
+          trend={2.1}
+          status={currentMetrics.apdex < 0.85 ? 'warning' : 'healthy'}
+          icon={Award}
+        />
+      </div>
+
+      {/* HeroAI Insights Panel */}
+      <div className="mb-8">
+        <div 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg overflow-hidden cursor-pointer"
+          onClick={() => setIsHeroAIInsightsExpanded(!isHeroAIInsightsExpanded)}
+        >
+          <div className="p-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">HeroAI Insights & Recommendations</h2>
+                  <p className="text-purple-100 mt-1">
+                    {heroAIInsights.length} active insights • {heroAIInsights.filter(i => i.severity === 'high').length} high priority
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className={`w-5 h-5 text-white transition-transform ${isHeroAIInsightsExpanded ? 'rotate-90' : ''}`} />
+            </div>
+          </div>
+        </div>
+        
+        {isHeroAIInsightsExpanded && (
+          <div className="mt-4 space-y-4">
+            {heroAIInsights.map((insight, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      insight.type === 'anomaly' ? 'bg-red-100' :
+                      insight.type === 'prediction' ? 'bg-orange-100' :
+                      insight.type === 'optimization' ? 'bg-blue-100' :
+                      'bg-purple-100'
+                    }`}>
+                      {insight.type === 'anomaly' && <AlertTriangle className="w-5 h-5 text-red-600" />}
+                      {insight.type === 'prediction' && <TrendingUp className="w-5 h-5 text-orange-600" />}
+                      {insight.type === 'optimization' && <Zap className="w-5 h-5 text-blue-600" />}
+                      {insight.type === 'correlation' && <GitBranch className="w-5 h-5 text-purple-600" />}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900">{insight.title}</h3>
+                      <p className="text-sm text-gray-500 mt-1">{insight.timeDetected}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 text-xs font-bold rounded-full border ${
+                      insight.severity === 'high' ? 'bg-red-100 text-red-700 border-red-200' :
+                      insight.severity === 'medium' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                      'bg-blue-100 text-blue-700 border-blue-200'
+                    }`}>
+                      {insight.severity.toUpperCase()}
+                    </span>
+                    <span className="px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 border border-green-200">
+                      {insight.confidence}% Confidence
+                    </span>
+                  </div>
+                </div>
+                
+                <p className="text-gray-700 mb-4">{insight.description}</p>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-indigo-900">Recommendation</p>
+                      <p className="text-sm text-indigo-700 mt-1">{insight.recommendation}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">Affected Services:</span>
+                    <div className="flex gap-2">
+                      {insight.affectedServices.map((service, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                          {service}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button className="ml-auto px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Service Health Status */}
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-slate-900">Service Health</h3>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">{currentMetrics.healthyServices || 44}</span>
+                <div className="w-2 h-2 bg-orange-500 rounded-full ml-2"></div>
+                <span className="text-gray-600">{currentMetrics.degradedServices || 2}</span>
+                <div className="w-2 h-2 bg-red-500 rounded-full ml-2"></div>
+                <span className="text-gray-600">{currentMetrics.downServices || 1}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {serviceHealthData.map((service, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${
+                      service.status === 'healthy' ? 'bg-green-500' :
+                      service.status === 'degraded' ? 'bg-orange-500' :
+                      'bg-red-500'
+                    }`} />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                      <p className="text-xs text-gray-500">{service.availability}% uptime</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-gray-700">{service.responseTime}ms</p>
+                    <p className="text-xs text-gray-500">{service.errorRate}% errors</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Active Alerts */}
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-slate-900">Active Alerts</h3>
+              <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">
+                {activeAlerts.length} Active
+              </span>
+            </div>
+            
+            <div className="space-y-3">
+              {activeAlerts.map((alert) => (
+                <div 
+                  key={alert.id} 
+                  className="p-4 rounded-lg border cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => setSelectedAlert(alert)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className={`w-4 h-4 ${
+                        alert.severity === 'critical' ? 'text-red-600' :
+                        'text-orange-600'
+                      }`} />
+                      <span className={`px-2 py-0.5 text-xs font-bold rounded ${getAlertSeverity(alert.severity)}`}>
+                        {alert.severity.toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">{alert.duration}</span>
+                  </div>
+                  <h4 className="font-medium text-slate-900 text-sm mb-1">{alert.title}</h4>
+                  <p className="text-xs text-gray-600 mb-2">{alert.description}</p>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-500">{alert.project} • {alert.environment}</span>
+                    <span className="font-medium text-red-600">{alert.currentValue}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Latency Distribution */}
+        <div className="col-span-1">
+          <LatencyChart />
+        </div>
+      </div>
+
+      {/* Infrastructure Metrics */}
+      <div className="mt-8 grid grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Cpu className="w-5 h-5 text-blue-600" />
+              <span className="font-medium text-slate-900">CPU Usage</span>
+            </div>
+            <span className="text-2xl font-bold text-slate-900">{currentMetrics.cpuUsage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className={`h-2 rounded-full transition-all ${
+                currentMetrics.cpuUsage > 80 ? 'bg-red-500' :
+                currentMetrics.cpuUsage > 60 ? 'bg-orange-500' :
+                'bg-green-500'
+              }`}
+              style={{ width: `${currentMetrics.cpuUsage}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Server className="w-5 h-5 text-purple-600" />
+              <span className="font-medium text-slate-900">Memory Usage</span>
+            </div>
+            <span className="text-2xl font-bold text-slate-900">{currentMetrics.memoryUsage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className={`h-2 rounded-full transition-all ${
+                currentMetrics.memoryUsage > 80 ? 'bg-red-500' :
+                currentMetrics.memoryUsage > 60 ? 'bg-orange-500' :
+                'bg-green-500'
+              }`}
+              style={{ width: `${currentMetrics.memoryUsage}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <HardDrive className="w-5 h-5 text-green-600" />
+              <span className="font-medium text-slate-900">Disk Usage</span>
+            </div>
+            <span className="text-2xl font-bold text-slate-900">{currentMetrics.diskUsage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className={`h-2 rounded-full transition-all ${
+                currentMetrics.diskUsage > 80 ? 'bg-red-500' :
+                currentMetrics.diskUsage > 60 ? 'bg-orange-500' :
+                'bg-green-500'
+              }`}
+              style={{ width: `${currentMetrics.diskUsage}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Network className="w-5 h-5 text-indigo-600" />
+              <span className="font-medium text-slate-900">Network I/O</span>
+            </div>
+          </div>
+          <div className="flex justify-between text-sm">
+            <div>
+              <p className="text-gray-500">In</p>
+              <p className="font-bold text-slate-900">{currentMetrics.networkIn}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Out</p>
+              <p className="font-bold text-slate-900">{currentMetrics.networkOut}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Additional Metrics Row */}
+      <div className="mt-6 grid grid-cols-5 gap-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Active Connections</span>
+            <span className="text-xl font-bold text-slate-900">{currentMetrics.activeConnections}</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Queue Depth</span>
+            <span className="text-xl font-bold text-slate-900">{currentMetrics.queueDepth}</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Cache Hit Rate</span>
+            <span className="text-xl font-bold text-slate-900">{currentMetrics.cacheHitRate}%</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">DB Connections</span>
+            <span className="text-xl font-bold text-slate-900">{currentMetrics.dbConnections}</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Avg Query Time</span>
+            <span className="text-xl font-bold text-slate-900">{currentMetrics.dbQueryTime}ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Projects Management Page
 const ProjectsManagement = () => {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'create', 'view', 'manage'
@@ -13035,6 +13820,8 @@ export default function App() {
         return <DashboardPage />;
       case 'financial':
         return <FinancialDashboard />;
+      case 'observability':
+        return <ObservabilityDashboard />;
       case 'projects':
         return <ProjectsManagement />;
       case 'cloud-onboarding':
@@ -13065,6 +13852,7 @@ export default function App() {
       'home': 'https://hero.jll.com',
       'dashboard': 'https://hero.jll.com/dashboards/deployments',
       'financial': 'https://hero.jll.com/dashboards/financials',
+      'observability': 'https://hero.jll.com/dashboards/observability',
       'projects': 'https://hero.jll.com/onboarding/projects',
       'cloud-onboarding': 'https://hero.jll.com/onboarding/csp',
       'cloud-onboarding-status': 'https://hero.jll.com/onboarding/csp/status/REQ-2025-0789',
